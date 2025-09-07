@@ -2,12 +2,35 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/auth/AuthProvider';
+import AuthModal from '@/components/auth/AuthModal';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChatClick = () => {
+    if (user) {
+      navigate('/chat-principal');
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  };
+
+  const handleLoginClick = () => {
+    setIsAuthModalOpen(true);
+  };
+
+  const handleAuthSuccess = () => {
+    navigate('/chat-principal');
+  };
 
   return (
-    <header className="relative z-50 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
+    <>
+      <header className="relative z-50 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -37,11 +60,20 @@ export default function Header() {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" size="sm" className="text-neutral-700 border-neutral-300 hover:bg-neutral-50">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLoginClick}
+              className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
+            >
               Entrar
             </Button>
-            <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
-              Sign up
+            <Button 
+              size="sm" 
+              onClick={handleChatClick}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              💬 Iniciar Chat
             </Button>
           </div>
 
@@ -61,7 +93,14 @@ export default function Header() {
             </Button>
           </div>
         </div>
+      </header>
 
+      <AuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
+    </>
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden border-t border-neutral-200 pt-4 pb-4">
@@ -76,11 +115,20 @@ export default function Header() {
                 Link
               </a>
               <div className="flex flex-col space-y-2 pt-4 border-t border-neutral-200">
-                <Button variant="outline" size="sm" className="w-full text-neutral-700 border-neutral-300">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLoginClick}
+                  className="w-full text-neutral-700 border-neutral-300"
+                >
                   Entrar
                 </Button>
-                <Button size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white">
-                  Sign up
+                <Button 
+                  size="sm" 
+                  onClick={handleChatClick}
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                >
+                  💬 Iniciar Chat
                 </Button>
               </div>
             </nav>

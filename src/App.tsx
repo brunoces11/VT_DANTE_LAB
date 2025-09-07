@@ -1,21 +1,26 @@
 import React from 'react';
-import Header from '@/components/header';
-import Hero from '@/components/hero';
-import Features from '@/components/features';
-import Testimonials from '@/components/testimonials';
-import Assinatura from '@/components/assinatura';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import HomePage from '@/pages/HomePage';
+import ChatPrincipal from '@/pages/ChatPrincipal';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 function App() {
   return (
     <AuthProvider>
-      <main className="min-h-screen bg-white">
-        <Header />
-        <Hero />
-        <Features />
-        <Testimonials />
-        <Assinatura />
-      </main>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route 
+            path="/chat-principal" 
+            element={
+              <ProtectedRoute>
+                <ChatPrincipal />
+              </ProtectedRoute>
+            } 
+          />
+        </Routes>
+      </Router>
     </AuthProvider>
   );
 }
