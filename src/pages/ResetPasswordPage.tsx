@@ -9,19 +9,46 @@ export default function ResetPasswordPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const handlePasswordReset = async () => {
       setLoading(true);
-      console.log('URL completa:', window.location.href);
-      console.log('Search params:', Object.fromEntries(searchParams.entries()));
+      
+      const fullUrl = window.location.href;
+      const allParams = Object.fromEntries(searchParams.entries());
+      
+      // Capturar informações de debug
+      const debugData = {
+        fullUrl,
+        allParams,
+        hash: window.location.hash,
+        pathname: window.location.pathname,
+        search: window.location.search
+      };
+      
+      setDebugInfo(debugData);
+      console.log('=== DEBUG INFO ===');
+      console.log('URL completa:', fullUrl);
+      console.log('Todos os parâmetros:', allParams);
+      console.log('Hash:', window.location.hash);
+      console.log('Pathname:', window.location.pathname);
+      console.log('Search:', window.location.search);
+      console.log('==================');
       
       const accessToken = searchParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token');
       const type = searchParams.get('type');
       const error_code = searchParams.get('error_code');
       const error_description = searchParams.get('error_description');
+      
+      console.log('Parâmetros extraídos:');
+      console.log('- accessToken:', accessToken ? 'PRESENTE' : 'AUSENTE');
+      console.log('- refreshToken:', refreshToken ? 'PRESENTE' : 'AUSENTE');
+      console.log('- type:', type);
+      console.log('- error_code:', error_code);
+      console.log('- error_description:', error_description);
 
       // Se há erro nos parâmetros da URL
       if (error_code || error_description) {
@@ -109,6 +136,21 @@ export default function ResetPasswordPage() {
           <p className="text-neutral-600 mb-6 text-sm">
             {error}
           </p>
+          
+          {/* Informações de Debug */}
+          {debugInfo && (
+            <div className="bg-neutral-50 rounded-lg p-4 mb-6 text-left">
+              <h4 className="font-medium text-neutral-900 mb-2 text-sm">
+                Informações de Debug:
+              </h4>
+              <div className="text-xs text-neutral-600 space-y-1 font-mono">
+                <div><strong>URL:</strong> {debugInfo.fullUrl}</div>
+                <div><strong>Parâmetros:</strong> {JSON.stringify(debugInfo.allParams, null, 2)}</div>
+                <div><strong>Hash:</strong> {debugInfo.hash || 'Nenhum'}</div>
+              </div>
+            </div>
+          )}
+          
           <div className="bg-neutral-50 rounded-lg p-4 mb-6 text-left">
             <h4 className="font-medium text-neutral-900 mb-2 text-sm">
               Possíveis causas:
@@ -117,7 +159,8 @@ export default function ResetPasswordPage() {
               <li>• Link expirado (válido por 1 hora)</li>
               <li>• Link já foi usado anteriormente</li>
               <li>• Link foi copiado incorretamente</li>
-              <li>• Problema de configuração no email</li>
+              <li>• Parâmetros não encontrados na URL</li>
+              <li>• Problema de configuração no Supabase</li>
             </ul>
           </div>
           <button
