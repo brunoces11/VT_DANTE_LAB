@@ -7,8 +7,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.')
 }
 
-if (!supabaseUrl.startsWith('https://') || !supabaseUrl.includes('.supabase.co')) {
+if (!supabaseUrl.startsWith('https://') || !supabaseUrl.includes('.supabase.co') || supabaseUrl.includes('your-project-id')) {
   throw new Error('Invalid VITE_SUPABASE_URL format. Expected format: https://your-project-id.supabase.co')
+}
+
+if (supabaseAnonKey.includes('your-anon-key-here')) {
+  throw new Error('Please replace the placeholder VITE_SUPABASE_ANON_KEY with your actual Supabase anonymous key')
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)

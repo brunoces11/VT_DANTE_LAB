@@ -51,11 +51,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } catch (err) {
+      return { 
+        error: { 
+          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
+        } 
+      };
+    }
   };
 
   const logout = async () => {
@@ -63,16 +71,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name: name,
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: name,
+          },
         },
-      },
-    });
-    return { error };
+      });
+      return { error };
+    } catch (err) {
+      return { 
+        error: { 
+          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
+        } 
+      };
+    }
   };
 
   const authValue: AuthContextType = {
