@@ -16,8 +16,9 @@ interface AuthModalProps {
   onSuccess?: () => void;
 }
 
+type ModalMode = 'login' | 'register' | 'forgot-password';
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
-  const [isLogin, setIsLogin] = useState(true);
+  const [mode, setMode] = useState<ModalMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,7 +29,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { login, register } = useAuth();
+  const { login, register, resetPassword } = useAuth();
 
   const resetForm = () => {
     setEmail('');
@@ -42,6 +43,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   const handleClose = () => {
     resetForm();
+    setMode('login');
     onClose();
   };
 
@@ -52,7 +54,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (mode === 'login') {
         const { error } = await login(email, password);
         if (error) {
           setError(error.message);
@@ -63,7 +65,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             onSuccess?.();
           }, 1000);
         }
-      } else {
+      } else if (mode === 'register') {
         if (password !== confirmPassword) {
           setError('As senhas não coincidem');
           setLoading(false);
@@ -82,9 +84,20 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         } else {
           setSuccess('Cadastro realizado! Verifique seu email para confirmar a conta.');
           setTimeout(() => {
-            setIsLogin(true);
+            setMode('login');
             resetForm();
           }, 2000);
+        }
+      } else if (mode === 'forgot-password') {
+        const { error } = await resetPassword(email);
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccess('Email de recuperação enviado! Verifique sua caixa de entrada.');
+          setTimeout(() => {
+            setMode('login');
+            resetForm();
+          }, 3000);
         }
       }
     } catch (err) {
@@ -94,11 +107,36 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     }
   };
 
-  const toggleMode = () => {
-    setIsLogin(!isLogin);
+  const switchMode = (newMode: ModalMode) => {
+    setMode(newMode);
     resetForm();
   };
 
+  const getTitle = () => {
+    switch (mode) {
+      case 'login':
+        return 'Entrar no Dante AI';
+      case 'register':
+        return 'Criar conta no Dante AI';
+      case 'forgot-password':
+        return 'Recuperar senha';
+      default:
+        return 'Dante AI';
+    }
+  };
+
+  const getSubtitle = () => {
+    switch (mode) {
+      case 'login':
+        return 'Entre com seu email e senha para acessar o chat';
+      case 'register':
+        return 'Crie sua conta para começar a usar o Dante AI';
+      case 'forgot-password':
+        return 'Digite seu email para receber o link de recuperação';
+      default:
+        return '';
+    }
+  };
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
@@ -109,18 +147,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold text-neutral-900">
-            {isLogin ? 'Entrar no Dante AI' : 'Criar conta no Dante AI'}
+            {getTitle()}
           </DialogTitle>
           <p className="text-sm text-neutral-600 mt-2">
-            {isLogin 
-              ? 'Entre com seu email e senha para acessar o chat'
-              : 'Crie sua conta para começar a usar o Dante AI'
-            }
+            {getSubtitle()}
           </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-          {!isLogin && (
+          {mode === 'register' && (
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
                 Nome completo
@@ -131,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 placeholder="Seu nome completo"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required={!isLogin}
+                required={mode === 'register'}
                 className="w-full"
               />
             </div>
@@ -152,7 +187,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             />
           </div>
 
-          <div>
+          {mode !== 'forgot-password' && (
+            <div>
             <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
               Senha
             </label>
@@ -175,8 +211,9 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               </button>
             </div>
           </div>
+          )}
 
-          {!isLogin && (
+          {mode === 'register' && (
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
                 Confirmar senha
@@ -188,7 +225,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   placeholder="Confirme sua senha"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required={!isLogin}
+                  required={mode === 'register'}
                   className="w-full pr-10"
                 />
                 <button
@@ -202,6 +239,17 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             </div>
           )}
 
+          {mode === 'login' && (
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => switchMode('forgot-password')}
+                className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+              >
+                Esqueci minha senha
+              </button>
+            </div>
+          )}
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{error}</p>
@@ -222,25 +270,39 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isLogin ? 'Entrando...' : 'Criando conta...'}
+                {mode === 'login' ? 'Entrando...' : mode === 'register' ? 'Criando conta...' : 'Enviando...'}
               </>
             ) : (
-              isLogin ? 'Entrar' : 'Criar conta'
+              mode === 'login' ? 'Entrar' : mode === 'register' ? 'Criar conta' : 'Enviar link de recuperação'
             )}
           </Button>
 
-          <div className="text-center">
+          {mode !== 'forgot-password' && (
+            <div className="text-center">
             <button
               type="button"
-              onClick={toggleMode}
+              onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
               className="text-sm text-orange-600 hover:text-orange-700 font-medium"
             >
-              {isLogin 
+              {mode === 'login'
                 ? 'Não tem uma conta? Cadastre-se' 
                 : 'Já tem uma conta? Entrar'
               }
             </button>
           </div>
+          )}
+
+          {mode === 'forgot-password' && (
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => switchMode('login')}
+                className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+              >
+                Voltar para o login
+              </button>
+            </div>
+          )}
         </form>
       </DialogContent>
     </Dialog>
