@@ -74,7 +74,20 @@ export default function ResetPasswordPage() {
       // Se há erro nos parâmetros da URL
       if (error_code || error_description) {
         console.log('Erro nos parâmetros:', { error_code, error_description });
-        setError(`Erro: ${error_description || 'Link de recuperação inválido'}`);
+        
+        // Tratar diferentes tipos de erro
+        let errorMessage = '';
+        if (error_code === 'otp_expired') {
+          errorMessage = 'O link de recuperação expirou. Links de recuperação são válidos por apenas 1 hora após o envio do email.';
+        } else if (error_code === 'access_denied') {
+          errorMessage = 'Acesso negado. O link pode ter sido usado anteriormente ou é inválido.';
+        } else if (error_description) {
+          errorMessage = decodeURIComponent(error_description.replace(/\+/g, ' '));
+        } else {
+          errorMessage = 'Link de recuperação inválido';
+        }
+        
+        setError(errorMessage);
         setLoading(false);
         return;
       }
@@ -175,22 +188,39 @@ export default function ResetPasswordPage() {
           
           <div className="bg-neutral-50 rounded-lg p-4 mb-6 text-left">
             <h4 className="font-medium text-neutral-900 mb-2 text-sm">
-              Possíveis causas:
+              {error.includes('expirou') ? 'Como resolver:' : 'Possíveis causas:'}
             </h4>
-            <ul className="text-xs text-neutral-600 space-y-1">
-              <li>• Link expirado (válido por 1 hora)</li>
-              <li>• Link já foi usado anteriormente</li>
-              <li>• Link foi copiado incorretamente</li>
-              <li>• Parâmetros não encontrados na URL</li>
-              <li>• Problema de configuração no Supabase</li>
-            </ul>
+            {error.includes('expirou') ? (
+              <ul className="text-xs text-neutral-600 space-y-1">
+                <li>• Solicite um novo link de recuperação</li>
+                <li>• Use o link imediatamente após receber o email</li>
+                <li>• Verifique se não há outros emails de recuperação mais recentes</li>
+              </ul>
+            ) : (
+              <ul className="text-xs text-neutral-600 space-y-1">
+                <li>• Link expirado (válido por 1 hora)</li>
+                <li>• Link já foi usado anteriormente</li>
+                <li>• Link foi copiado incorretamente</li>
+                <li>• Parâmetros não encontrados na URL</li>
+                <li>• Problema de configuração no Supabase</li>
+              </ul>
+            )}
           </div>
           <button
             onClick={() => navigate('/')}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium mb-3"
           >
-            Voltar ao início
+            {error.includes('expirou') ? 'Solicitar novo link' : 'Voltar ao início'}
           </button>
+          
+          {error.includes('expirou') && (
+            <button
+              onClick={() => navigate('/')}
+              className="w-full bg-neutral-200 hover:bg-neutral-300 text-neutral-700 px-4 py-2 rounded-lg font-medium text-sm"
+            >
+              Voltar ao início
+            </button>
+          )}
         </div>
       </div>
     );
