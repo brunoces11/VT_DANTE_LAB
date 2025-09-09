@@ -186,41 +186,43 @@ export default function ResetPasswordPage() {
             </div>
           )}
           
-          <div className="bg-neutral-50 rounded-lg p-4 mb-6 text-left">
+          <div className="bg-orange-50 rounded-lg p-4 mb-6 text-left border border-orange-200">
             <h4 className="font-medium text-neutral-900 mb-2 text-sm">
-              {error.includes('expirou') ? 'Como resolver:' : 'Possíveis causas:'}
+              ⚠️ Token Expirado - Como resolver:
             </h4>
-            {error.includes('expirou') ? (
-              <ul className="text-xs text-neutral-600 space-y-1">
-                <li>• Solicite um novo link de recuperação</li>
-                <li>• Use o link imediatamente após receber o email</li>
-                <li>• Verifique se não há outros emails de recuperação mais recentes</li>
-              </ul>
-            ) : (
-              <ul className="text-xs text-neutral-600 space-y-1">
-                <li>• Link expirado (válido por 1 hora)</li>
-                <li>• Link já foi usado anteriormente</li>
-                <li>• Link foi copiado incorretamente</li>
-                <li>• Parâmetros não encontrados na URL</li>
-                <li>• Problema de configuração no Supabase</li>
-              </ul>
-            )}
+            <div className="text-xs text-neutral-700 space-y-2">
+              <p className="font-medium text-orange-700">
+                🔄 <strong>PASSO 1:</strong> Solicite um NOVO link de recuperação
+              </p>
+              <p>
+                ⚡ <strong>PASSO 2:</strong> Use o link IMEDIATAMENTE após receber o email
+              </p>
+              <p>
+                ⏰ <strong>IMPORTANTE:</strong> Links expiram em 1 hora e só funcionam uma vez
+              </p>
+              <div className="mt-3 p-2 bg-white rounded border-l-4 border-orange-400">
+                <p className="text-orange-800 font-medium">
+                  ❌ Este token já foi usado ou expirou
+                </p>
+                <p className="text-orange-700 text-xs mt-1">
+                  Token: ...{debugInfo?.hashParams?.error_code === 'otp_expired' ? 'EXPIRADO' : 'INVÁLIDO'}
+                </p>
+              </div>
+            </div>
           </div>
           <button
             onClick={() => navigate('/')}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium mb-3"
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium mb-3 text-sm"
           >
-            {error.includes('expirou') ? 'Solicitar novo link' : 'Voltar ao início'}
+            🔄 Solicitar NOVO link de recuperação
           </button>
           
-          {error.includes('expirou') && (
-            <button
-              onClick={() => navigate('/')}
-              className="w-full bg-neutral-200 hover:bg-neutral-300 text-neutral-700 px-4 py-2 rounded-lg font-medium text-sm"
-            >
-              Voltar ao início
-            </button>
-          )}
+          <button
+            onClick={() => navigate('/')}
+            className="w-full bg-neutral-200 hover:bg-neutral-300 text-neutral-700 px-4 py-2 rounded-lg font-medium text-sm"
+          >
+            Voltar ao início
+          </button>
         </div>
       </div>
     );
