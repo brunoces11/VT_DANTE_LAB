@@ -43,19 +43,52 @@ export default function ResetPasswordPage() {
       console.log('Search:', window.location.search);
       console.log('==================');
       
+      // PRIMEIRO: Verificar se há erros no hash
+      const error_code = hashParams.get('error_code');
+      const error_description = hashParams.get('error_description');
+      const error = hashParams.get('error');
+      
+      if (error || error_code || error_description) {
+        console.log('❌ ERRO DETECTADO NO HASH:', { error, error_code, error_description });
+        
+        let errorMessage = '';
+        if (error_code === 'otp_expired') {
+          errorMessage = `🔄 TOKEN EXPIRADO - O link de recuperação expirou ou já foi usado.
+          
+⚠️ SOLUÇÃO:
+1. Vá para: https://vt-dante-xgdz.bolt.host
+2. Clique em "Entrar" → "Esqueci minha senha"
+3. Digite seu email NOVAMENTE
+4. Use o NOVO link IMEDIATAMENTE após receber o email
+
+💡 DICA: Cada link só funciona UMA vez e expira em 1 hora.`;
+        } else if (error === 'access_denied') {
+          errorMessage = `🚫 ACESSO NEGADO - O link pode estar malformado ou já foi usado.
+          
+⚠️ SOLUÇÃO:
+1. Solicite um NOVO link de recuperação
+2. Verifique se clicou no link correto do email
+3. Use o link dentro de 1 hora após receber`;
+        } else {
+          errorMessage = `❌ ERRO: ${error_description || error || 'Link inválido'}
+          
+⚠️ SOLUÇÃO: Solicite um novo link de recuperação`;
+        }
+        
+        setError(errorMessage);
+        setLoading(false);
+        return;
+      }
+      
       // Verificar tokens tanto nos parâmetros de query quanto no hash
       const accessToken = searchParams.get('access_token') || hashParams.get('access_token');
       const refreshToken = searchParams.get('refresh_token') || hashParams.get('refresh_token');
       const type = searchParams.get('type') || hashParams.get('type');
-      const error_code = searchParams.get('error_code');
-      const error_description = searchParams.get('error_description');
       
       console.log('Parâmetros extraídos:');
       console.log('- accessToken:', accessToken ? 'PRESENTE' : 'AUSENTE');
       console.log('- refreshToken:', refreshToken ? 'PRESENTE' : 'AUSENTE');
       console.log('- type:', type);
-      console.log('- error_code:', error_code);
-      console.log('- error_description:', error_description);
 
       // Se não encontrou tokens nos parâmetros, tentar usar o método getSession do Supabase
       if (!accessToken || !refreshToken) {
@@ -71,31 +104,21 @@ export default function ResetPasswordPage() {
           console.log('Nenhuma sessão encontrada via getSession:', sessionError);
         }
       }
-      // Se há erro nos parâmetros da URL
-      if (error_code || error_description) {
-        console.log('Erro nos parâmetros:', { error_code, error_description });
-        
-        // Tratar diferentes tipos de erro
-        let errorMessage = '';
-        if (error_code === 'otp_expired') {
-          errorMessage = 'O link de recuperação expirou. Links de recuperação são válidos por apenas 1 hora após o envio do email.';
-        } else if (error_code === 'access_denied') {
-          errorMessage = 'Acesso negado. O link pode ter sido usado anteriormente ou é inválido.';
-        } else if (error_description) {
-          errorMessage = decodeURIComponent(error_description.replace(/\+/g, ' '));
-        } else {
-          errorMessage = 'Link de recuperação inválido';
-        }
-        
-        setError(errorMessage);
-        setLoading(false);
-        return;
-      }
 
       // Verificar se todos os parâmetros necessários estão presentes
       if (!accessToken || !refreshToken || type !== 'recovery') {
         console.log('Parâmetros ausentes:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
-        setError('Link de recuperação incompleto ou inválido');
+        setError(`🔍 LINK INCOMPLETO - Tokens de recuperação não encontrados.
+        
+⚠️ POSSÍVEIS CAUSAS:
+• Link foi copiado incorretamente
+• Email foi encaminhado (tokens podem ser removidos)
+• Problema na configuração do Supabase
+
+✅ SOLUÇÃO:
+1. Vá diretamente para: https://vt-dante-xgdz.bolt.host
+2. Solicite um NOVO link de recuperação
+3. Clique no link diretamente do email (não copie/cole)`);
         setLoading(false);
         return;
       }
@@ -109,13 +132,17 @@ export default function ResetPasswordPage() {
 
         if (error) {
           console.log('Erro ao definir sessão:', error);
-          setError(`Link de recuperação inválido ou expirado: ${error.message}`);
+          setError(`🚫 ERRO NA SESSÃO: ${error.message}
+          
+⚠️ SOLUÇÃO:
+1. Solicite um NOVO link de recuperação
+2. Use o link IMEDIATAMENTE após receber o email`);
         } else {
           console.log('Sessão definida com sucesso');
           setIsModalOpen(true);
         }
       } else {
-        setError('Parâmetros de recuperação não encontrados na URL');
+        setError('🔍 Parâmetros de recuperação não encontrados na URL');
       }
       
       setLoading(false);
@@ -188,40 +215,53 @@ export default function ResetPasswordPage() {
           
           <div className="bg-orange-50 rounded-lg p-4 mb-6 text-left border border-orange-200">
             <h4 className="font-medium text-neutral-900 mb-2 text-sm">
-              ⚠️ Token Expirado - Como resolver:
+              🔄 COMO RESOLVER O PROBLEMA:
             </h4>
-            <div className="text-xs text-neutral-700 space-y-2">
-              <p className="font-medium text-orange-700">
-                🔄 <strong>PASSO 1:</strong> Solicite um NOVO link de recuperação
-              </p>
-              <p>
-                ⚡ <strong>PASSO 2:</strong> Use o link IMEDIATAMENTE após receber o email
-              </p>
-              <p>
-                ⏰ <strong>IMPORTANTE:</strong> Links expiram em 1 hora e só funcionam uma vez
-              </p>
-              <div className="mt-3 p-2 bg-white rounded border-l-4 border-orange-400">
-                <p className="text-orange-800 font-medium">
-                  ❌ Este token já foi usado ou expirou
+            <div className="text-sm text-neutral-700 space-y-3">
+              <div className="bg-white p-3 rounded border-l-4 border-red-400">
+                <p className="font-bold text-red-700 mb-1">❌ PROBLEMA ATUAL:</p>
+                <p className="text-red-600 text-xs">
+                  {debugInfo?.hashParams?.error_code === 'otp_expired' ? 
+                    'Token expirado ou já usado' : 
+                    'Link inválido ou malformado'
+                  }
                 </p>
-                <p className="text-orange-700 text-xs mt-1">
-                  Token: ...{debugInfo?.hashParams?.error_code === 'otp_expired' ? 'EXPIRADO' : 'INVÁLIDO'}
-                </p>
+              </div>
+              
+              <div className="bg-white p-3 rounded border-l-4 border-green-400">
+                <p className="font-bold text-green-700 mb-2">✅ SOLUÇÃO PASSO A PASSO:</p>
+                <ol className="text-xs text-green-600 space-y-1 list-decimal list-inside">
+                  <li><strong>Vá para:</strong> https://vt-dante-xgdz.bolt.host</li>
+                  <li><strong>Clique em:</strong> "Entrar" → "Esqueci minha senha"</li>
+                  <li><strong>Digite:</strong> Seu email novamente</li>
+                  <li><strong>Aguarde:</strong> O novo email chegar</li>
+                  <li><strong>Clique:</strong> No link IMEDIATAMENTE (não espere)</li>
+                </ol>
+              </div>
+              
+              <div className="bg-white p-3 rounded border-l-4 border-blue-400">
+                <p className="font-bold text-blue-700 mb-1">💡 DICAS IMPORTANTES:</p>
+                <ul className="text-xs text-blue-600 space-y-1 list-disc list-inside">
+                  <li>Cada link só funciona UMA vez</li>
+                  <li>Links expiram em 1 hora</li>
+                  <li>Use sempre o email mais recente</li>
+                  <li>Clique diretamente do email (não copie/cole)</li>
+                </ul>
               </div>
             </div>
           </div>
           <button
             onClick={() => navigate('/')}
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium mb-3 text-sm"
+            className="w-full bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium mb-3 text-sm"
           >
-            🔄 Solicitar NOVO link de recuperação
+            ✅ Ir para o site e solicitar NOVO link
           </button>
           
           <button
             onClick={() => navigate('/')}
             className="w-full bg-neutral-200 hover:bg-neutral-300 text-neutral-700 px-4 py-2 rounded-lg font-medium text-sm"
           >
-            Voltar ao início
+            ← Voltar ao início
           </button>
         </div>
       </div>
