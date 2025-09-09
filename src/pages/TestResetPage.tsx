@@ -75,7 +75,6 @@ export default function TestResetPage() {
   };
 
   const testModalDirectly = () => {
-    // Simular que temos uma sessão válida para teste
     setIsModalOpen(true);
   };
 
@@ -245,6 +244,7 @@ export default function TestResetPage() {
       <ResetPasswordModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        testMode={true}
         onSuccess={() => {
           setIsModalOpen(false);
           addTestResult('Modal de Reset', 'success', 'Senha redefinida com sucesso!');

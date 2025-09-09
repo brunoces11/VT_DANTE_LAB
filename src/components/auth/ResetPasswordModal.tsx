@@ -9,14 +9,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { supabase } from '@/lib/supabase';
 
 interface ResetPasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  testMode?: boolean;
 }
 
-export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: ResetPasswordModalProps) {
+export default function ResetPasswordModal({ isOpen, onClose, onSuccess, testMode = false }: ResetPasswordModalProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -59,18 +61,40 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
         return;
       }
 
-      const { error } = await updatePassword(password);
-      if (error) {
-        setError(error.message);
-      } else {
-        setSuccess('Senha atualizada com sucesso!');
+      if (testMode) {
+        // Modo de teste - simular sucesso
+        setSuccess('✅ TESTE: Senha seria atualizada com sucesso!');
         setTimeout(() => {
           handleClose();
           onSuccess?.();
         }, 2000);
+      } else {
+        // Verificar se há uma sessão válida
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (!session && !sessionError) {
+          setError('❌ Sessão de autenticação não encontrada. Você precisa acessar através do link de recuperação válido.');
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await updatePassword(password);
+        if (error) {
+          if (error.message.includes('session')) {
+            setError('❌ Sessão expirada. Solicite um novo link de recuperação.');
+          } else {
+            setError(`❌ Erro: ${error.message}`);
+          }
+        } else {
+          setSuccess('✅ Senha atualizada com sucesso!');
+          setTimeout(() => {
+            handleClose();
+            onSuccess?.();
+          }, 2000);
+        }
       }
     } catch (err) {
-      setError('Ocorreu um erro inesperado');
+      setError(`❌ Erro inesperado: ${err}`);
     } finally {
       setLoading(false);
     }
@@ -86,10 +110,13 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold text-neutral-900">
-            Definir nova senha
+            {testMode ? '🧪 TESTE - Definir nova senha' : 'Definir nova senha'}
           </DialogTitle>
           <p className="text-sm text-neutral-600 mt-2">
-            Digite sua nova senha para concluir a recuperação
+            {testMode ? 
+              'Modo de teste - simula a redefinição de senha' : 
+              'Digite sua nova senha para concluir a recuperação'
+            }
           </p>
         </DialogHeader>
 

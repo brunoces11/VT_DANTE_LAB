@@ -97,6 +97,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updatePassword = async (password: string) => {
     console.log('Tentando atualizar senha...');
+    
+    // Verificar se há uma sessão válida primeiro
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (!session) {
+      console.error('Nenhuma sessão encontrada para atualizar senha');
+      return { error: { message: 'Auth session missing! Você precisa acessar através de um link de recuperação válido.' } };
+    }
+    
+    console.log('Sessão encontrada, atualizando senha...');
     const { error } = await supabase.auth.updateUser({
       password: password,
     });
