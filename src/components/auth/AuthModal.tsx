@@ -31,7 +31,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [checkingEmail, setCheckingEmail] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [emailValidation, setEmailValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: true });
+  const [emailValidation, setEmailValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: false });
+  const [emailExists, setEmailExists] = useState(false);
 
   const { login, register, resetPassword } = useAuth();
 
@@ -44,7 +45,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setSuccess('');
     setLoading(false);
     setCheckingEmail(false);
-    setEmailValidation({ isValid: true });
+    setEmailValidation({ isValid: false });
+    setEmailExists(false);
   };
 
   const handleClose = () => {
@@ -56,28 +58,42 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   // Validar email em tempo real
   const handleEmailChange = (value: string) => {
     setEmail(value);
+    setError(''); // Limpar erro anterior
+    setEmailExists(false); // Reset do status de email existente
     
     if (value) {
       const validation = validateEmail(value);
       setEmailValidation(validation);
+      console.log('📧 Validação de email:', validation);
     } else {
-      setEmailValidation({ isValid: true });
+      setEmailValidation({ isValid: false });
     }
   };
 
   // Verificar se email já existe (para cadastro)
   const handleEmailBlur = async () => {
-    if (mode === 'register' && email && emailValidation.isValid) {
+    console.log('🔍 handleEmailBlur chamado:', { mode, email, isValid: emailValidation.isValid });
+    
+    if (mode === 'register' && email && emailValidation.isValid && !checkingEmail) {
       setCheckingEmail(true);
       setError('');
+      setEmailExists(false);
       
       const normalizedEmail = normalizeEmail(email);
+      console.log('🔍 Verificando email normalizado:', normalizedEmail);
+      
       const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
+      
+      console.log('📊 Resultado da verificação:', { exists, checkError });
       
       if (checkError) {
         setError(`Erro ao verificar email: ${checkError}`);
       } else if (exists) {
-        setError('Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
+        setEmailExists(true);
+        setError('❌ Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
+      } else {
+        setEmailExists(false);
+        console.log('✅ Email disponível para cadastro');
       }
       
       setCheckingEmail(false);
@@ -91,6 +107,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     
     // Validar email antes de prosseguir
     const emailValidationResult = validateEmail(email);
+    console.log('📧 Validação final do email:', emailValidationResult);
+    
     if (!emailValidationResult.isValid) {
       setError(emailValidationResult.error || 'Email inválido');
       return;
@@ -116,43 +134,53 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           }, 1000);
         }
       } else if (mode === 'register') {
+        // Verificar se email existe antes de prosseguir
+        if (emailExists) {
+          setError('❌ Este email já está cadastrado. Tente fazer login.');
+          setLoading(false);
+          return;
+        }
+        
         if (password !== confirmPassword) {
           setError('As senhas não coincidem');
           setLoading(false);
           return;
         }
 
-        // Verificar novamente se email já existe antes do cadastro
-        const normalizedEmail = normalizeEmail(email);
-        const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
-        
-        if (checkError) {
-          setError(`Erro ao verificar email: ${checkError}`);
-          setLoading(false);
-          return;
-        }
-        
         if (password.length < 6) {
           setError('A senha deve ter pelo menos 6 caracteres');
           setLoading(false);
           return;
         }
 
+        // Verificar novamente se email já existe antes do cadastro (dupla verificação)
+        const normalizedEmail = normalizeEmail(email);
+        console.log('🔍 Verificação final antes do cadastro:', normalizedEmail);
+        
+        const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
+        
+        if (checkError) {
+          setError(`❌ Erro ao verificar email: ${checkError}`);
+          setLoading(false);
+          return;
+        }
+        
         if (exists) {
-          setError('Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
+          setError('❌ Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
           setLoading(false);
           return;
         }
 
+        console.log('✅ Prosseguindo com o cadastro...');
         const { error } = await register(normalizedEmail, password, name);
         if (error) {
           if (error.message.includes('already registered')) {
-            setError('Este email já está cadastrado. Tente fazer login.');
+            setError('❌ Este email já está cadastrado. Tente fazer login.');
           } else {
-            setError(error.message);
+            setError(`❌ Erro no cadastro: ${error.message}`);
           }
         } else {
-          setSuccess('Cadastro realizado! Verifique seu email para confirmar a conta.');
+          setSuccess('✅ Cadastro realizado! Verifique seu email para confirmar a conta.');
           setTimeout(() => {
             setMode('login');
             resetForm();
@@ -171,7 +199,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         if (error) {
           setError(error.message);
         } else {
-          setSuccess('Email de recuperação enviado! Verifique sua caixa de entrada.');
+          setSuccess('✅ Email de recuperação enviado! Verifique sua caixa de entrada.');
           setTimeout(() => {
             setMode('login');
             resetForm();
@@ -179,7 +207,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         }
       }
     } catch (err) {
-      setError('Ocorreu um erro inesperado');
+      setError(`❌ Ocorreu um erro inesperado: ${err}`);
+      console.error('❌ Erro inesperado:', err);
     } finally {
       setLoading(false);
     }
@@ -262,15 +291,18 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               onChange={(e) => handleEmailChange(e.target.value)}
               onBlur={handleEmailBlur}
               required
-              className={`w-full ${!emailValidation.isValid ? 'border-red-300 focus:border-red-500' : ''}`}
+              className={`w-full ${!emailValidation.isValid && email ? 'border-red-300 focus:border-red-500' : emailExists ? 'border-red-300 focus:border-red-500' : ''}`}
             />
-            {!emailValidation.isValid && (
+            {!emailValidation.isValid && email && (
               <p className="text-sm text-red-600 mt-1">{emailValidation.error}</p>
+            )}
+            {emailExists && (
+              <p className="text-sm text-red-600 mt-1">❌ Este email já está cadastrado</p>
             )}
             {checkingEmail && (
               <p className="text-sm text-blue-600 mt-1 flex items-center">
                 <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                Verificando email...
+                🔍 Verificando se email já existe...
               </p>
             )}
           </div>
@@ -352,7 +384,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
           <Button
             type="submit"
-            disabled={loading || checkingEmail || !emailValidation.isValid}
+            disabled={loading || checkingEmail || !emailValidation.isValid || (mode === 'register' && emailExists)}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white"
           >
             {loading ? (
