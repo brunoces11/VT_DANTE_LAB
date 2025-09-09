@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { validateEmail, normalizeEmail } from '@/lib/emailValidation';
+import { checkEmailExists } from '@/lib/authHelpers';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -26,8 +28,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingEmail, setCheckingEmail] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [emailValidation, setEmailValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: true });
 
   const { login, register, resetPassword } = useAuth();
 
@@ -39,6 +43,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setError('');
     setSuccess('');
     setLoading(false);
+    setCheckingEmail(false);
+    setEmailValidation({ isValid: true });
   };
 
   const handleClose = () => {
@@ -47,17 +53,61 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     onClose();
   };
 
+  // Validar email em tempo real
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    
+    if (value) {
+      const validation = validateEmail(value);
+      setEmailValidation(validation);
+    } else {
+      setEmailValidation({ isValid: true });
+    }
+  };
+
+  // Verificar se email já existe (para cadastro)
+  const handleEmailBlur = async () => {
+    if (mode === 'register' && email && emailValidation.isValid) {
+      setCheckingEmail(true);
+      setError('');
+      
+      const normalizedEmail = normalizeEmail(email);
+      const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
+      
+      if (checkError) {
+        setError(`Erro ao verificar email: ${checkError}`);
+      } else if (exists) {
+        setError('Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
+      }
+      
+      setCheckingEmail(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+    
+    // Validar email antes de prosseguir
+    const emailValidationResult = validateEmail(email);
+    if (!emailValidationResult.isValid) {
+      setError(emailValidationResult.error || 'Email inválido');
+      return;
+    }
+    
     setLoading(true);
 
     try {
       if (mode === 'login') {
-        const { error } = await login(email, password);
+        const normalizedEmail = normalizeEmail(email);
+        const { error } = await login(normalizedEmail, password);
         if (error) {
-          setError(error.message);
+          if (error.message.includes('Invalid login credentials')) {
+            setError('Email ou senha incorretos. Verifique suas credenciais.');
+          } else {
+            setError(error.message);
+          }
         } else {
           setSuccess('Login realizado com sucesso!');
           setTimeout(() => {
@@ -72,15 +122,35 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           return;
         }
 
+        // Verificar novamente se email já existe antes do cadastro
+        const normalizedEmail = normalizeEmail(email);
+        const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
+        
+        if (checkError) {
+          setError(`Erro ao verificar email: ${checkError}`);
+          setLoading(false);
+          return;
+        }
+        
         if (password.length < 6) {
           setError('A senha deve ter pelo menos 6 caracteres');
           setLoading(false);
           return;
         }
 
-        const { error } = await register(email, password, name);
+        if (exists) {
+          setError('Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await register(normalizedEmail, password, name);
         if (error) {
-          setError(error.message);
+          if (error.message.includes('already registered')) {
+            setError('Este email já está cadastrado. Tente fazer login.');
+          } else {
+            setError(error.message);
+          }
         } else {
           setSuccess('Cadastro realizado! Verifique seu email para confirmar a conta.');
           setTimeout(() => {
@@ -89,7 +159,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           }, 2000);
         }
       } else if (mode === 'forgot-password') {
-        const { error } = await resetPassword(email);
+        const emailValidationResult = validateEmail(email);
+        if (!emailValidationResult.isValid) {
+          setError(emailValidationResult.error || 'Email inválido');
+          setLoading(false);
+          return;
+        }
+        
+        const normalizedEmail = normalizeEmail(email);
+        const { error } = await resetPassword(normalizedEmail);
         if (error) {
           setError(error.message);
         } else {
@@ -181,10 +259,20 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               type="email"
               placeholder="seu@email.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => handleEmailChange(e.target.value)}
+              onBlur={handleEmailBlur}
               required
-              className="w-full"
+              className={`w-full ${!emailValidation.isValid ? 'border-red-300 focus:border-red-500' : ''}`}
             />
+            {!emailValidation.isValid && (
+              <p className="text-sm text-red-600 mt-1">{emailValidation.error}</p>
+            )}
+            {checkingEmail && (
+              <p className="text-sm text-blue-600 mt-1 flex items-center">
+                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                Verificando email...
+              </p>
+            )}
           </div>
 
           {mode !== 'forgot-password' && (
@@ -264,7 +352,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || checkingEmail || !emailValidation.isValid}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white"
           >
             {loading ? (

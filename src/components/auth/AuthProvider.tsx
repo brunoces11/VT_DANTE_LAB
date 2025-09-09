@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { normalizeEmail } from '@/lib/emailValidation';
 
 interface AuthContextType {
   user: User | null;
@@ -65,8 +66,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (email: string, password: string, name: string) => {
+    const normalizedEmail = normalizeEmail(email);
+    
     const { error } = await supabase.auth.signUp({
-      email,
+      email: normalizedEmail,
       password,
       options: {
         data: {
@@ -78,11 +81,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const resetPassword = async (email: string) => {
-    console.log('Enviando email de recuperação para:', email);
+    const normalizedEmail = normalizeEmail(email);
+    console.log('Enviando email de recuperação para:', normalizedEmail);
     const redirectUrl = `${window.location.origin}/reset-password`;
     console.log('Redirect URL será:', redirectUrl);
     
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
       redirectTo: redirectUrl
     });
     
