@@ -79,10 +79,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const resetPassword = async (email: string) => {
     console.log('Enviando email de recuperação para:', email);
-    console.log('Redirect URL será:', `${window.location.origin}/reset-password`);
+    const redirectUrl = `${window.location.origin}/reset-password`;
+    console.log('Redirect URL será:', redirectUrl);
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
+      redirectTo: redirectUrl
     });
     
     if (error) {
@@ -95,9 +96,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const updatePassword = async (password: string) => {
+    console.log('Tentando atualizar senha...');
     const { error } = await supabase.auth.updateUser({
       password: password,
     });
+    
+    if (error) {
+      console.error('Erro ao atualizar senha:', error);
+    } else {
+      console.log('Senha atualizada com sucesso');
+    }
+    
     return { error };
   };
   const authValue: AuthContextType = {
