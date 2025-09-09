@@ -19,10 +19,15 @@ export default function ResetPasswordPage() {
       const fullUrl = window.location.href;
       const allParams = Object.fromEntries(searchParams.entries());
       
+      // Também verificar se os tokens estão no hash (fragment)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const hashParamsObj = Object.fromEntries(hashParams.entries());
+      
       // Capturar informações de debug
       const debugData = {
         fullUrl,
         allParams,
+        hashParams: hashParamsObj,
         hash: window.location.hash,
         pathname: window.location.pathname,
         search: window.location.search
@@ -32,14 +37,16 @@ export default function ResetPasswordPage() {
       console.log('=== DEBUG INFO ===');
       console.log('URL completa:', fullUrl);
       console.log('Todos os parâmetros:', allParams);
+      console.log('Parâmetros no hash:', hashParamsObj);
       console.log('Hash:', window.location.hash);
       console.log('Pathname:', window.location.pathname);
       console.log('Search:', window.location.search);
       console.log('==================');
       
-      const accessToken = searchParams.get('access_token');
-      const refreshToken = searchParams.get('refresh_token');
-      const type = searchParams.get('type');
+      // Verificar tokens tanto nos parâmetros de query quanto no hash
+      const accessToken = searchParams.get('access_token') || hashParams.get('access_token');
+      const refreshToken = searchParams.get('refresh_token') || hashParams.get('refresh_token');
+      const type = searchParams.get('type') || hashParams.get('type');
       const error_code = searchParams.get('error_code');
       const error_description = searchParams.get('error_description');
       
@@ -50,6 +57,20 @@ export default function ResetPasswordPage() {
       console.log('- error_code:', error_code);
       console.log('- error_description:', error_description);
 
+      // Se não encontrou tokens nos parâmetros, tentar usar o método getSession do Supabase
+      if (!accessToken || !refreshToken) {
+        console.log('Tokens não encontrados na URL, tentando getSession...');
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (session && !sessionError) {
+          console.log('Sessão encontrada via getSession:', session);
+          setIsModalOpen(true);
+          setLoading(false);
+          return;
+        } else {
+          console.log('Nenhuma sessão encontrada via getSession:', sessionError);
+        }
+      }
       // Se há erro nos parâmetros da URL
       if (error_code || error_description) {
         console.log('Erro nos parâmetros:', { error_code, error_description });
@@ -146,6 +167,7 @@ export default function ResetPasswordPage() {
               <div className="text-xs text-neutral-600 space-y-1 font-mono">
                 <div><strong>URL:</strong> {debugInfo.fullUrl}</div>
                 <div><strong>Parâmetros:</strong> {JSON.stringify(debugInfo.allParams, null, 2)}</div>
+                <div><strong>Hash Params:</strong> {JSON.stringify(debugInfo.hashParams, null, 2)}</div>
                 <div><strong>Hash:</strong> {debugInfo.hash || 'Nenhum'}</div>
               </div>
             </div>
