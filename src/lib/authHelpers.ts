@@ -10,27 +10,9 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
     const normalizedEmail = email.toLowerCase().trim();
     console.log('📧 [checkEmailExists] Email normalizado:', normalizedEmail);
     
-    // MÉTODO 1: Usar RPC function (se existir)
+    // MÉTODO: Usar signInWithPassword para verificar existência (SEM criar usuário)
     try {
-      console.log('🎯 [checkEmailExists] Tentando RPC function...');
-      
-      const { data, error } = await supabase.rpc('check_user_email_exists', {
-        email_to_check: normalizedEmail
-      });
-      
-      if (!error) {
-        console.log(`✅ [checkEmailExists] RPC SUCESSO - Email ${data ? 'EXISTE' : 'DISPONÍVEL'}`);
-        return { exists: !!data };
-      } else {
-        console.log('⚠️ [checkEmailExists] RPC falhou, tentando método de fallback:', error.message);
-      }
-    } catch (rpcError) {
-      console.log('⚠️ [checkEmailExists] Erro no RPC:', rpcError);
-    }
-    
-    // MÉTODO 2: Fallback usando signInWithPassword (SEM criar usuário)
-    try {
-      console.log('🎯 [checkEmailExists] Usando fallback com signInWithPassword...');
+      console.log('🎯 [checkEmailExists] Usando signInWithPassword para verificação...');
       
       // Tentar login com senha inválida - se email existe, erro será "Invalid login credentials"
       // Se email não existe, erro será diferente
@@ -43,7 +25,7 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
         // Se erro é "Invalid login credentials", email EXISTE mas senha está errada
         if (error.message.includes('Invalid login credentials') || 
             error.message.includes('Invalid email or password')) {
-          console.log('✅ [checkEmailExists] Fallback - Email EXISTE (credenciais inválidas)');
+          console.log('✅ [checkEmailExists] Email EXISTE (credenciais inválidas - comportamento esperado)');
           return { exists: true };
         }
         
@@ -51,22 +33,22 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
         if (error.message.includes('User not found') ||
             error.message.includes('Email not confirmed') ||
             error.message.includes('No user found')) {
-          console.log('✅ [checkEmailExists] Fallback - Email DISPONÍVEL (usuário não encontrado)');
+          console.log('✅ [checkEmailExists] Email DISPONÍVEL (usuário não encontrado)');
           return { exists: false };
         }
         
         // Para outros erros, assumir que não existe (evitar falsos positivos)
-        console.log('⚠️ [checkEmailExists] Erro desconhecido no fallback - assumindo disponível:', error.message);
+        console.log('⚠️ [checkEmailExists] Erro desconhecido - assumindo disponível:', error.message);
         return { exists: false };
       }
       
       // Se chegou aqui sem erro, algo está errado (não deveria fazer login com senha inválida)
-      console.log('⚠️ [checkEmailExists] Login inesperado com senha inválida - fazendo logout...');
+      console.log('⚠️ [checkEmailExists] Login inesperado - fazendo logout...');
       await supabase.auth.signOut();
       return { exists: true };
       
-    } catch (fallbackError) {
-      console.error('❌ [checkEmailExists] Erro no fallback:', fallbackError);
+    } catch (signInError) {
+      console.error('❌ [checkEmailExists] Erro no signIn:', signInError);
       return { exists: false, error: 'Erro interno ao verificar email' };
     }
     
