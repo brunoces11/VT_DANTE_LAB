@@ -1,73 +1,49 @@
 // Verificação REAL e DIRETA de email no banco Supabase
 import { supabase } from './supabase';
 
-// Função para verificar se email já existe - ABORDAGEM CORRETA
+// Função CORRETA para verificar se email já existe
 export const checkEmailExists = async (email: string): Promise<{ exists: boolean; error?: string }> => {
   try {
-    console.log('🔍 [checkEmailExists] Iniciando verificação para:', email);
+    console.log('🔍 [checkEmailExists] Verificando email:', email);
     
     // Normalizar email
     const normalizedEmail = email.toLowerCase().trim();
     console.log('📧 [checkEmailExists] Email normalizado:', normalizedEmail);
     
-    // MÉTODO CORRETO: Usar signUp para detectar se email já existe
-    // Se email já existe, Supabase retornará erro específico
-    // Se email não existe, tentará criar usuário (que cancelaremos)
-    try {
-      console.log('🎯 [checkEmailExists] Tentando signUp para verificação...');
-      
-      const { data, error } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password: 'temp_verification_password_' + Date.now(),
-        options: {
-          data: {
-            verification_check: true,
-            temp_user: true
-          }
-        }
-      });
-      
-      if (error) {
-        console.log('📋 [checkEmailExists] Erro do signUp:', error.message);
-        
-        // Verificar se é erro de email já existente
-        if (error.message.includes('already') || 
-            error.message.includes('registered') ||
-            error.message.includes('exists') ||
-            error.message.includes('duplicate') ||
-            error.message.includes('User already registered')) {
-          console.log('❌ [checkEmailExists] Email JÁ EXISTE no banco');
-          return { exists: true };
-        }
-        
-        // Para outros erros, assumir que email não existe
-        console.log('⚠️ [checkEmailExists] Erro diferente - assumindo email disponível');
-        return { exists: false };
-      }
-      
-      // Se chegou aqui, signUp foi bem-sucedido (email não existia)
-      console.log('✅ [checkEmailExists] SignUp bem-sucedido - email DISPONÍVEL');
-      
-      // IMPORTANTE: Fazer logout imediatamente para não manter sessão temporária
-      if (data.user) {
-        console.log('🧹 [checkEmailExists] Fazendo logout da sessão temporária...');
-        await supabase.auth.signOut();
-      }
-      
-      return { exists: false };
-      
-    } catch (signUpError) {
-      console.error('❌ [checkEmailExists] Erro no signUp:', signUpError);
-      return { exists: false, error: 'Erro interno ao verificar email' };
+    // MÉTODO CORRETO: Usar RPC function que consulta auth.users diretamente
+    const { data, error } = await supabase.rpc('check_email_exists', {
+      email_to_check: normalizedEmail
+    });
+    
+    if (error) {
+      console.error('❌ [checkEmailExists] Erro na consulta RPC:', error);
+      return { exists: false, error: `Erro ao verificar email: ${error.message}` };
     }
     
+    console.log('📊 [checkEmailExists] Resultado da consulta:', data);
+    
+    // data será true se email existe, false se não existe
+    const emailExists = Boolean(data);
+    
+    console.log(`${emailExists ? '❌' : '✅'} [checkEmailExists] Email ${emailExists ? 'JÁ EXISTE' : 'DISPONÍVEL'}`);
+    
+    return { exists: emailExists };
+    
   } catch (error) {
-    console.error('❌ [checkEmailExists] Erro geral:', error);
+    console.error('❌ [checkEmailExists] Erro inesperado:', error);
     return { exists: false, error: 'Erro interno ao verificar email' };
   }
 };
 
-// Função auxiliar para limpar sessões indesejadas
+// Função para testar um email específico (para debug)
+export const testSpecificEmail = async (email: string) => {
+  console.log(`🧪 [testSpecificEmail] Testando email: ${email}`);
+  const result = await checkEmailExists(email);
+  console.log(`🧪 [testSpecificEmail] Resultado:`, result);
+  return result;
+};
+
+// Função auxiliar para limpar sessões indesejadas (mantida para compatibilidade)
 export const cleanupTempSession = async () => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
