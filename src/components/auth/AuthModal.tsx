@@ -32,7 +32,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [emailValidation, setEmailValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: false });
-  const [emailExists, setEmailExists] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'exists' | 'available'>('idle');
 
   const { login, register, resetPassword } = useAuth();
 
@@ -59,7 +59,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const handleEmailChange = (value: string) => {
     setEmail(value);
     setError(''); // Limpar erro anterior
-    setEmailExists(false); // Reset do status de email existente
+    setEmailStatus('idle'); // Reset do status de email
     
     if (value) {
       const validation = validateEmail(value);
@@ -72,31 +72,35 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   // Verificar se email já existe (para cadastro)
   const handleEmailBlur = async () => {
-    console.log('🔍 handleEmailBlur chamado:', { mode, email, isValid: emailValidation.isValid });
+    console.log('🔍 handleEmailBlur chamado:', { mode, email, isValid: emailValidation.isValid, currentStatus: emailStatus });
     
-    if (mode === 'register' && email && emailValidation.isValid && !checkingEmail) {
-      setCheckingEmail(true);
+    if (mode === 'register' && email && emailValidation.isValid && emailStatus === 'idle') {
+      setEmailStatus('checking');
       setError('');
-      setEmailExists(false);
       
       const normalizedEmail = normalizeEmail(email);
       console.log('🔍 Verificando email normalizado:', normalizedEmail);
       
-      const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
-      
-      console.log('📊 Resultado da verificação:', { exists, checkError });
-      
-      if (checkError) {
-        setError(`Erro ao verificar email: ${checkError}`);
-      } else if (exists) {
-        setEmailExists(true);
-        setError('❌ Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
-      } else {
-        setEmailExists(false);
-        console.log('✅ Email disponível para cadastro');
+      try {
+        const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
+        
+        console.log('📊 Resultado da verificação:', { exists, checkError });
+        
+        if (checkError) {
+          setEmailStatus('idle');
+          setError(`Erro ao verificar email: ${checkError}`);
+        } else if (exists) {
+          setEmailStatus('exists');
+          console.log('❌ Email já existe no banco');
+        } else {
+          setEmailStatus('available');
+          console.log('✅ Email disponível para cadastro');
+        }
+      } catch (error) {
+        console.error('❌ Erro inesperado na verificação:', error);
+        setEmailStatus('idle');
+        setError('Erro inesperado ao verificar email');
       }
-      
-      setCheckingEmail(false);
     }
   };
 
@@ -135,7 +139,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         }
       } else if (mode === 'register') {
         // Verificar se email existe antes de prosseguir
-        if (emailExists) {
+        if (emailStatus === 'exists') {
           setError('❌ Este email já está cadastrado. Tente fazer login.');
           setLoading(false);
           return;
@@ -301,19 +305,26 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               onChange={(e) => handleEmailChange(e.target.value)}
               onBlur={handleEmailBlur}
               required
-              className={`w-full ${!emailValidation.isValid && email ? 'border-red-300 focus:border-red-500' : emailExists ? 'border-red-300 focus:border-red-500' : ''}`}
+              className={`w-full ${
+                !emailValidation.isValid && email ? 'border-red-300 focus:border-red-500' : 
+                emailStatus === 'exists' ? 'border-red-300 focus:border-red-500' : 
+                emailStatus === 'available' ? 'border-green-300 focus:border-green-500' : ''
+              }`}
             />
             {!emailValidation.isValid && email && (
               <p className="text-sm text-red-600 mt-1">{emailValidation.error}</p>
             )}
-            {emailExists && (
+            {emailStatus === 'exists' && (
               <p className="text-sm text-red-600 mt-1">❌ Este email já está cadastrado</p>
             )}
-            {checkingEmail && (
+            {emailStatus === 'checking' && (
               <p className="text-sm text-blue-600 mt-1 flex items-center">
                 <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                 🔍 Verificando se email já existe...
               </p>
+            )}
+            {emailStatus === 'available' && (
+              <p className="text-sm text-green-600 mt-1">✅ Email disponível para cadastro</p>
             )}
           </div>
 
@@ -394,7 +405,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
           <Button
             type="submit"
-            disabled={loading || checkingEmail || !emailValidation.isValid || (mode === 'register' && emailExists)}
+            disabled={loading || emailStatus === 'checking' || !emailValidation.isValid || (mode === 'register' && emailStatus === 'exists')}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white"
           >
             {loading ? (
