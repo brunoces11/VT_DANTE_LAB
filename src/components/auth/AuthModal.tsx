@@ -9,8 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useAuth } from './AuthProvider';
-import { validateEmail, normalizeEmail } from '@/lib/emailValidation';
-import { checkEmailExists } from '@/lib/authHelpers';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -28,12 +26,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [checkingEmail, setCheckingEmail] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [emailValidation, setEmailValidation] = useState<{ isValid: boolean; error?: string }>({ isValid: false });
-  const [emailStatus, setEmailStatus] = useState<'idle' | 'checking' | 'exists' | 'available'>('idle');
-  const [emailCheckAttempts, setEmailCheckAttempts] = useState(0);
 
   const { login, register, resetPassword } = useAuth();
 
@@ -45,10 +39,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setError('');
     setSuccess('');
     setLoading(false);
-    setCheckingEmail(false);
-    setEmailValidation({ isValid: false });
-    setEmailStatus('idle');
-    setEmailCheckAttempts(0);
   };
 
   const handleClose = () => {
@@ -57,109 +47,17 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     onClose();
   };
 
-  // Validar email em tempo real
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
-    setError(''); // Limpar erro anterior
-    setEmailStatus('idle'); // Reset do status de email
-    
-    if (value) {
-      const validation = validateEmail(value);
-      setEmailValidation(validation);
-      console.log('📧 Validação de email:', validation);
-    } else {
-      setEmailValidation({ isValid: false });
-    }
-  };
-
-  // Verificar se email já existe (para cadastro)
-  const handleEmailBlur = async () => {
-    console.log('🔍 handleEmailBlur chamado:', { 
-      mode, 
-      email, 
-      isValid: emailValidation.isValid, 
-      currentStatus: emailStatus,
-      attempts: emailCheckAttempts 
-    });
-    
-    // Só verificar se:
-    // 1. Está no modo de registro
-    // 2. Email não está vazio
-    // 3. Email é válido
-    // 4. Status está idle (não está verificando)
-    // 5. Não excedeu tentativas
-    if (mode === 'register' && 
-        email && 
-        emailValidation.isValid && 
-        emailStatus === 'idle' &&
-        emailCheckAttempts < 3) {
-      
-      setEmailStatus('checking');
-      setError('');
-      setEmailCheckAttempts(prev => prev + 1);
-      
-      const normalizedEmail = normalizeEmail(email);
-      console.log(`🔍 Verificando email normalizado (tentativa ${emailCheckAttempts + 1}):`, normalizedEmail);
-      
-      try {
-        const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
-        
-        console.log('📊 Resultado da verificação:', { 
-          exists, 
-          checkError, 
-          attempt: emailCheckAttempts + 1 
-        });
-        
-        if (checkError) {
-          setEmailStatus('idle');
-          setError(`⚠️ Erro ao verificar email: ${checkError}`);
-          console.error('❌ Erro na verificação:', checkError);
-        } else if (exists) {
-          setEmailStatus('exists');
-          setError('❌ Este email já está cadastrado. Use "Esqueci minha senha" ou faça login.');
-          console.log('❌ Email JÁ EXISTE no banco de dados');
-        } else {
-          setEmailStatus('available');
-          setError(''); // Limpar qualquer erro anterior
-          console.log('✅ Email DISPONÍVEL para cadastro');
-        }
-      } catch (error) {
-        console.error('❌ Erro inesperado na verificação:', error);
-        setEmailStatus('idle');
-        setError('❌ Erro inesperado ao verificar email. Tente novamente.');
-      }
-    } else if (emailCheckAttempts >= 3) {
-      console.log('⚠️ Máximo de tentativas de verificação atingido');
-      setError('⚠️ Muitas tentativas de verificação. Recarregue a página.');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-    
-    // Validar email antes de prosseguir
-    const emailValidationResult = validateEmail(email);
-    console.log('📧 Validação final do email:', emailValidationResult);
-    
-    if (!emailValidationResult.isValid) {
-      setError(emailValidationResult.error || 'Email inválido');
-      return;
-    }
-    
     setLoading(true);
 
     try {
       if (mode === 'login') {
-        const normalizedEmail = normalizeEmail(email);
-        const { error } = await login(normalizedEmail, password);
+        const { error } = await login(email, password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            setError('Email ou senha incorretos. Verifique suas credenciais.');
-          } else {
-            setError(error.message);
-          }
+          setError(error.message);
         } else {
           setSuccess('Login realizado com sucesso!');
           setTimeout(() => {
@@ -168,27 +66,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           }, 1000);
         }
       } else if (mode === 'register') {
-        // Verificar se email existe antes de prosseguir
-        if (emailStatus === 'exists') {
-          setError('❌ Este email já está cadastrado. Use "Esqueci minha senha" ou tente fazer login.');
-          setLoading(false);
-          return;
-        }
-        
-        // Se não verificou ainda, forçar verificação
-        if (emailStatus === 'idle') {
-          setError('⚠️ Aguarde a verificação do email ser concluída.');
-          setLoading(false);
-          return;
-        }
-        
-        // Só permitir cadastro se email estiver disponível
-        if (emailStatus !== 'available') {
-          setError('⚠️ Verifique se o email está disponível antes de prosseguir.');
-          setLoading(false);
-          return;
-        }
-        
         if (password !== confirmPassword) {
           setError('As senhas não coincidem');
           setLoading(false);
@@ -201,40 +78,22 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           return;
         }
 
-        const normalizedEmail = normalizeEmail(email);
-        console.log('✅ Prosseguindo com cadastro para email verificado:', normalizedEmail);
-        
-        const { error } = await register(normalizedEmail, password, name);
+        const { error } = await register(email, password, name);
         if (error) {
-          if (error.message.includes('already registered')) {
-            setError('❌ Este email já está cadastrado no sistema. Faça login.');
-          } else {
-            setError(`❌ Erro no cadastro: ${error.message}`);
-          }
+          setError(error.message);
         } else {
-          setSuccess('✅ Cadastro realizado com SUCESSO! Verifique seu email para confirmar.');
-          // Limpar o status do email para próximo uso
-          setEmailStatus('idle');
-          setEmailCheckAttempts(0);
+          setSuccess('Cadastro realizado! Verifique seu email para confirmar a conta.');
           setTimeout(() => {
             setMode('login');
             resetForm();
           }, 2000);
         }
       } else if (mode === 'forgot-password') {
-        const emailValidationResult = validateEmail(email);
-        if (!emailValidationResult.isValid) {
-          setError(emailValidationResult.error || 'Email inválido');
-          setLoading(false);
-          return;
-        }
-        
-        const normalizedEmail = normalizeEmail(email);
-        const { error } = await resetPassword(normalizedEmail);
+        const { error } = await resetPassword(email);
         if (error) {
           setError(error.message);
         } else {
-          setSuccess('✅ Email de recuperação enviado! Verifique sua caixa de entrada.');
+          setSuccess('Email de recuperação enviado! Verifique sua caixa de entrada.');
           setTimeout(() => {
             setMode('login');
             resetForm();
@@ -242,8 +101,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         }
       }
     } catch (err) {
-      setError(`❌ Ocorreu um erro inesperado: ${err}`);
-      console.error('❌ Erro inesperado:', err);
+      setError('Ocorreu um erro inesperado');
     } finally {
       setLoading(false);
     }
@@ -323,30 +181,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               type="email"
               placeholder="seu@email.com"
               value={email}
-              onChange={(e) => handleEmailChange(e.target.value)}
-              onBlur={handleEmailBlur}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              className={`w-full ${
-                !emailValidation.isValid && email ? 'border-red-300 focus:border-red-500' : 
-                emailStatus === 'exists' ? 'border-red-300 focus:border-red-500' : 
-                emailStatus === 'available' ? 'border-green-300 focus:border-green-500' : ''
-              }`}
+              className="w-full"
             />
-            {!emailValidation.isValid && email && (
-              <p className="text-sm text-red-600 mt-1">{emailValidation.error}</p>
-            )}
-            {emailStatus === 'exists' && (
-              <p className="text-sm text-red-600 mt-1">❌ Este email já está cadastrado</p>
-            )}
-            {emailStatus === 'checking' && (
-              <p className="text-sm text-blue-600 mt-1 flex items-center font-medium">
-                <Loader2 className="mr-1 h-3 w-3 animate-spin" />
-                🔍 Verificando disponibilidade do email...
-              </p>
-            )}
-            {emailStatus === 'available' && (
-              <p className="text-sm text-green-600 mt-1 font-medium">✅ Email disponível para cadastro!</p>
-            )}
           </div>
 
           {mode !== 'forgot-password' && (
@@ -426,7 +264,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
           <Button
             type="submit"
-            disabled={loading || emailStatus === 'checking' || !emailValidation.isValid || (mode === 'register' && emailStatus === 'exists')}
+            disabled={loading}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white"
           >
             {loading ? (
