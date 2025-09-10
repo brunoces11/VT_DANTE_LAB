@@ -1,62 +1,93 @@
+// Verificação REAL e DIRETA de email no banco Supabase
 import { supabase } from './supabase';
 
-// Verificar se email já existe no banco de dados usando consulta direta
+// Função para verificar se email já existe - ABORDAGEM CORRETA
 export const checkEmailExists = async (email: string): Promise<{ exists: boolean; error?: string }> => {
   try {
-    console.log('🔍 [checkEmailExists] Iniciando verificação para:', email);
+    console.log('🔍 [checkEmailExists] Iniciando verificação DIRETA para:', email);
     
     // Normalizar email
     const normalizedEmail = email.toLowerCase().trim();
     console.log('📧 [checkEmailExists] Email normalizado:', normalizedEmail);
     
-    // Usar signUp com confirmação desabilitada para testar
+    // MÉTODO 1: Tentar consulta direta na tabela auth.users (se RLS permitir)
     try {
-      console.log('🧪 [checkEmailExists] Tentando signUp de teste...');
-      const { data, error } = await supabase.auth.signUp({
-        email: normalizedEmail,
-        password: 'temp_password_for_check_' + Math.random(),
-        options: {
-          data: { temp_check: true }
-        }
+      console.log('🎯 [checkEmailExists] Tentando consulta DIRETA na tabela auth.users...');
+      
+      const { data, error, count } = await supabase
+        .from('auth.users')
+        .select('email', { count: 'exact', head: true })
+        .eq('email', normalizedEmail)
+        .limit(1);
+      
+      if (!error) {
+        const exists = (count || 0) > 0;
+        console.log(`✅ [checkEmailExists] Consulta direta SUCESSO - Email ${exists ? 'EXISTE' : 'DISPONÍVEL'}`);
+        return { exists };
+      } else {
+        console.log('⚠️ [checkEmailExists] Consulta direta falhou (RLS?), tentando método alternativo:', error.message);
+      }
+    } catch (directQueryError) {
+      console.log('⚠️ [checkEmailExists] Erro na consulta direta:', directQueryError);
+    }
+    
+    // MÉTODO 2: Usar RPC function (se existir)
+    try {
+      console.log('🎯 [checkEmailExists] Tentando RPC function...');
+      
+      const { data, error } = await supabase.rpc('check_user_email_exists', {
+        email_to_check: normalizedEmail
       });
       
-      console.log('📊 [checkEmailExists] Resultado do signUp:', { 
-        hasData: !!data, hasUser: !!data?.user, hasError: !!error, errorMessage: error?.message 
+      if (!error) {
+        console.log(`✅ [checkEmailExists] RPC SUCESSO - Email ${data ? 'EXISTE' : 'DISPONÍVEL'}`);
+        return { exists: !!data };
+      } else {
+        console.log('⚠️ [checkEmailExists] RPC falhou, tentando método de fallback:', error.message);
+      }
+    } catch (rpcError) {
+      console.log('⚠️ [checkEmailExists] Erro no RPC:', rpcError);
+    }
+    
+    // MÉTODO 3: Fallback usando signInWithPassword (SEM criar usuário)
+    try {
+      console.log('🎯 [checkEmailExists] Usando fallback com signInWithPassword...');
+      
+      // Tentar login com senha inválida - se email existe, erro será "Invalid login credentials"
+      // Se email não existe, erro será diferente
+      const { error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: 'invalid_password_for_check_' + Math.random()
       });
       
       if (error) {
-        // Se o erro indica que o usuário já existe
-        if (error.message.includes('already registered') || 
-            error.message.includes('already exists') ||
-            error.message.includes('User already registered')) {
-          console.log('❌ [checkEmailExists] Email JÁ EXISTE no banco');
+        // Se erro é "Invalid login credentials", email EXISTE mas senha está errada
+        if (error.message.includes('Invalid login credentials') || 
+            error.message.includes('Invalid email or password')) {
+          console.log('✅ [checkEmailExists] Fallback - Email EXISTE (credenciais inválidas)');
           return { exists: true };
         }
         
-        // Se o erro é sobre rate limit ou outros, assumir que não existe
-        if (error.message.includes('rate limit') || 
-            error.message.includes('too many requests')) {
-          console.log('⚠️ [checkEmailExists] Rate limit - assumindo que não existe');
+        // Se erro é sobre email não encontrado, email NÃO EXISTE
+        if (error.message.includes('User not found') ||
+            error.message.includes('Email not confirmed') ||
+            error.message.includes('No user found')) {
+          console.log('✅ [checkEmailExists] Fallback - Email DISPONÍVEL (usuário não encontrado)');
           return { exists: false };
         }
         
-        // Para outros erros, assumir que não existe para permitir tentativa
-        console.log('⚠️ [checkEmailExists] Erro desconhecido - assumindo que não existe:', error.message);
+        // Para outros erros, assumir que não existe (evitar falsos positivos)
+        console.log('⚠️ [checkEmailExists] Erro desconhecido no fallback - assumindo disponível:', error.message);
         return { exists: false };
       }
       
-      // Se chegou aqui sem erro, o email não existia e foi "criado"
-      // Precisamos fazer logout imediatamente para limpar a sessão temporária
-      if (data.user) {
-        console.log('🧹 [checkEmailExists] Limpando sessão temporária...');
-        await supabase.auth.signOut();
-      }
+      // Se chegou aqui sem erro, algo está errado (não deveria fazer login com senha inválida)
+      console.log('⚠️ [checkEmailExists] Login inesperado com senha inválida - fazendo logout...');
+      await supabase.auth.signOut();
+      return { exists: true };
       
-      console.log('✅ [checkEmailExists] Email DISPONÍVEL (não existe no banco)');
-      return { exists: false };
-      
-    } catch (signUpError) {
-      console.error('❌ [checkEmailExists] Erro no signUp:', signUpError);
+    } catch (fallbackError) {
+      console.error('❌ [checkEmailExists] Erro no fallback:', fallbackError);
       return { exists: false, error: 'Erro interno ao verificar email' };
     }
     
@@ -66,7 +97,7 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
   }
 };
 
-// Função auxiliar para limpar sessões temporárias
+// Função auxiliar para limpar sessões indesejadas
 export const cleanupTempSession = async () => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
