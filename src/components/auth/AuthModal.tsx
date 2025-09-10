@@ -157,21 +157,31 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         const normalizedEmail = normalizeEmail(email);
         console.log('🔍 Verificação final antes do cadastro:', normalizedEmail);
         
-        const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
-        
-        if (checkError) {
-          setError(`❌ Erro ao verificar email: ${checkError}`);
+        try {
+          const { exists, error: checkError } = await checkEmailExists(normalizedEmail);
+          
+          if (checkError) {
+            console.error('❌ Erro na verificação final:', checkError);
+            setError(`❌ Erro ao verificar email: ${checkError}`);
+            setLoading(false);
+            return;
+          }
+          
+          if (exists) {
+            console.log('❌ Email já existe (verificação final)');
+            setError('❌ Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('✅ Email disponível, prosseguindo com cadastro...');
+        } catch (verificationError) {
+          console.error('❌ Erro inesperado na verificação final:', verificationError);
+          setError('❌ Erro inesperado ao verificar email. Tente novamente.');
           setLoading(false);
           return;
         }
         
-        if (exists) {
-          setError('❌ Este email já está cadastrado. Tente fazer login ou use "Esqueci minha senha".');
-          setLoading(false);
-          return;
-        }
-
-        console.log('✅ Prosseguindo com o cadastro...');
         const { error } = await register(normalizedEmail, password, name);
         if (error) {
           if (error.message.includes('already registered')) {
