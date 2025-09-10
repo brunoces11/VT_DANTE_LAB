@@ -8,23 +8,7 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
     // Normalizar email
     const normalizedEmail = email.toLowerCase().trim();
     
-    // MÉTODO 1: Tentar usar RPC (Remote Procedure Call) se disponível
-    try {
-      const { data, error } = await supabase.rpc('check_email_exists', {
-        email_to_check: normalizedEmail
-      });
-      
-      if (!error && data !== null) {
-        console.log('✅ Verificação via RPC bem-sucedida:', data);
-        return { exists: data };
-      }
-      
-      console.log('⚠️ RPC não disponível, tentando método alternativo...');
-    } catch (rpcError) {
-      console.log('⚠️ RPC falhou, usando método alternativo:', rpcError);
-    }
-    
-    // MÉTODO 2: Usar signUp com confirmação desabilitada para testar
+    // Usar signUp com confirmação desabilitada para testar
     try {
       const { data, error } = await supabase.auth.signUp({
         email: normalizedEmail,
