@@ -4,51 +4,60 @@ import { supabase } from './supabase';
 // Função para verificar se email já existe - ABORDAGEM CORRETA
 export const checkEmailExists = async (email: string): Promise<{ exists: boolean; error?: string }> => {
   try {
-    console.log('🔍 [checkEmailExists] Iniciando verificação DIRETA para:', email);
+    console.log('🔍 [checkEmailExists] Iniciando verificação para:', email);
     
     // Normalizar email
     const normalizedEmail = email.toLowerCase().trim();
     console.log('📧 [checkEmailExists] Email normalizado:', normalizedEmail);
     
-    // MÉTODO: Usar signInWithPassword para verificar existência (SEM criar usuário)
+    // MÉTODO CORRETO: Usar signUp para detectar se email já existe
+    // Se email já existe, Supabase retornará erro específico
+    // Se email não existe, tentará criar usuário (que cancelaremos)
     try {
-      console.log('🎯 [checkEmailExists] Usando signInWithPassword para verificação...');
+      console.log('🎯 [checkEmailExists] Tentando signUp para verificação...');
       
-      // Tentar login com senha inválida - se email existe, erro será "Invalid login credentials"
-      // Se email não existe, erro será diferente
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signUp({
         email: normalizedEmail,
-        password: 'invalid_password_for_check_' + Math.random()
+        password: 'temp_verification_password_' + Date.now(),
+        options: {
+          data: {
+            verification_check: true,
+            temp_user: true
+          }
+        }
       });
       
       if (error) {
-        // Se erro é "Invalid login credentials", email EXISTE mas senha está errada
-        if (error.message.includes('Invalid login credentials') || 
-            error.message.includes('Invalid email or password')) {
-          console.log('✅ [checkEmailExists] Email EXISTE (credenciais inválidas - comportamento esperado)');
+        console.log('📋 [checkEmailExists] Erro do signUp:', error.message);
+        
+        // Verificar se é erro de email já existente
+        if (error.message.includes('already') || 
+            error.message.includes('registered') ||
+            error.message.includes('exists') ||
+            error.message.includes('duplicate') ||
+            error.message.includes('User already registered')) {
+          console.log('❌ [checkEmailExists] Email JÁ EXISTE no banco');
           return { exists: true };
         }
         
-        // Se erro é sobre email não encontrado, email NÃO EXISTE
-        if (error.message.includes('User not found') ||
-            error.message.includes('Email not confirmed') ||
-            error.message.includes('No user found')) {
-          console.log('✅ [checkEmailExists] Email DISPONÍVEL (usuário não encontrado)');
-          return { exists: false };
-        }
-        
-        // Para outros erros, assumir que não existe (evitar falsos positivos)
-        console.log('⚠️ [checkEmailExists] Erro desconhecido - assumindo disponível:', error.message);
+        // Para outros erros, assumir que email não existe
+        console.log('⚠️ [checkEmailExists] Erro diferente - assumindo email disponível');
         return { exists: false };
       }
       
-      // Se chegou aqui sem erro, algo está errado (não deveria fazer login com senha inválida)
-      console.log('⚠️ [checkEmailExists] Login inesperado - fazendo logout...');
-      await supabase.auth.signOut();
-      return { exists: true };
+      // Se chegou aqui, signUp foi bem-sucedido (email não existia)
+      console.log('✅ [checkEmailExists] SignUp bem-sucedido - email DISPONÍVEL');
       
-    } catch (signInError) {
-      console.error('❌ [checkEmailExists] Erro no signIn:', signInError);
+      // IMPORTANTE: Fazer logout imediatamente para não manter sessão temporária
+      if (data.user) {
+        console.log('🧹 [checkEmailExists] Fazendo logout da sessão temporária...');
+        await supabase.auth.signOut();
+      }
+      
+      return { exists: false };
+      
+    } catch (signUpError) {
+      console.error('❌ [checkEmailExists] Erro no signUp:', signUpError);
       return { exists: false, error: 'Erro interno ao verificar email' };
     }
     
@@ -62,7 +71,8 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
 export const cleanupTempSession = async () => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user?.user_metadata?.temp_check) {
+    if (session?.user?.user_metadata?.verification_check || 
+        session?.user?.user_metadata?.temp_user) {
       console.log('🧹 Removendo sessão temporária de verificação...');
       await supabase.auth.signOut();
     }
