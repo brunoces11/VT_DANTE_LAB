@@ -10,28 +10,7 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
     const normalizedEmail = email.toLowerCase().trim();
     console.log('📧 [checkEmailExists] Email normalizado:', normalizedEmail);
     
-    // MÉTODO 1: Tentar consulta direta na tabela auth.users (se RLS permitir)
-    try {
-      console.log('🎯 [checkEmailExists] Tentando consulta DIRETA na tabela auth.users...');
-      
-      const { data, error, count } = await supabase
-        .from('auth.users')
-        .select('email', { count: 'exact', head: true })
-        .eq('email', normalizedEmail)
-        .limit(1);
-      
-      if (!error) {
-        const exists = (count || 0) > 0;
-        console.log(`✅ [checkEmailExists] Consulta direta SUCESSO - Email ${exists ? 'EXISTE' : 'DISPONÍVEL'}`);
-        return { exists };
-      } else {
-        console.log('⚠️ [checkEmailExists] Consulta direta falhou (RLS?), tentando método alternativo:', error.message);
-      }
-    } catch (directQueryError) {
-      console.log('⚠️ [checkEmailExists] Erro na consulta direta:', directQueryError);
-    }
-    
-    // MÉTODO 2: Usar RPC function (se existir)
+    // MÉTODO 1: Usar RPC function (se existir)
     try {
       console.log('🎯 [checkEmailExists] Tentando RPC function...');
       
@@ -49,7 +28,7 @@ export const checkEmailExists = async (email: string): Promise<{ exists: boolean
       console.log('⚠️ [checkEmailExists] Erro no RPC:', rpcError);
     }
     
-    // MÉTODO 3: Fallback usando signInWithPassword (SEM criar usuário)
+    // MÉTODO 2: Fallback usando signInWithPassword (SEM criar usuário)
     try {
       console.log('🎯 [checkEmailExists] Usando fallback com signInWithPassword...');
       
