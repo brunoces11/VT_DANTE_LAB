@@ -69,7 +69,7 @@ export default function Header() {
                   Agentes de IA
                 </a>
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
-                  Preços
+                  Planos
                 </a>
                 <div className="relative">
                   <button
@@ -142,7 +142,7 @@ export default function Header() {
                   Agentes de IA
                 </a>
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
-                  Preços
+                  Planos
                 </a>
                 <div>
                   <button
