@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ChatHeader from '@/components/chat_header';
 import ChatSidebar from '@/components/chat_sidebar';
 import ChatArea from '@/components/chat_area';
