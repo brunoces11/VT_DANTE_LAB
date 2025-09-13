@@ -17,7 +17,7 @@ export default function ChatSidebar() {
       id: '1',
       title: 'Registro de Matrícula',
       lastMessage: 'Procedimentos para registro...',
-      timestamp: 'Há 2 horas',
+      timestamp: '19/Jan/25 - 14:30',
       isEmpty: false,
       isActive: true,
     },
@@ -27,17 +27,27 @@ export default function ChatSidebar() {
   const [editingChat, setEditingChat] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
 
-  // Verifica se existe um chat vazio
-  const hasEmptyChat = chats.some(chat => chat.isEmpty);
+  // Função para formatar data/hora
+  const formatDateTime = () => {
+    const now = new Date();
+    const day = now.getDate().toString().padStart(2, '0');
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const month = months[now.getMonth()];
+    const year = now.getFullYear().toString().slice(-2);
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} - ${hours}:${minutes}`;
+  };
 
   const handleNewChat = () => {
-    if (hasEmptyChat) return; // Não permite criar novo chat se já existe um vazio
 
     const newChat: Chat = {
       id: Date.now().toString(),
       title: 'Novo Chat',
-      lastMessage: 'Chat criado',
-      timestamp: 'Agora',
+      lastMessage: '',
+      timestamp: formatDateTime(),
       isEmpty: true,
       isActive: false,
     };
@@ -109,7 +119,7 @@ export default function ChatSidebar() {
   const markChatAsNotEmpty = (chatId: string) => {
     setChats(prev => prev.map(chat => 
       chat.id === chatId 
-        ? { ...chat, isEmpty: false, lastMessage: 'Conversa iniciada', timestamp: 'Agora' }
+        ? { ...chat, isEmpty: false, lastMessage: 'Conversa iniciada', timestamp: formatDateTime() }
         : chat
     ));
   };
@@ -120,21 +130,11 @@ export default function ChatSidebar() {
       <div className="p-4 border-b border-gray-200">
         <Button
           onClick={handleNewChat}
-          disabled={hasEmptyChat}
-          className={`w-full flex items-center justify-center space-x-2 ${
-            hasEmptyChat 
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
-              : 'bg-orange-500 hover:bg-orange-600 text-white'
-          }`}
+          className="w-full flex items-center justify-center space-x-2 bg-orange-500 hover:bg-orange-600 text-white"
         >
           <ScrollText className="h-4 w-4" />
           <span>Novo Chat</span>
         </Button>
-        {hasEmptyChat && (
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            Complete o chat atual antes de criar um novo
-          </p>
-        )}
       </div>
 
       {/* Lista de Chats */}
@@ -177,11 +177,13 @@ export default function ChatSidebar() {
                       )}
                     </p>
                   )}
-                  <p className={`text-xs mt-1 truncate ${
-                    chat.isActive ? 'text-orange-600' : 'text-gray-600'
-                  }`}>
-                    {chat.lastMessage}
-                  </p>
+                  {chat.lastMessage && (
+                    <p className={`text-xs mt-1 truncate ${
+                      chat.isActive ? 'text-orange-600' : 'text-gray-600'
+                    }`}>
+                      {chat.lastMessage}
+                    </p>
+                  )}
                   <p className={`text-xs mt-1 ${
                     chat.isActive ? 'text-orange-500' : 'text-gray-500'
                   }`}>
