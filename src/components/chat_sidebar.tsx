@@ -12,10 +12,9 @@ interface Chat {
 }
 
 interface ChatSidebarProps {
-  onFirstMessage?: (chatId: string, message: string) => void;
 }
 
-export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
+export default function ChatSidebar() {
   const [chats, setChats] = useState<Chat[]>([
     {
       id: '1',
@@ -118,39 +117,6 @@ export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
       handleCancelRename();
     }
   };
-
-  // Função para marcar chat como não vazio (será chamada quando usuário enviar primeira mensagem)
-  const markChatAsNotEmpty = (chatId: string, firstMessage: string) => {
-    // Capturar exatamente os primeiros 50 caracteres da pergunta
-    const newTitle = firstMessage.length > 50 
-      ? firstMessage.substring(0, 50).trim() + '...'
-      : firstMessage.trim();
-    
-    setChats(prev => prev.map(chat => 
-      chat.id === chatId 
-        ? { 
-            ...chat, 
-            isEmpty: false, 
-            title: newTitle,
-            lastMessage: firstMessage.length > 30 ? firstMessage.substring(0, 30) + '...' : firstMessage, 
-            timestamp: formatDateTime() 
-          }
-        : chat
-    ));
-  };
-
-  // Expor função para componentes pais
-  React.useEffect(() => {
-    // Encontrar chat ativo e vazio
-    const activeEmptyChat = chats.find(chat => chat.isActive && chat.isEmpty);
-    if (activeEmptyChat && onFirstMessage) {
-      // Criar função que será chamada quando primeira mensagem for enviada
-      const handleFirstMessage = (message: string) => {
-        markChatAsNotEmpty(activeEmptyChat.id, message);
-      };
-      onFirstMessage(activeEmptyChat.id, handleFirstMessage);
-    }
-  }, [chats, onFirstMessage]);
 
   return (
     <aside className="w-[350px] bg-white border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ height: 'calc(100vh - 80px)' }}>

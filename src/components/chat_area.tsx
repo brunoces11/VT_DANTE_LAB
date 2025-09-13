@@ -15,10 +15,9 @@ interface Message {
 }
 
 interface ChatAreaProps {
-  onFirstMessage?: (message: string) => void;
 }
 
-export default function ChatArea({ onFirstMessage }: ChatAreaProps) {
+export default function ChatArea() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -29,7 +28,6 @@ export default function ChatArea({ onFirstMessage }: ChatAreaProps) {
   ]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isFirstMessage, setIsFirstMessage] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll automático para o final quando novas mensagens são adicionadas
@@ -43,12 +41,6 @@ export default function ChatArea({ onFirstMessage }: ChatAreaProps) {
 
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
-
-    // Se é a primeira mensagem do usuário, notificar o componente pai para renomear o chat
-    if (isFirstMessage && onFirstMessage) {
-      onFirstMessage(inputValue);
-      setIsFirstMessage(false);
-    }
 
     // Adicionar mensagem do usuário
     const userMessage: Message = {
