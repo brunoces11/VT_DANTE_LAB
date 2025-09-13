@@ -16,7 +16,7 @@ export default function ChatSidebar() {
     {
       id: '1',
       title: 'Registro de Matrícula',
-      lastMessage: 'Procedimentos para registro...',
+      lastMessage: '',
       timestamp: '19/Jan/25 - 14:30',
       isEmpty: false,
       isActive: true,

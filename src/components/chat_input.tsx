@@ -36,7 +36,7 @@ export default function ChatInput({ onSendMessage, isLoading }: ChatInputProps) 
 
   return (
     <div className="p-4 border-t border-neutral-200 bg-white flex justify-center">
-      <div className="w-full max-w-[800px]">
+      <div className="w-full max-w-[950px]">
         <div className="flex space-x-2">
           <Input
             value={inputValue}

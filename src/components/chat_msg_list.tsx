@@ -20,7 +20,7 @@ interface ChatMsgListProps {
 export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListProps) {
   return (
     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar flex justify-center">
-      <div className="w-full max-w-[800px] space-y-6">
+      <div className="w-full max-w-[950px] space-y-6">
         {messages.map((message) => (
           <div
             key={message.id}
