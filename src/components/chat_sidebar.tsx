@@ -11,6 +11,10 @@ export default function ChatSidebar() {
         {/* Lista de conversas com scroll quando necessário */}
         <div className="space-y-3">
           <div className="p-3 bg-white rounded-lg border border-amber-200 hover:bg-amber-25 cursor-pointer">
+            <p className="text-sm font-medium text-neutral-900">Conversa Ativa</p>
+            <p className="text-xs text-neutral-600 mt-1">Agora</p>
+          </div>
+          
           <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer">
             <p className="text-sm font-medium text-neutral-900">Nova Conversa</p>
             <p className="text-xs text-neutral-600 mt-1">Clique para iniciar</p>
