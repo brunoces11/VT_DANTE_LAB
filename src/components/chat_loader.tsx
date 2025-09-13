@@ -7,7 +7,7 @@ interface ChatLoaderProps {
 
 export default function ChatLoader({ loadingText = 'Processando...' }: ChatLoaderProps) {
   return (
-    <div className="flex justify-start mb-6">
+    <div className="flex justify-start">
       <div className="flex items-start space-x-3 max-w-[85%]">
         {/* Avatar */}
         <div className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 bg-gradient-to-br from-orange-500 to-orange-600">
