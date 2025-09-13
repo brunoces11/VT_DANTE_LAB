@@ -1,43 +1,249 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ScrollText, MoreHorizontal, Edit2, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface Chat {
+  id: string;
+  title: string;
+  lastMessage: string;
+  timestamp: string;
+  isEmpty: boolean;
+  isActive: boolean;
+}
 
 export default function ChatSidebar() {
+  const [chats, setChats] = useState<Chat[]>([
+    {
+      id: '1',
+      title: 'Registro de Matrícula',
+      lastMessage: 'Procedimentos para registro...',
+      timestamp: 'Há 2 horas',
+      isEmpty: false,
+      isActive: true,
+    },
+  ]);
+
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [editingChat, setEditingChat] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+
+  // Verifica se existe um chat vazio
+  const hasEmptyChat = chats.some(chat => chat.isEmpty);
+
+  const handleNewChat = () => {
+    if (hasEmptyChat) return; // Não permite criar novo chat se já existe um vazio
+
+    const newChat: Chat = {
+      id: Date.now().toString(),
+      title: 'Novo Chat',
+      lastMessage: 'Chat criado',
+      timestamp: 'Agora',
+      isEmpty: true,
+      isActive: false,
+    };
+
+    // Desativa todos os chats e ativa o novo
+    setChats(prev => [
+      newChat,
+      ...prev.map(chat => ({ ...chat, isActive: false }))
+    ]);
+  };
+
+  const handleChatClick = (chatId: string) => {
+    setChats(prev => prev.map(chat => ({
+      ...chat,
+      isActive: chat.id === chatId
+    })));
+    setActiveDropdown(null);
+  };
+
+  const handleDropdownToggle = (chatId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === chatId ? null : chatId);
+  };
+
+  const handleRename = (chatId: string, currentTitle: string) => {
+    setEditingChat(chatId);
+    setEditTitle(currentTitle);
+    setActiveDropdown(null);
+  };
+
+  const handleSaveRename = (chatId: string) => {
+    if (editTitle.trim()) {
+      setChats(prev => prev.map(chat => 
+        chat.id === chatId 
+          ? { ...chat, title: editTitle.trim() }
+          : chat
+      ));
+    }
+    setEditingChat(null);
+    setEditTitle('');
+  };
+
+  const handleCancelRename = () => {
+    setEditingChat(null);
+    setEditTitle('');
+  };
+
+  const handleDelete = (chatId: string) => {
+    setChats(prev => {
+      const filtered = prev.filter(chat => chat.id !== chatId);
+      // Se o chat deletado era o ativo, ativa o primeiro da lista
+      if (prev.find(chat => chat.id === chatId)?.isActive && filtered.length > 0) {
+        filtered[0].isActive = true;
+      }
+      return filtered;
+    });
+    setActiveDropdown(null);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent, chatId: string) => {
+    if (e.key === 'Enter') {
+      handleSaveRename(chatId);
+    } else if (e.key === 'Escape') {
+      handleCancelRename();
+    }
+  };
+
+  // Função para marcar chat como não vazio (será chamada quando usuário enviar primeira mensagem)
+  const markChatAsNotEmpty = (chatId: string) => {
+    setChats(prev => prev.map(chat => 
+      chat.id === chatId 
+        ? { ...chat, isEmpty: false, lastMessage: 'Conversa iniciada', timestamp: 'Agora' }
+        : chat
+    ));
+  };
+
   return (
     <aside className="w-[350px] bg-white border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ height: 'calc(100vh - 80px)' }}>
-      <div className="p-6 overflow-y-auto flex-1 sidebar-scrollbar">
-        <h2 className="text-lg font-semibold text-neutral-900 mb-4">
-          Conversas
+      {/* Header com botão Novo Chat */}
+      <div className="p-4 border-b border-gray-200">
+        <Button
+          onClick={handleNewChat}
+          disabled={hasEmptyChat}
+          className={`w-full flex items-center justify-center space-x-2 ${
+            hasEmptyChat 
+              ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+              : 'bg-orange-500 hover:bg-orange-600 text-white'
+          }`}
+        >
+          <ScrollText className="h-4 w-4" />
+          <span>Novo Chat</span>
+        </Button>
+        {hasEmptyChat && (
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            Complete o chat atual antes de criar um novo
+          </p>
+        )}
+      </div>
+
+      {/* Lista de Chats */}
+      <div className="flex-1 overflow-y-auto p-4 sidebar-scrollbar">
+        <h2 className="text-sm font-medium text-gray-600 mb-3 uppercase tracking-wide">
+          Histórico de Conversas
         </h2>
         
-        {/* Lista de conversas com scroll quando necessário */}
-        <div className="space-y-3">
-          <div className="p-3 bg-white rounded-lg border border-amber-200 hover:bg-amber-25 cursor-pointer">
-            <p className="text-sm font-medium text-neutral-900">Conversa Ativa</p>
-            <p className="text-xs text-neutral-600 mt-1">Agora</p>
-          </div>
-          
-          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer">
-            <p className="text-sm font-medium text-neutral-900">Nova Conversa</p>
-            <p className="text-xs text-neutral-600 mt-1">Clique para iniciar</p>
-          </div>
-          
-          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer">
-            <p className="text-sm font-medium text-neutral-900">Registro de Matrícula</p>
-            <p className="text-xs text-neutral-600 mt-1">Há 2 horas</p>
-          </div>
-          
-          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer">
-            <p className="text-sm font-medium text-neutral-900">Qualificação Registral</p>
-            <p className="text-xs text-neutral-600 mt-1">Ontem</p>
-          </div>
-          
-          {/* Adicionar mais itens para testar o scroll */}
-          {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 cursor-pointer">
-              <p className="text-sm font-medium text-neutral-900">Conversa {i + 4}</p>
-              <p className="text-xs text-neutral-600 mt-1">Há {i + 1} dias</p>
+        <div className="space-y-2">
+          {chats.map((chat) => (
+            <div
+              key={chat.id}
+              className={`relative group p-3 rounded-lg border cursor-pointer transition-all ${
+                chat.isActive
+                  ? 'bg-orange-50 border-orange-200 shadow-sm'
+                  : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+              }`}
+              onClick={() => handleChatClick(chat.id)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  {editingChat === chat.id ? (
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onBlur={() => handleSaveRename(chat.id)}
+                      onKeyPress={(e) => handleKeyPress(e, chat.id)}
+                      className="w-full text-sm font-medium bg-white border border-orange-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <p className={`text-sm font-medium truncate ${
+                      chat.isActive ? 'text-orange-900' : 'text-gray-900'
+                    }`}>
+                      {chat.title}
+                      {chat.isEmpty && (
+                        <span className="ml-2 text-xs text-gray-400">(vazio)</span>
+                      )}
+                    </p>
+                  )}
+                  <p className={`text-xs mt-1 truncate ${
+                    chat.isActive ? 'text-orange-600' : 'text-gray-600'
+                  }`}>
+                    {chat.lastMessage}
+                  </p>
+                  <p className={`text-xs mt-1 ${
+                    chat.isActive ? 'text-orange-500' : 'text-gray-500'
+                  }`}>
+                    {chat.timestamp}
+                  </p>
+                </div>
+
+                {/* Botão de opções */}
+                <div className="relative">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6"
+                    onClick={(e) => handleDropdownToggle(chat.id, e)}
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                  </Button>
+
+                  {/* Dropdown de opções */}
+                  {activeDropdown === chat.id && (
+                    <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRename(chat.id, chat.title);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                      >
+                        <Edit2 className="h-3 w-3" />
+                        <span>Renomear</span>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(chat.id);
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        <span>Deletar</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>
+
+        {chats.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-sm text-gray-500">Nenhuma conversa ainda</p>
+            <p className="text-xs text-gray-400 mt-1">Clique em "Novo Chat" para começar</p>
+          </div>
+        )}
+      </div>
+
+      {/* Rodapé com informações */}
+      <div className="p-4 border-t border-gray-200 bg-gray-50">
+        <p className="text-xs text-gray-600 text-center">
+          {chats.length} conversa{chats.length !== 1 ? 's' : ''} • Dante AI
+        </p>
       </div>
     </aside>
   );
