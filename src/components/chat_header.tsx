@@ -10,10 +10,7 @@ export default function ChatHeader() {
           <div className="p-2 bg-orange-500 rounded-lg">
             <Brain className="h-6 w-6 text-white" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-bold text-neutral-900">Dante-IA</span>
-            <span className="text-sm text-neutral-600">Registro de Imóveis</span>
-          </div>
+          <span className="text-xl font-bold text-neutral-900">Dante AI</span>
         </div>
       </div>
     </header>
