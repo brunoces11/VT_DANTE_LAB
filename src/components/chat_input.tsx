@@ -44,17 +44,20 @@ export default function ChatInput({ onSendMessage, isLoading }: ChatInputProps) 
             onKeyPress={handleKeyPress}
             placeholder="Digite sua pergunta sobre Registro de Imóveis..."
             disabled={isLoading}
-            className="flex-1 bg-white border-neutral-200 focus:border-orange-400 focus:ring-orange-400"
+            className="flex-1 bg-white border-neutral-200 focus:border-orange-400 focus:ring-orange-400 h-12"
           />
           <Button 
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
-            className="bg-orange-500 text-white hover:bg-orange-600"
+            className="bg-orange-500 text-white hover:bg-orange-600 h-12 px-4"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <>
+                <Send className="h-4 w-4 mr-2" />
+                Enviar
+              </>
             )}
           </Button>
         </div>
