@@ -22,7 +22,7 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
   return (
     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar flex justify-center">
       <div className="w-full max-w-[950px] space-y-6">
-        {messages.map((message) => (
+        {messages.filter(message => !message.isLoading).map((message) => (
           <div
             key={message.id}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -57,46 +57,39 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                     : 'bg-neutral-100 text-neutral-900'
                 }`}
               >
-                {message.isLoading ? (
-                  // Loader agora é renderizado separadamente
-                  null
+                {message.sender === 'bot' ? (
+                  <div className="prose prose-sm max-w-none prose-headings:text-neutral-900 prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-p:text-sm prose-p:leading-relaxed prose-strong:text-neutral-900 prose-strong:font-semibold prose-ul:text-sm prose-ol:text-sm prose-li:text-sm prose-blockquote:text-sm prose-blockquote:border-orange-300 prose-blockquote:bg-orange-50 prose-blockquote:px-3 prose-blockquote:py-2 prose-blockquote:rounded prose-code:text-xs prose-code:bg-neutral-200 prose-code:px-1 prose-code:rounded">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
                 ) : (
-                  <>
-                    {message.sender === 'bot' ? (
-                      <div className="prose prose-sm max-w-none prose-headings:text-neutral-900 prose-headings:font-semibold prose-h1:text-lg prose-h2:text-base prose-h3:text-sm prose-p:text-sm prose-p:leading-relaxed prose-strong:text-neutral-900 prose-strong:font-semibold prose-ul:text-sm prose-ol:text-sm prose-li:text-sm prose-blockquote:text-sm prose-blockquote:border-orange-300 prose-blockquote:bg-orange-50 prose-blockquote:px-3 prose-blockquote:py-2 prose-blockquote:rounded prose-code:text-xs prose-code:bg-neutral-200 prose-code:px-1 prose-code:rounded">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {message.content}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {message.content}
-                      </p>
-                    )}
-                    <div className="flex items-center justify-between mt-2">
-                      <span
-                        className={`text-xs ${
-                          message.sender === 'user'
-                            ? 'text-neutral-300'
-                            : 'text-neutral-500'
-                        }`}
-                      >
-                        {(() => {
-                          const date = message.timestamp;
-                          const day = date.getDate().toString().padStart(2, '0');
-                          const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
-                                         'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                          const month = months[date.getMonth()];
-                          const year = date.getFullYear().toString().slice(-2);
-                          const hours = date.getHours().toString().padStart(2, '0');
-                          const minutes = date.getMinutes().toString().padStart(2, '0');
-                          
-                          return `${day}/${month}/${year} - ${hours}:${minutes}`;
-                        })()}
-                      </span>
-                    </div>
-                  </>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {message.content}
+                  </p>
                 )}
+                <div className="flex items-center justify-between mt-2">
+                  <span
+                    className={`text-xs ${
+                      message.sender === 'user'
+                        ? 'text-neutral-300'
+                        : 'text-neutral-500'
+                    }`}
+                  >
+                    {(() => {
+                      const date = message.timestamp;
+                      const day = date.getDate().toString().padStart(2, '0');
+                      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                                     'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                      const month = months[date.getMonth()];
+                      const year = date.getFullYear().toString().slice(-2);
+                      const hours = date.getHours().toString().padStart(2, '0');
+                      const minutes = date.getMinutes().toString().padStart(2, '0');
+                      
+                      return `${day}/${month}/${year} - ${hours}:${minutes}`;
+                    })()}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
