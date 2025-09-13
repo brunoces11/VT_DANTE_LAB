@@ -231,10 +231,18 @@ export default function ChatArea() {
                             : 'text-neutral-500'
                         }`}
                       >
-                        {message.timestamp.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
+                        {(() => {
+                          const date = message.timestamp;
+                          const day = date.getDate().toString().padStart(2, '0');
+                          const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
+                                         'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                          const month = months[date.getMonth()];
+                          const year = date.getFullYear().toString().slice(-2);
+                          const hours = date.getHours().toString().padStart(2, '0');
+                          const minutes = date.getMinutes().toString().padStart(2, '0');
+                          
+                          return `${day}/${month}/${year} - ${hours}:${minutes}`;
+                        })()}
                       </span>
                     </div>
                   </>
