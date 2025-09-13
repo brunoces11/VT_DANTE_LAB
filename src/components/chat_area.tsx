@@ -1,11 +1,9 @@
 import React from 'react';
 import { useState } from 'react';
 import { useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import ChatMsgHeader from '@/components/chat_msg_header';
 import ChatMsgList from '@/components/chat_msg_list';
+import ChatInput from '@/components/chat_input';
 
 interface Message {
   id: number;
@@ -38,9 +36,7 @@ export default function ChatArea() {
     }
   ]);
 
-  const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingText, setLoadingText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll automático para o final quando novas mensagens são adicionadas
@@ -52,7 +48,7 @@ export default function ChatArea() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
 
     // Adicionar mensagem do usuário
@@ -64,14 +60,12 @@ export default function ChatArea() {
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
     setIsLoading(true);
     
     // Scroll imediato após enviar mensagem do usuário
     setTimeout(scrollToBottom, 100);
 
     // Iniciar sequência de loading
-    setLoadingText('Consultando Base Legal vigente...');
     const loadingMessage: Message = {
       id: Date.now() + 1,
       content: '',
@@ -101,7 +95,6 @@ export default function ChatArea() {
     loadingSequence.forEach((step, index) => {
       currentDelay += step.delay;
       setTimeout(() => {
-        setLoadingText(step.text);
         setMessages(prev => prev.map(msg => 
           msg.isLoading ? { ...msg, loadingText: step.text } : msg
         ));
@@ -141,12 +134,6 @@ export default function ChatArea() {
     }, totalLoadingTime + Math.random() * 1000 + 1500); // Tempo da sequência + 1.5-2.5s adicional
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   return (
     <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 80px)' }}>
@@ -157,32 +144,7 @@ export default function ChatArea() {
       <ChatMsgList messages={messages} messagesEndRef={messagesEndRef} />
 
       {/* Input */}
-      <div className="p-4 border-t border-neutral-200 bg-white">
-        <div className="flex space-x-2">
-          <Input
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-            disabled={isLoading}
-            className="flex-1 bg-white border-neutral-200 focus:border-orange-400 focus:ring-orange-400"
-          />
-          <Button 
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isLoading}
-            className="bg-orange-500 text-white hover:bg-orange-600"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-        <p className="text-xs text-neutral-500 mt-2 text-center">
-          Dante AI pode cometer erros. Verifique informações importantes com a legislação oficial.
-        </p>
-      </div>
+      <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
     </div>
   );
 }
