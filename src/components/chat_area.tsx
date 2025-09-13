@@ -44,7 +44,7 @@ export default function ChatArea({ onFirstMessage }: ChatAreaProps = {}) {
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
 
-    // Se é a primeira mensagem do usuário, notificar o componente pai
+    // Se é a primeira mensagem do usuário, notificar o componente pai para renomear o chat
     if (isFirstMessage && onFirstMessage) {
       onFirstMessage(inputValue);
       setIsFirstMessage(false);

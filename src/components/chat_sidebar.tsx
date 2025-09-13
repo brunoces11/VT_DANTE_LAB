@@ -120,14 +120,11 @@ export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
   };
 
   // Função para marcar chat como não vazio (será chamada quando usuário enviar primeira mensagem)
-  const markChatAsNotEmpty = (chatId: string, firstMessage?: string) => {
-    // Função para truncar texto longo
-    const truncateTitle = (text: string, maxLength: number = 50) => {
-      if (text.length <= maxLength) return text;
-      return text.substring(0, maxLength).trim() + '...';
-    };
-
-    const newTitle = firstMessage ? truncateTitle(firstMessage) : 'Conversa iniciada';
+  const markChatAsNotEmpty = (chatId: string, firstMessage: string) => {
+    // Capturar exatamente os primeiros 50 caracteres da pergunta
+    const newTitle = firstMessage.length > 50 
+      ? firstMessage.substring(0, 50).trim() + '...'
+      : firstMessage;
     
     setChats(prev => prev.map(chat => 
       chat.id === chatId 
@@ -135,7 +132,7 @@ export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
             ...chat, 
             isEmpty: false, 
             title: newTitle,
-            lastMessage: 'Conversa iniciada', 
+            lastMessage: firstMessage.substring(0, 30) + (firstMessage.length > 30 ? '...' : ''), 
             timestamp: formatDateTime() 
           }
         : chat
@@ -144,16 +141,14 @@ export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
 
   // Expor função para componentes pais
   React.useEffect(() => {
-    if (onFirstMessage) {
-      // Encontrar chat ativo e vazio
-      const activeEmptyChat = chats.find(chat => chat.isActive && chat.isEmpty);
-      if (activeEmptyChat) {
-        // Criar função que será chamada quando primeira mensagem for enviada
-        const handleFirstMessage = (message: string) => {
-          markChatAsNotEmpty(activeEmptyChat.id, message);
-        };
-        onFirstMessage(activeEmptyChat.id, handleFirstMessage);
-      }
+    // Encontrar chat ativo e vazio
+    const activeEmptyChat = chats.find(chat => chat.isActive && chat.isEmpty);
+    if (activeEmptyChat && onFirstMessage) {
+      // Criar função que será chamada quando primeira mensagem for enviada
+      const handleFirstMessage = (message: string) => {
+        markChatAsNotEmpty(activeEmptyChat.id, message);
+      };
+      onFirstMessage(activeEmptyChat.id, handleFirstMessage);
     }
   }, [chats, onFirstMessage]);
 
