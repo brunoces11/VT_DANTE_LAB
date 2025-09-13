@@ -14,7 +14,11 @@ interface Message {
   loadingText?: string;
 }
 
-export default function ChatArea() {
+interface ChatAreaProps {
+  onFirstMessage?: (message: string) => void;
+}
+
+export default function ChatArea({ onFirstMessage }: ChatAreaProps = {}) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -22,21 +26,10 @@ export default function ChatArea() {
       sender: 'bot',
       timestamp: new Date(),
     },
-    {
-      id: 2,
-      content: "Preciso saber sobre os procedimentos para registro de uma escritura de compra e venda.",
-      sender: 'user',
-      timestamp: new Date(),
-    },
-    {
-      id: 3,
-      content: "## Registro de Escritura de Compra e Venda\n\nPara o registro de uma **escritura de compra e venda**, é necessário verificar:\n\n### 1. Qualificação Registral\n- Análise da cadeia dominial\n- Verificação de continuidade\n- Conferência de dados\n\n### 2. Documentação Exigida\n- Certidões negativas atualizadas\n- Comprovante de quitação do ITBI\n- Certidão de ônus reais\n\n### 3. Aspectos Formais\n- **Escritura pública** lavrada em cartório\n- Assinatura das partes\n- Reconhecimento de firmas\n\n> **Base Legal**: Todos os documentos devem estar em conformidade com a **Lei 6.015/73** e as normas do **CNJ**.\n\n*Precisa de esclarecimentos sobre algum item específico?*",
-      sender: 'bot',
-      timestamp: new Date(),
-    }
   ]);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirstMessage, setIsFirstMessage] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll automático para o final quando novas mensagens são adicionadas
@@ -50,6 +43,12 @@ export default function ChatArea() {
 
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
+
+    // Se é a primeira mensagem do usuário, notificar o componente pai
+    if (isFirstMessage && onFirstMessage) {
+      onFirstMessage(inputValue);
+      setIsFirstMessage(false);
+    }
 
     // Adicionar mensagem do usuário
     const userMessage: Message = {

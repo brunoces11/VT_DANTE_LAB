@@ -11,7 +11,11 @@ interface Chat {
   isActive: boolean;
 }
 
-export default function ChatSidebar() {
+interface ChatSidebarProps {
+  onFirstMessage?: (chatId: string, message: string) => void;
+}
+
+export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
   const [chats, setChats] = useState<Chat[]>([
     {
       id: '1',
@@ -45,7 +49,7 @@ export default function ChatSidebar() {
 
     const newChat: Chat = {
       id: Date.now().toString(),
-      title: 'Novo Chat',
+      title: 'Nova conversa',
       lastMessage: '',
       timestamp: formatDateTime(),
       isEmpty: true,
@@ -116,13 +120,42 @@ export default function ChatSidebar() {
   };
 
   // Função para marcar chat como não vazio (será chamada quando usuário enviar primeira mensagem)
-  const markChatAsNotEmpty = (chatId: string) => {
+  const markChatAsNotEmpty = (chatId: string, firstMessage?: string) => {
+    // Função para truncar texto longo
+    const truncateTitle = (text: string, maxLength: number = 50) => {
+      if (text.length <= maxLength) return text;
+      return text.substring(0, maxLength).trim() + '...';
+    };
+
+    const newTitle = firstMessage ? truncateTitle(firstMessage) : 'Conversa iniciada';
+    
     setChats(prev => prev.map(chat => 
       chat.id === chatId 
-        ? { ...chat, isEmpty: false, lastMessage: 'Conversa iniciada', timestamp: formatDateTime() }
+        ? { 
+            ...chat, 
+            isEmpty: false, 
+            title: newTitle,
+            lastMessage: 'Conversa iniciada', 
+            timestamp: formatDateTime() 
+          }
         : chat
     ));
   };
+
+  // Expor função para componentes pais
+  React.useEffect(() => {
+    if (onFirstMessage) {
+      // Encontrar chat ativo e vazio
+      const activeEmptyChat = chats.find(chat => chat.isActive && chat.isEmpty);
+      if (activeEmptyChat) {
+        // Criar função que será chamada quando primeira mensagem for enviada
+        const handleFirstMessage = (message: string) => {
+          markChatAsNotEmpty(activeEmptyChat.id, message);
+        };
+        onFirstMessage(activeEmptyChat.id, handleFirstMessage);
+      }
+    }
+  }, [chats, onFirstMessage]);
 
   return (
     <aside className="w-[350px] bg-white border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ height: 'calc(100vh - 80px)' }}>
