@@ -18,7 +18,7 @@ interface ChatAreaProps {
   onFirstMessage?: (message: string) => void;
 }
 
-export default function ChatArea({ onFirstMessage }: ChatAreaProps = {}) {
+export default function ChatArea({ onFirstMessage }: ChatAreaProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,

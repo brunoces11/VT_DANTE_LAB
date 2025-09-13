@@ -124,7 +124,7 @@ export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
     // Capturar exatamente os primeiros 50 caracteres da pergunta
     const newTitle = firstMessage.length > 50 
       ? firstMessage.substring(0, 50).trim() + '...'
-      : firstMessage;
+      : firstMessage.trim();
     
     setChats(prev => prev.map(chat => 
       chat.id === chatId 
@@ -132,7 +132,7 @@ export default function ChatSidebar({ onFirstMessage }: ChatSidebarProps = {}) {
             ...chat, 
             isEmpty: false, 
             title: newTitle,
-            lastMessage: firstMessage.substring(0, 30) + (firstMessage.length > 30 ? '...' : ''), 
+            lastMessage: firstMessage.length > 30 ? firstMessage.substring(0, 30) + '...' : firstMessage, 
             timestamp: formatDateTime() 
           }
         : chat
