@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import HomePage from '@/pages/HomePage';
 import ChatPrincipal from '@/pages/ChatPrincipal';
+import ChatPage from '@/pages/ChatPage';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/chat-page" element={<ChatPage />} />
           <Route 
             path="/chat-principal" 
             element={

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRight, Play, MessageCircle } from "lucide-react";
-import ChatModal from "./chat-modal";
+import ChatHero from "./chat_hero";
 
 export default function Hero() {
   const [question, setQuestion] = useState("");
@@ -110,7 +110,7 @@ export default function Hero() {
         </div>
       </section>
 
-      <ChatModal 
+      <ChatHero 
         isOpen={isChatOpen} 
         onClose={() => {
           setIsChatOpen(false);

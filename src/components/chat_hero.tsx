@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Bot, User } from 'lucide-react';
 
-interface ChatModalProps {
+interface ChatHeroProps {
   isOpen: boolean;
   onClose: () => void;
   initialMessage: string;
@@ -22,7 +22,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function ChatModal({ isOpen, onClose, initialMessage }: ChatModalProps) {
+export default function ChatHero({ isOpen, onClose, initialMessage }: ChatHeroProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
