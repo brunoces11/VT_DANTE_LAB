@@ -2,8 +2,8 @@ import React from 'react';
 
 export default function ChatSidebar() {
   return (
-    <aside className="w-[350px] bg-white border-r border-gray-200 flex-shrink-0 flex flex-col custom-scrollbar" style={{ height: 'calc(100vh - 90px)' }}>
-      <div className="p-6 overflow-y-auto flex-1">
+    <aside className="w-[350px] bg-white border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ height: 'calc(100vh - 90px)' }}>
+      <div className="p-6 overflow-y-auto flex-1 sidebar-scrollbar">
         <h2 className="text-lg font-semibold text-neutral-900 mb-4">
           Conversas
         </h2>
