@@ -3,7 +3,7 @@ import { Brain } from 'lucide-react';
 
 export default function ChatHeader() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-[100px] w-full bg-gray-100 border-b border-gray-200">
+    <header className="fixed top-0 left-0 right-0 z-50 h-[90px] w-full bg-gray-100 border-b border-gray-200">
       <div className="flex items-center h-full px-6">
         {/* Logo no canto esquerdo */}
         <div className="flex items-center space-x-3">

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 
 export default function ChatArea() {
   return (
-    <div className="flex-1 bg-white relative custom-scrollbar" style={{ height: 'calc(100vh - 100px)' }}>
+    <div className="flex-1 bg-white relative custom-scrollbar" style={{ height: 'calc(100vh - 90px)' }}>
       {/* Área de mensagens */}
       <div className="h-full p-6 overflow-y-auto pb-24 custom-scrollbar">
         <div className="max-w-4xl mx-auto">
