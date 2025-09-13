@@ -136,29 +136,3 @@ export default function ChatArea() {
     </div>
   );
 }
-          </div>
-        </div>
-      </div>
-
-      {/* Área de input fixo na parte inferior com z-index alto */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-6 z-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-4">
-            <Input
-              placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-              className="flex-1 bg-white border-gray-200 focus:border-gray-400 focus:ring-gray-400"
-            />
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white px-6">
-              <Send className="h-4 w-4 mr-2" />
-              Enviar
-            </Button>
-          </div>
-          
-          <p className="text-xs text-neutral-500 mt-2 text-center">
-            Dante AI pode cometer erros. Verifique informações importantes com a legislação oficial.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
