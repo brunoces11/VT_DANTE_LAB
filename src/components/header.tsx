@@ -91,6 +91,15 @@ export default function Header() {
                       >
                         Chat page
                       </button>
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          navigate('/chat-page2');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                      >
+                        Chat Page 2
+                      </button>
                     </div>
                   )}
                 </div>
@@ -163,6 +172,16 @@ export default function Header() {
                         className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
                       >
                         Chat page
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          setIsMenuOpen(false);
+                          navigate('/chat-page2');
+                        }}
+                        className="block text-neutral-600 hover:text-neutral-900 text-sm font-medium mt-2"
+                      >
+                        Chat Page 2
                       </button>
                     </div>
                   )}
