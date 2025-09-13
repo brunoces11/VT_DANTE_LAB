@@ -54,7 +54,7 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                 className={`rounded-lg p-3 ${
                   message.sender === 'user'
                     ? 'bg-neutral-900 text-white'
-                    : 'bg-neutral-100 text-neutral-900'
+                    : 'bg-neutral-100 text-neutral-900 mb-[30px]'
                 }`}
               >
                 {message.sender === 'bot' ? (

@@ -15,7 +15,7 @@ export default function ChatLoader({ loadingText = 'Processando...' }: ChatLoade
         </div>
 
         {/* Conteúdo do loader */}
-        <div className="rounded-lg p-3 bg-neutral-100 text-neutral-900">
+        <div className="rounded-lg p-3 bg-neutral-100 text-neutral-900 mb-[30px]">
           <div className="flex items-center space-x-2">
             <Loader2 className="h-4 w-4 animate-spin" />
             <span className="text-sm">{loadingText}</span>
