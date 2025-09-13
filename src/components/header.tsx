@@ -32,20 +32,13 @@ export default function Header() {
   }, [isLabDropdownOpen]);
 
   const handleChatClick = () => {
-    if (user) {
-      navigate('/chat-principal');
-    } else {
-      setIsAuthModalOpen(true);
-    }
+    navigate('/chat-page');
   };
 
   const handleLoginClick = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleAuthSuccess = () => {
-    navigate('/chat-principal');
-  };
 
   return (
     <>
@@ -54,12 +47,15 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => navigate('/')}
+                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              >
                 <div className="p-2 bg-orange-500 rounded-lg">
                   <Brain className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-2xl font-bold text-neutral-900">Dante-IA</span>
-              </div>
+              </button>
             </div>
 
             {/* Desktop Navigation */}
