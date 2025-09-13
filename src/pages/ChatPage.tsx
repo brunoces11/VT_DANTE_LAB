@@ -10,7 +10,7 @@ export default function ChatPage() {
       <ChatHeader />
       
       {/* Layout principal com flexbox */}
-      <div className="flex h-full" style={{ paddingTop: '90px' }}>
+      <div className="flex h-full" style={{ paddingTop: '80px' }}>
         {/* Sidebar fixa à esquerda */}
         <ChatSidebar />
         
