@@ -2,6 +2,7 @@ import React from 'react';
 import { User, Scale, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import ChatLoader from './chat_loader';
 
 interface Message {
   id: number;
@@ -57,10 +58,8 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                 }`}
               >
                 {message.isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">{message.loadingText || 'Processando...'}</span>
-                  </div>
+                  // Loader agora é renderizado separadamente
+                  null
                 ) : (
                   <>
                     {message.sender === 'bot' ? (
@@ -102,6 +101,14 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
             </div>
           </div>
         ))}
+        
+        {/* Renderizar loader separadamente se houver mensagem de loading */}
+        {messages.some(msg => msg.isLoading) && (
+          <ChatLoader 
+            loadingText={messages.find(msg => msg.isLoading)?.loadingText || 'Processando...'} 
+          />
+        )}
+        
         {/* Elemento invisível para scroll automático */}
         <div ref={messagesEndRef} />
       </div>
