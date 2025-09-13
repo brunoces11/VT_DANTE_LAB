@@ -85,8 +85,7 @@ export default function Header() {
                       <button
                         onClick={() => {
                           setIsLabDropdownOpen(false);
-                          // Navigate to chat page or handle action
-                          console.log('Chat page clicked');
+                          navigate('/chat-page');
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
                       >
@@ -159,8 +158,7 @@ export default function Header() {
                         onClick={() => {
                           setIsLabDropdownOpen(false);
                           setIsMenuOpen(false);
-                          // Navigate to chat page or handle action
-                          console.log('Chat page clicked');
+                          navigate('/chat-page');
                         }}
                         className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
                       >
