@@ -58,7 +58,7 @@ export default function Header() {
                 <div className="p-2 bg-orange-500 rounded-lg">
                   <Brain className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-neutral-900">Dante AI</span>
+                <span className="text-2xl font-bold text-neutral-900">Dante-IA</span>
               </div>
             </div>
 
