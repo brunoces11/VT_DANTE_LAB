@@ -5,23 +5,54 @@ import { Input } from '@/components/ui/input';
 
 export default function ChatArea() {
   return (
-    <div className="flex-1 h-screen bg-blue-50 flex flex-col">
+    <div className="flex-1 bg-blue-50 relative" style={{ height: 'calc(100vh - 100px)' }}>
       {/* Área de mensagens */}
-      <div className="flex-1 p-6 overflow-y-auto">
+      <div className="h-full p-6 overflow-y-auto pb-24">
         <div className="max-w-4xl mx-auto">
-          {/* Estado inicial - sem mensagens */}
-          <div className="flex flex-col items-center justify-center h-full text-center">
+          {/* Mensagens do chat */}
+          <div className="space-y-4 mb-6">
+            {/* Mensagem de boas-vindas */}
+            <div className="flex justify-center mb-8">
+              <div className="bg-white rounded-lg p-4 shadow-sm border border-blue-200 max-w-md text-center">
+                <div className="p-3 bg-blue-100 rounded-xl mb-3 inline-block">
+                  <MessageCircle className="h-6 w-6 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-neutral-900 mb-2">
+                  Bem-vindo ao Dante AI
+                </h3>
+                <p className="text-sm text-neutral-600">
+                  Sua IA especializada em Registro de Imóveis
+                </p>
+              </div>
+            </div>
+            
+            {/* Exemplo de mensagens para testar scroll */}
+            {Array.from({ length: 20 }).map((_, i) => (
+              <div key={i} className={`flex ${i % 2 === 0 ? 'justify-start' : 'justify-end'}`}>
+                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                  i % 2 === 0 
+                    ? 'bg-white border border-blue-200 text-neutral-900' 
+                    : 'bg-orange-500 text-white'
+                }`}>
+                  <p className="text-sm">
+                    {i % 2 === 0 
+                      ? `Esta é uma resposta do Dante AI sobre registro de imóveis. Mensagem ${i + 1}.`
+                      : `Esta é uma pergunta do usuário sobre procedimentos registrais. Pergunta ${i + 1}.`
+                    }
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* Cards de sugestões */}
+          <div className="flex flex-col items-center justify-center text-center">
             <div className="p-4 bg-blue-100 rounded-2xl mb-6">
               <MessageCircle className="h-12 w-12 text-blue-600" />
             </div>
             
-            <h3 className="text-2xl font-bold text-neutral-900 mb-3">
-              Bem-vindo ao Dante AI
-            </h3>
-            
-            <p className="text-lg text-neutral-600 mb-8 max-w-2xl">
-              Sua IA especializada em Registro de Imóveis. Faça perguntas sobre 
-              procedimentos registrais, qualificação de títulos e legislação.
+            <p className="text-lg text-neutral-600 mb-6 max-w-2xl">
+              Faça perguntas sobre procedimentos registrais, qualificação de títulos e legislação.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
@@ -65,8 +96,8 @@ export default function ChatArea() {
         </div>
       </div>
 
-      {/* Área de input fixo na parte inferior */}
-      <div className="border-t border-blue-200 bg-white p-6">
+      {/* Área de input fixo na parte inferior com z-index alto */}
+      <div className="absolute bottom-0 left-0 right-0 border-t border-blue-200 bg-white p-6 z-50">
         <div className="max-w-4xl mx-auto">
           <div className="flex gap-4">
             <Input

@@ -5,12 +5,12 @@ import ChatArea from '@/components/chat_area';
 
 export default function ChatPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen bg-white overflow-hidden">
       {/* Header fixo no topo */}
       <ChatHeader />
       
       {/* Layout principal com flexbox */}
-      <div className="flex" style={{ paddingTop: '100px' }}>
+      <div className="flex h-full" style={{ paddingTop: '100px' }}>
         {/* Sidebar fixa à esquerda */}
         <ChatSidebar />
         
