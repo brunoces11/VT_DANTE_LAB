@@ -13,6 +13,7 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
   isLoading?: boolean;
+  loadingText?: string;
 }
 
 export default function ChatArea() {
@@ -39,6 +40,7 @@ export default function ChatArea() {
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll automático para o final quando novas mensagens são adicionadas
@@ -68,13 +70,15 @@ export default function ChatArea() {
     // Scroll imediato após enviar mensagem do usuário
     setTimeout(scrollToBottom, 100);
 
-    // Adicionar mensagem de loading do bot
+    // Iniciar sequência de loading
+    setLoadingText('Consultando Base Legal vigente...');
     const loadingMessage: Message = {
       id: Date.now() + 1,
       content: '',
       sender: 'bot',
       timestamp: new Date(),
       isLoading: true,
+      loadingText: 'Consultando Base Legal vigente...',
     };
 
     setMessages(prev => [...prev, loadingMessage]);
@@ -82,7 +86,30 @@ export default function ChatArea() {
     // Scroll para mostrar mensagem de loading
     setTimeout(scrollToBottom, 200);
 
-    // Simular resposta da IA após 2-3 segundos
+    // Sequência de loading com tempos específicos
+    const loadingSequence = [
+      { text: 'Consultando Base Legal vigente...', delay: 700 },
+      { text: 'Acessando Leis Federais...', delay: 300 },
+      { text: 'Acessando Leis Estaduais...', delay: 500 },
+      { text: 'Acessando Documentos normativos:', delay: 200 },
+      { text: 'Provimentos, Codigo de Normas...', delay: 400 },
+      { text: 'Consolidando fundamentos jurídicos...', delay: 600 },
+      { text: 'Processando sua resposta, por favor aguarde...', delay: 0 }
+    ];
+
+    let currentDelay = 0;
+    loadingSequence.forEach((step, index) => {
+      currentDelay += step.delay;
+      setTimeout(() => {
+        setLoadingText(step.text);
+        setMessages(prev => prev.map(msg => 
+          msg.isLoading ? { ...msg, loadingText: step.text } : msg
+        ));
+      }, currentDelay);
+    });
+
+    // Simular resposta da IA após a sequência completa + tempo adicional
+    const totalLoadingTime = loadingSequence.reduce((sum, step) => sum + step.delay, 0);
     setTimeout(() => {
       const responses = [
         "## Análise Legal - Lei 6.015/73\n\nCom base na **legislação vigente**, especificamente na **Lei 6.015/73** (Lei de Registros Públicos), posso orientá-lo sobre esse procedimento.\n\n### Para essa situação específica, é necessário verificar:\n\n#### 📋 Documentação Exigida\n- Título hábil para registro\n- Certidões atualizadas\n- Comprovantes fiscais\n\n#### ⏰ Prazos Legais\n- Prazo de apresentação\n- Validade das certidões\n- Prazos processuais\n\n#### 💰 Tributos Incidentes\n- ITBI quitado\n- Emolumentos devidos\n- Taxas cartoriais\n\n#### ✅ Qualificação Registral\n- Análise da cadeia dominial\n- Verificação de vícios\n- Conformidade legal\n\n> **Pergunta**: Poderia fornecer mais detalhes sobre o caso específico?",
@@ -111,7 +138,7 @@ export default function ChatArea() {
       
       // Scroll para mostrar a resposta completa
       setTimeout(scrollToBottom, 300);
-    }, Math.random() * 1000 + 2000); // 2-3 segundos aleatório
+    }, totalLoadingTime + Math.random() * 1000 + 1500); // Tempo da sequência + 1.5-2.5s adicional
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -181,7 +208,7 @@ export default function ChatArea() {
                 {message.isLoading ? (
                   <div className="flex items-center space-x-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span className="text-sm">Analisando legislação...</span>
+                    <span className="text-sm">{message.loadingText || 'Processando...'}</span>
                   </div>
                 ) : (
                   <>
