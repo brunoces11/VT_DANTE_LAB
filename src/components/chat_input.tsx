@@ -62,7 +62,7 @@ export default function ChatInput({ onSendMessage, isLoading }: ChatInputProps) 
           </Button>
         </div>
         <p className="text-xs text-neutral-500 mt-2 text-center">
-          Dante AI pode cometer erros. Verifique informações importantes com a legislação oficial.
+          Dante-IA como toda inteligência artificial pode cometer erros. Verifique informações importantes.
         </p>
       </div>
     </div>
