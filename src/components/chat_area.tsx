@@ -88,11 +88,11 @@ export default function ChatArea() {
 
     // Sequência de loading com tempos específicos
     const loadingSequence = [
-      { text: 'Consultando Base Legal vigente...', delay: 700 },
-      { text: 'Acessando Leis Federais...', delay: 300 },
-      { text: 'Acessando Leis Estaduais...', delay: 500 },
-      { text: 'Acessando Documentos normativos:', delay: 200 },
-      { text: 'Provimentos, Codigo de Normas...', delay: 400 },
+      { text: 'Consultando Base Legal vigente...', delay: 1500 },
+      { text: 'Acessando Leis Federais...', delay: 1000 },
+      { text: 'Acessando Leis Estaduais...', delay: 700 },
+      { text: 'Acessando Documentos normativos:', delay: 800 },
+      { text: 'Provimentos, Codigo de Normas...', delay: 500 },
       { text: 'Consolidando fundamentos jurídicos...', delay: 600 },
       { text: 'Processando sua resposta, por favor aguarde...', delay: 0 }
     ];
