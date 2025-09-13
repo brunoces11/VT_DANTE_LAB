@@ -208,7 +208,6 @@ export default function Header() {
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
       />
     </>
   );
