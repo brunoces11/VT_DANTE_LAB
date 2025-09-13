@@ -1,6 +1,7 @@
 import React from 'react';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Menu, X } from 'lucide-react';
+import { Brain, Menu, X, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -8,9 +9,27 @@ import AuthModal from '@/components/auth/AuthModal';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLabDropdownOpen, setIsLabDropdownOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isLabDropdownOpen) {
+        const target = event.target as Element;
+        if (!target.closest('.relative')) {
+          setIsLabDropdownOpen(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isLabDropdownOpen]);
 
   const handleChatClick = () => {
     if (user) {
@@ -52,9 +71,30 @@ export default function Header() {
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
                   Preços
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
-                  Link
-                </a>
+                <div className="relative">
+                  <button
+                    onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
+                    className="flex items-center text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                  >
+                    Lab
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </button>
+                  
+                  {isLabDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          // Navigate to chat page or handle action
+                          console.log('Chat page clicked');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                      >
+                        Chat page
+                      </button>
+                    </div>
+                  )}
+                </div>
               </nav>
             </div>
 
@@ -104,9 +144,31 @@ export default function Header() {
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
                   Preços
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
-                  Link
-                </a>
+                <div>
+                  <button
+                    onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
+                    className="flex items-center text-neutral-700 hover:text-neutral-900 text-sm font-medium w-full text-left"
+                  >
+                    Lab
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </button>
+                  
+                  {isLabDropdownOpen && (
+                    <div className="mt-2 ml-4">
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          setIsMenuOpen(false);
+                          // Navigate to chat page or handle action
+                          console.log('Chat page clicked');
+                        }}
+                        className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                      >
+                        Chat page
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="flex flex-col space-y-2 pt-4 border-t border-neutral-200">
                   <Button 
                     variant="outline" 
