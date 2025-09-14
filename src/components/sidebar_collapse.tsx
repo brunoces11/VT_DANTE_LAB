@@ -128,7 +128,7 @@ export default function SidebarCollapse() {
         {/* Header com botão de colapso e Novo Chat */}
         <div className="p-4 border-b border-gray-200">
           {/* Botão de colapso */}
-          <div className="flex justify-end mb-3">
+          <div className={`flex ${isCollapsed ? 'justify-center' : 'justify-end'} mb-3`}>
             <Button
               onClick={() => setIsCollapsed(!isCollapsed)}
               variant="ghost"

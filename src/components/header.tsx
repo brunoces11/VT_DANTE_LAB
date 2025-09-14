@@ -51,7 +51,7 @@ export default function Header() {
                 onClick={() => navigate('/')}
                 className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
               >
-                <div className="p-2 bg-neutral-800 rounded-lg">
+                <div className="p-2 bg-amber-900 rounded-lg">
                   <Brain className="h-5 w-5 text-white" />
                 </div>
                 <span className="text-2xl font-bold text-neutral-900">Dante-IA</span>
