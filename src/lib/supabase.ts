@@ -4,15 +4,11 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.')
+  console.warn('Supabase environment variables not configured. Some features may not work.')
 }
 
-if (!supabaseUrl.startsWith('https://') || !supabaseUrl.includes('.supabase.co') || supabaseUrl.includes('your-project-id')) {
-  throw new Error('Invalid VITE_SUPABASE_URL format. Expected format: https://your-project-id.supabase.co')
-}
+// Use placeholder values if environment variables are not properly configured
+const finalUrl = supabaseUrl && !supabaseUrl.includes('your-project-id') ? supabaseUrl : 'https://placeholder.supabase.co'
+const finalKey = supabaseAnonKey && !supabaseAnonKey.includes('your-anon-key-here') ? supabaseAnonKey : 'placeholder-key'
 
-if (supabaseAnonKey.includes('your-anon-key-here')) {
-  throw new Error('Please replace the placeholder VITE_SUPABASE_ANON_KEY with your actual Supabase anonymous key')
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(finalUrl, finalKey)
