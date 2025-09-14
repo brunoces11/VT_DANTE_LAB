@@ -149,7 +149,7 @@ export default function SidebarCollapse() {
               <TooltipTrigger asChild>
                 <Button
                   onClick={handleNewChat}
-                  className="w-full flex items-center justify-center bg-neutral-700 hover:bg-neutral-800 text-white px-2 py-2"
+                  className="flex items-center justify-center bg-neutral-700 hover:bg-neutral-800 text-white p-2 h-8 w-8"
                 >
                   <ScrollText className="h-4 w-4" />
                 </Button>
@@ -184,7 +184,7 @@ export default function SidebarCollapse() {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
-                        className={`relative group p-3 rounded-lg border cursor-pointer transition-all flex items-center justify-center ${
+                        className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${
                           chat.isActive
                             ? 'bg-orange-50 border-orange-200 shadow-sm'
                             : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
