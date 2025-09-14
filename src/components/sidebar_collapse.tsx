@@ -122,13 +122,13 @@ export default function SidebarCollapse() {
   return (
     <TooltipProvider>
       <aside 
-        className={`${isCollapsed ? 'w-[80px]' : 'w-[350px]'} bg-white border-r border-gray-200 flex-shrink-0 flex flex-col transition-all duration-300`} 
+        className={`${isCollapsed ? 'w-[64px]' : 'w-[350px]'} bg-white border-r border-gray-200 flex-shrink-0 flex flex-col transition-all duration-300`} 
         style={{ height: 'calc(100vh - 80px)' }}
       >
         {/* Header com botão de colapso e Novo Chat */}
-        <div className="p-4 border-b border-gray-200">
+        <div className={`${isCollapsed ? 'p-2' : 'p-4'} border-b border-gray-200`}>
           {/* Botão de colapso */}
-          <div className={`flex ${isCollapsed ? 'justify-center' : 'justify-end'} mb-3`}>
+          <div className="flex justify-center mb-3">
             <Button
               onClick={() => setIsCollapsed(!isCollapsed)}
               variant="ghost"
@@ -147,12 +147,14 @@ export default function SidebarCollapse() {
           {isCollapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  onClick={handleNewChat}
-                  className="flex items-center justify-center bg-neutral-700 hover:bg-neutral-800 text-white p-2 h-8 w-8"
-                >
-                  <ScrollText className="h-4 w-4" />
-                </Button>
+                <div className="flex justify-center">
+                  <Button
+                    onClick={handleNewChat}
+                    className="bg-neutral-700 hover:bg-neutral-800 text-white p-2 h-8 w-8 flex items-center justify-center"
+                  >
+                    <ScrollText className="h-4 w-4" />
+                  </Button>
+                </div>
               </TooltipTrigger>
               <TooltipContent side="right">
                 <p>Novo Chat</p>
@@ -170,7 +172,7 @@ export default function SidebarCollapse() {
         </div>
 
         {/* Lista de Chats */}
-        <div className="flex-1 overflow-y-auto p-4 sidebar-scrollbar">
+        <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'p-2' : 'p-4'} sidebar-scrollbar`}>
           {!isCollapsed && (
             <h2 className="text-sm font-medium text-gray-600 mb-3 uppercase tracking-wide">
               Histórico de Conversas
@@ -183,17 +185,19 @@ export default function SidebarCollapse() {
                 {isCollapsed ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div
-                        className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${
-                          chat.isActive
-                            ? 'bg-orange-50 border-orange-200 shadow-sm'
-                            : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-                        }`}
-                        onClick={() => handleChatClick(chat.id)}
-                      >
-                        <ScrollText className={`h-4 w-4 ${
-                          chat.isActive ? 'text-orange-600' : 'text-gray-600'
-                        }`} />
+                      <div className="flex justify-center">
+                        <div
+                          className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${
+                            chat.isActive
+                              ? 'bg-orange-50 border-orange-200 shadow-sm'
+                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                          }`}
+                          onClick={() => handleChatClick(chat.id)}
+                        >
+                          <ScrollText className={`h-4 w-4 ${
+                            chat.isActive ? 'text-orange-600' : 'text-gray-600'
+                          }`} />
+                        </div>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="right">
