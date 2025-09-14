@@ -1,6 +1,6 @@
 import React from 'react';
 import ChatHeader from '@/components/chat_header';
-import ChatSidebar from '@/components/chat_sidebar';
+import SidebarCollapse from '@/components/sidebar_collapse';
 import ChatArea2 from '@/components/chat_area2';
 
 export default function ChatPage2() {
@@ -12,7 +12,7 @@ export default function ChatPage2() {
       {/* Layout principal com flexbox */}
       <div className="flex h-full" style={{ paddingTop: '80px' }}>
         {/* Sidebar fixa à esquerda */}
-        <ChatSidebar />
+        <SidebarCollapse />
         
         {/* Área de chat à direita - sem chat_msg_header */}
         <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 80px)' }}>
