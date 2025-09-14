@@ -123,7 +123,7 @@ export default function SidebarCollapse() {
     <TooltipProvider>
       <aside 
         className={`${isCollapsed ? 'w-[64px]' : 'w-[350px]'} bg-white border-r border-gray-200 flex-shrink-0 flex flex-col transition-all duration-300`} 
-        style={{ height: 'calc(100vh - 80px)' }}
+        style={{ height: 'calc(100vh - 60px)' }}
       >
         {/* Header com botão de colapso e Novo Chat */}
         <div className={`${isCollapsed ? 'p-2' : 'p-4'} border-b border-gray-200`}>

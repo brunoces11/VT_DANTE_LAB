@@ -10,12 +10,12 @@ export default function ChatPage2() {
       <ChatHeader />
       
       {/* Layout principal com flexbox */}
-      <div className="flex h-full" style={{ paddingTop: '80px' }}>
+      <div className="flex h-full" style={{ paddingTop: '60px' }}>
         {/* Sidebar fixa à esquerda */}
         <SidebarCollapse />
         
         {/* Área de chat à direita - sem chat_msg_header */}
-        <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 80px)' }}>
+        <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 60px)' }}>
           {/* ChatArea sem o ChatMsgHeader */}
           <ChatArea2 />
         </div>

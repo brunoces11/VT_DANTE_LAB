@@ -127,7 +127,7 @@ export default function ChatArea() {
 
 
   return (
-    <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 80px)' }}>
+    <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 60px)' }}>
       {/* Header do Chat */}
       <ChatMsgHeader />
 
