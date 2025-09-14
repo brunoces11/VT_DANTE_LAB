@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Scale, Loader2 } from 'lucide-react';
+import { User, Home, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ChatLoader from './chat_loader';
@@ -45,7 +45,7 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                 {message.sender === 'user' ? (
                   <User className="h-4 w-4 text-white" />
                 ) : (
-                  <Scale className="h-4 w-4 text-white" />
+                  <Home className="h-4 w-4 text-white" />
                 )}
               </div>
 
