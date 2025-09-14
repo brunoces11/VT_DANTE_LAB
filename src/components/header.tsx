@@ -32,20 +32,13 @@ export default function Header() {
   }, [isLabDropdownOpen]);
 
   const handleChatClick = () => {
-    if (user) {
-      navigate('/chat-principal');
-    } else {
-      setIsAuthModalOpen(true);
-    }
+    navigate('/chat-page');
   };
 
   const handleLoginClick = () => {
     setIsAuthModalOpen(true);
   };
 
-  const handleAuthSuccess = () => {
-    navigate('/chat-principal');
-  };
 
   return (
     <>
@@ -54,12 +47,15 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="flex items-center space-x-2">
+              <button 
+                onClick={() => navigate('/')}
+                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+              >
                 <div className="p-2 bg-orange-500 rounded-lg">
                   <Brain className="h-5 w-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-neutral-900">Dante AI</span>
-              </div>
+                <span className="text-2xl font-bold text-neutral-900">Dante-IA</span>
+              </button>
             </div>
 
             {/* Desktop Navigation */}
@@ -90,6 +86,15 @@ export default function Header() {
                         className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
                       >
                         Chat page
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          navigate('/chat-page2');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                      >
+                        Chat Page 2
                       </button>
                     </div>
                   )}
@@ -164,6 +169,16 @@ export default function Header() {
                       >
                         Chat page
                       </button>
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          setIsMenuOpen(false);
+                          navigate('/chat-page2');
+                        }}
+                        className="block text-neutral-600 hover:text-neutral-900 text-sm font-medium mt-2"
+                      >
+                        Chat Page 2
+                      </button>
                     </div>
                   )}
                 </div>
@@ -193,7 +208,6 @@ export default function Header() {
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
       />
     </>
   );

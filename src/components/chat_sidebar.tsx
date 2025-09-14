@@ -11,12 +11,15 @@ interface Chat {
   isActive: boolean;
 }
 
+interface ChatSidebarProps {
+}
+
 export default function ChatSidebar() {
   const [chats, setChats] = useState<Chat[]>([
     {
       id: '1',
       title: 'Registro de Matrícula',
-      lastMessage: 'Procedimentos para registro...',
+      lastMessage: '',
       timestamp: '19/Jan/25 - 14:30',
       isEmpty: false,
       isActive: true,
@@ -45,7 +48,7 @@ export default function ChatSidebar() {
 
     const newChat: Chat = {
       id: Date.now().toString(),
-      title: 'Novo Chat',
+      title: 'Nova conversa',
       lastMessage: '',
       timestamp: formatDateTime(),
       isEmpty: true,
@@ -113,15 +116,6 @@ export default function ChatSidebar() {
     } else if (e.key === 'Escape') {
       handleCancelRename();
     }
-  };
-
-  // Função para marcar chat como não vazio (será chamada quando usuário enviar primeira mensagem)
-  const markChatAsNotEmpty = (chatId: string) => {
-    setChats(prev => prev.map(chat => 
-      chat.id === chatId 
-        ? { ...chat, isEmpty: false, lastMessage: 'Conversa iniciada', timestamp: formatDateTime() }
-        : chat
-    ));
   };
 
   return (

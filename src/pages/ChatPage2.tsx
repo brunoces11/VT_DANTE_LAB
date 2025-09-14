@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ChatHeader from '@/components/chat_header';
 import ChatSidebar from '@/components/chat_sidebar';
-import ChatArea from '@/components/chat_area';
+import ChatArea2 from '@/components/chat_area2';
 
-export default function ChatPage() {
+export default function ChatPage2() {
   return (
     <div className="h-screen bg-white overflow-hidden">
       {/* Header fixo no topo */}
@@ -14,8 +14,11 @@ export default function ChatPage() {
         {/* Sidebar fixa à esquerda */}
         <ChatSidebar />
         
-        {/* Área de chat à direita */}
-        <ChatArea />
+        {/* Área de chat à direita - sem chat_msg_header */}
+        <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 80px)' }}>
+          {/* ChatArea sem o ChatMsgHeader */}
+          <ChatArea2 />
+        </div>
       </div>
     </div>
   );

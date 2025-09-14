@@ -1,7 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
 import { useRef, useEffect } from 'react';
-import ChatMsgHeader from '@/components/chat_msg_header';
 import ChatMsgList from '@/components/chat_msg_list';
 import ChatInput from '@/components/chat_input';
 
@@ -14,10 +13,7 @@ interface Message {
   loadingText?: string;
 }
 
-interface ChatAreaProps {
-}
-
-export default function ChatArea() {
+export default function ChatArea2() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
@@ -25,6 +21,18 @@ export default function ChatArea() {
       sender: 'bot',
       timestamp: new Date(),
     },
+    {
+      id: 2,
+      content: "Preciso saber sobre os procedimentos para registro de uma escritura de compra e venda.",
+      sender: 'user',
+      timestamp: new Date(),
+    },
+    {
+      id: 3,
+      content: "## Registro de Escritura de Compra e Venda\n\nPara o registro de uma **escritura de compra e venda**, é necessário verificar:\n\n### 1. Qualificação Registral\n- Análise da cadeia dominial\n- Verificação de continuidade\n- Conferência de dados\n\n### 2. Documentação Exigida\n- Certidões negativas atualizadas\n- Comprovante de quitação do ITBI\n- Certidão de ônus reais\n\n### 3. Aspectos Formais\n- **Escritura pública** lavrada em cartório\n- Assinatura das partes\n- Reconhecimento de firmas\n\n> **Base Legal**: Todos os documentos devem estar em conformidade com a **Lei 6.015/73** e as normas do **CNJ**.\n\n*Precisa de esclarecimentos sobre algum item específico?*",
+      sender: 'bot',
+      timestamp: new Date(),
+    }
   ]);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -125,17 +133,13 @@ export default function ChatArea() {
     }, totalLoadingTime + Math.random() * 1000 + 1500); // Tempo da sequência + 1.5-2.5s adicional
   };
 
-
   return (
-    <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 80px)' }}>
-      {/* Header do Chat */}
-      <ChatMsgHeader />
-
-      {/* Messages */}
+    <>
+      {/* Messages - sem ChatMsgHeader */}
       <ChatMsgList messages={messages} messagesEndRef={messagesEndRef} />
 
       {/* Input */}
       <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
-    </div>
+    </>
   );
 }
