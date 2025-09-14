@@ -49,12 +49,15 @@ export default function ChatInput({ onSendMessage, isLoading }: ChatInputProps) 
           <Button 
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-orange-500 text-white hover:bg-orange-600 h-8 px-3"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-orange-500 text-white hover:bg-orange-600 h-8 px-4 flex items-center space-x-1"
           >
             {isLoading ? (
               <Loader2 className="h-3 w-3 animate-spin" />
             ) : (
-              <Send className="h-3 w-3" />
+              <>
+                <Send className="h-3 w-3" />
+                <span className="text-xs font-medium">Enviar</span>
+              </>
             )}
           </Button>
         </div>
