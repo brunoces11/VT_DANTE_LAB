@@ -167,15 +167,15 @@ export default function Contato() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="w-full border-2 border-neutral-200 focus:border-orange-400 focus:ring-orange-400 pr-24 rounded-2xl"
+                  className="w-full h-12 border-2 border-neutral-200 focus:border-orange-400 focus:ring-orange-400 pr-24 rounded-xl"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isLoading}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl flex items-center gap-2"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 h-8 rounded-lg flex items-center gap-1.5 text-xs font-medium"
                 >
                   <Send className="h-4 w-4" />
-                  <span className="text-sm font-medium">Enviar</span>
+                  <span>Enviar</span>
                 </Button>
               </div>
             </div>
