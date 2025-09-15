@@ -61,9 +61,12 @@ export default function Header() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <nav className="flex space-x-8">
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <button
+                  onClick={() => navigate('/como-funciona')}
+                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                >
                   Como funciona
-                </a>
+                </button>
                 <button
                   onClick={() => navigate('/base-legal')}
                   className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
@@ -151,9 +154,15 @@ export default function Header() {
           {isMenuOpen && (
             <div className="md:hidden border-t border-neutral-200 pt-4 pb-4">
               <nav className="flex flex-col space-y-4">
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate('/como-funciona');
+                  }}
+                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium text-left"
+                >
                   Como funciona
-                </a>
+                </button>
                 <button
                   onClick={() => navigate('/base-legal')}
                   className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
