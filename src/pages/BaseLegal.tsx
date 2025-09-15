@@ -181,6 +181,3 @@ export default function BaseLegal() {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
