@@ -136,9 +136,9 @@ export default function SidebarCollapse() {
               className="p-2 h-8 w-8 hover:bg-gray-100"
             >
               {isCollapsed ? (
-                <ChevronRight className="h-5 w-5 text-neutral-500 font-bold stroke-2" />
+                <ChevronRight className="h-6 w-6 text-neutral-500 font-bold stroke-[3]" />
               ) : (
-                <ChevronLeft className="h-5 w-5 text-neutral-500 font-bold stroke-2" />
+                <ChevronLeft className="h-6 w-6 text-neutral-500 font-bold stroke-[3]" />
               )}
             </Button>
           </div>
