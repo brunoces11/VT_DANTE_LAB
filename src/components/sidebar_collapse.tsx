@@ -150,8 +150,7 @@ export default function SidebarCollapse() {
                 <div className="flex justify-center">
                   <Button
                     onClick={handleNewChat}
-                    className="text-white p-2 h-8 w-8 flex items-center justify-center hover:opacity-90"
-                    style={{ backgroundColor: '#3D1413' }}
+                    className="bg-neutral-500 hover:bg-neutral-600 text-white p-2 h-8 w-8 flex items-center justify-center"
                   >
                     <ScrollText className="h-4 w-4" />
                   </Button>
@@ -164,8 +163,7 @@ export default function SidebarCollapse() {
           ) : (
             <Button
               onClick={handleNewChat}
-              className="w-full flex items-center justify-center space-x-2 text-white hover:opacity-90"
-              style={{ backgroundColor: '#3D1413' }}
+              className="w-full flex items-center justify-center space-x-2 bg-neutral-500 hover:bg-neutral-600 text-white"
             >
               <ScrollText className="h-4 w-4" />
               <span>Novo Chat</span>
@@ -191,13 +189,13 @@ export default function SidebarCollapse() {
                         <div
                           className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${
                             chat.isActive
-                              ? 'bg-orange-50 border-orange-200 shadow-sm'
+                              ? 'bg-neutral-300 border-neutral-400 shadow-sm'
                               : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                           }`}
                           onClick={() => handleChatClick(chat.id)}
                         >
                           <ScrollText className={`h-4 w-4 ${
-                            chat.isActive ? 'text-orange-600' : 'text-gray-600'
+                            chat.isActive ? 'text-neutral-700' : 'text-gray-600'
                           }`} />
                         </div>
                       </div>
@@ -210,7 +208,7 @@ export default function SidebarCollapse() {
                   <div
                     className={`relative group p-3 rounded-lg border cursor-pointer transition-all ${
                       chat.isActive
-                        ? 'bg-orange-50 border-orange-200 shadow-sm'
+                        ? 'bg-neutral-300 border-neutral-400 shadow-sm'
                         : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                     }`}
                     onClick={() => handleChatClick(chat.id)}
@@ -230,7 +228,7 @@ export default function SidebarCollapse() {
                           />
                         ) : (
                           <p className={`text-sm font-medium truncate ${
-                            chat.isActive ? 'text-orange-900' : 'text-gray-900'
+                            chat.isActive ? 'text-neutral-800' : 'text-gray-900'
                           }`}>
                             {chat.title}
                             {chat.isEmpty && (
@@ -240,13 +238,13 @@ export default function SidebarCollapse() {
                         )}
                         {chat.lastMessage && (
                           <p className={`text-xs mt-1 truncate ${
-                            chat.isActive ? 'text-orange-600' : 'text-gray-600'
+                            chat.isActive ? 'text-neutral-600' : 'text-gray-600'
                           }`}>
                             {chat.lastMessage}
                           </p>
                         )}
                         <p className={`text-xs mt-1 ${
-                          chat.isActive ? 'text-orange-500' : 'text-gray-600'
+                          chat.isActive ? 'text-neutral-600' : 'text-gray-600'
                         }`}>
                           {chat.timestamp}
                         </p>
