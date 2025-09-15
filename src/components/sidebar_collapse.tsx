@@ -189,7 +189,7 @@ export default function SidebarCollapse() {
                         <div
                           className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${
                             chat.isActive
-                              ? 'bg-neutral-300 border-neutral-400 shadow-sm'
+                              ? 'bg-neutral-200 border-neutral-300 shadow-sm'
                               : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                           }`}
                           onClick={() => handleChatClick(chat.id)}
@@ -208,7 +208,7 @@ export default function SidebarCollapse() {
                   <div
                     className={`relative group p-3 rounded-lg border cursor-pointer transition-all ${
                       chat.isActive
-                        ? 'bg-neutral-300 border-neutral-400 shadow-sm'
+                        ? 'bg-neutral-200 border-neutral-300 shadow-sm'
                         : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
                     }`}
                     onClick={() => handleChatClick(chat.id)}
