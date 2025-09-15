@@ -63,26 +63,26 @@ export default function Header() {
               <nav className="flex space-x-8">
                 <button
                   onClick={() => navigate('/como-funciona')}
-                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors"
                 >
                   Como funciona
                 </button>
                 <button
                   onClick={() => navigate('/base-legal')}
-                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors"
                 >
                   Base Legal
                 </button>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors">
                   Planos
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors">
                   Contato
                 </a>
                 <div className="relative">
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
-                    className="flex items-center text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                    className="flex items-center text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors"
                   >
                     Lab
                     <ChevronDown className="ml-1 h-4 w-4" />
@@ -159,20 +159,23 @@ export default function Header() {
                     setIsMenuOpen(false);
                     navigate('/como-funciona');
                   }}
-                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium text-left"
+                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full"
                 >
                   Como funciona
                 </button>
                 <button
-                  onClick={() => navigate('/base-legal')}
-                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate('/base-legal');
+                  }}
+                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full"
                 >
                   Base Legal
                 </button>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
                   Planos
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
                   Contato
                 </a>
                 <div>
