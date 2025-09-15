@@ -13,7 +13,7 @@ export default function ChatHeader() {
           onClick={() => navigate('/')}
           className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
         >
-          <div className="p-2 bg-amber-900 rounded-lg">
+          <div className="p-2 rounded-lg" style={{ backgroundColor: '#3D1413' }}>
             <Brain className="h-6 w-6 text-white" />
           </div>
           <span className="text-xl font-bold text-neutral-900">Dante-IA</span>
