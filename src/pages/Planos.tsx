@@ -16,10 +16,10 @@ import {
 
 const plans = [
   {
-    name: "Básico",
+    name: "Teste Grátis",
     price: "R$ 0",
     period: "/mês",
-    description: "Perfeito para cartórios pequenos e testes iniciais",
+    description: "Teste grátis por 15 dias, comece agora mesmo.",
     icon: Zap,
     features: [
       { name: "100 consultas por mês", included: true },
@@ -36,7 +36,7 @@ const plans = [
   },
   {
     name: "Profissional",
-    price: "R$ 149",
+    price: "R$ 790",
     period: "/mês",
     description: "Para cartórios que precisam de mais recursos e suporte",
     icon: Crown,
@@ -54,8 +54,8 @@ const plans = [
     popular: true
   },
   {
-    name: "Enterprise",
-    price: "R$ 499",
+    name: "Nacional",
+    price: "R$ 1.920",
     period: "/mês",
     description: "Para grandes cartórios e redes que precisam de máxima performance",
     icon: Building2,
