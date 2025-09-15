@@ -55,6 +55,7 @@ export default function Header() {
                 <div className="p-2 rounded-lg" style={{ backgroundColor: '#3D1413' }}>
                   <Brain className="h-5 w-5 text-white" />
                 </div>
+                </div>
                 <span className="text-2xl font-bold text-neutral-900">Dante-IA</span>
               </button>
             </div>
