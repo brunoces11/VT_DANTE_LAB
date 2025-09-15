@@ -224,7 +224,6 @@ export default function Header() {
                 >
                   Planos
                 </button>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);
