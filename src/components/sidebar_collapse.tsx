@@ -179,7 +179,7 @@ export default function SidebarCollapse() {
             </h2>
           )}
           
-          <div className="space-y-2">
+          <div className={isCollapsed ? 'space-y-5' : 'space-y-2'}>
             {chats.map((chat) => (
               <div key={chat.id}>
                 {isCollapsed ? (
