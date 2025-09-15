@@ -80,33 +80,6 @@ export default function BaseLegal() {
             </p>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div className="bg-green-50 rounded-lg p-6 text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-green-900 mb-2">7</h3>
-              <p className="text-sm text-green-700">Documentos Atualizados</p>
-            </div>
-
-            <div className="bg-orange-50 rounded-lg p-6 text-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Clock className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-orange-900 mb-2">1</h3>
-              <p className="text-sm text-orange-700">Pendente de Atualização</p>
-            </div>
-
-            <div className="bg-neutral-50 rounded-lg p-6 text-center">
-              <div className="w-12 h-12 bg-neutral-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-6 w-6 text-neutral-600" />
-              </div>
-              <h3 className="text-2xl font-bold text-neutral-900 mb-2">8</h3>
-              <p className="text-sm text-neutral-700">Total de Documentos</p>
-            </div>
-          </div>
-
           {/* Timeline */}
           <div className="bg-white rounded-lg shadow-sm border border-neutral-200">
             <div className="p-6 border-b border-neutral-200">
