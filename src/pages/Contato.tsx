@@ -98,10 +98,10 @@ export default function Contato() {
           </div>
 
           {/* Chat Container */}
-          <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden max-w-[450px] mx-auto">
+          <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden mx-auto" style={{ maxHeight: '440px' }}>
 
             {/* Messages Area */}
-            <div className="h-96 overflow-y-auto p-6 space-y-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
               {messages.map((message) => (
                 <div
                   key={message.id}
