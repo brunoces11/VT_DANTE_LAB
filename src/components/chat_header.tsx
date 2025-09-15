@@ -14,7 +14,7 @@ export default function ChatHeader() {
           className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
         >
           <div className="p-2 rounded-lg w-9 h-9" style={{ backgroundColor: '#3D1413' }}>
-            <Brain className="h-6 w-6 text-white" />
+            <Brain className="h-5 w-5 text-white" />
           </div>
           <span className="text-xl font-bold text-neutral-900">Dante-IA</span>
         </button>
