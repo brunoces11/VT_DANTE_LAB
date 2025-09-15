@@ -7,6 +7,7 @@ import DanteUI from '@/pages/DanteUI';
 import BaseLegal from '@/pages/BaseLegal';
 import ComoFunciona from '@/pages/ComoFunciona';
 import Planos from '@/pages/Planos';
+import Contato from '@/pages/Contato';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/base-legal" element={<BaseLegal />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/planos" element={<Planos />} />
+          <Route path="/contato" element={<Contato />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -95,9 +95,16 @@ export default function Header() {
                   Planos
                 </button>
                 <span className="text-amber-900">|</span>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 text-sm font-medium px-3 py-2 rounded-md transition-colors">
+                <button
+                  onClick={() => navigate('/contato')}
+                  className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
+                    location.pathname === '/contato' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
+                >
                   Contato
-                </a>
+                </button>
                 <span className="text-amber-900">|</span>
                 <div className="relative">
                   <button
@@ -218,8 +225,19 @@ export default function Header() {
                   Planos
                 </button>
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate('/contato');
+                  }}
+                  className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
+                    location.pathname === '/contato' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
+                >
                   Contato
-                </a>
+                </button>
                 <div>
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
