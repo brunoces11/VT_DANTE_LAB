@@ -244,7 +244,7 @@ export default function SidebarCollapse() {
                           </p>
                         )}
                         <p className={`text-xs mt-1 ${
-                          chat.isActive ? 'text-orange-500' : 'text-gray-500'
+                          chat.isActive ? 'text-orange-500' : 'text-gray-600'
                         }`}>
                           {chat.timestamp}
                         </p>
