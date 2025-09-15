@@ -24,7 +24,7 @@ export default function Hero() {
   return (
     <>
       <section 
-        className="relative overflow-hidden bg-white pt-8 pb-20 sm:pt-16 sm:pb-18"
+        className="relative overflow-hidden bg-white pt-24 pb-20 sm:pt-32 sm:pb-18"
         style={{
           backgroundImage: 'url(https://images.pexels.com/photos/159832/justice-law-case-hearing-159832.jpeg)',
           backgroundPosition: 'center top',

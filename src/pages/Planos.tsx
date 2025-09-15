@@ -99,11 +99,11 @@ const faqs = [
 
 export default function Planos() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-white pt-16">
       <Header />
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-neutral-50 to-white pt-20 pb-16">
+      <section className="relative overflow-hidden bg-gradient-to-b from-neutral-50 to-white pt-4 pb-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <Badge variant="secondary" className="mb-6">

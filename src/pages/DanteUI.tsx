@@ -32,10 +32,10 @@ export default function DanteUI() {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white pt-16">
       <Header />
       
-      <div className="pt-20 pb-12">
+      <div className="pt-4 pb-12">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-neutral-900 mb-4">
