@@ -138,7 +138,7 @@ export default function SidebarCollapse() {
               {isCollapsed ? (
                 <ChevronRight className="h-7 w-7 text-neutral-500 font-bold stroke-[3]" style={{ transform: 'translate(3px, 2px)' }} />
               ) : (
-                <ChevronLeft className="h-7 w-7 text-neutral-500 font-bold stroke-[3]" style={{ transform: 'translate(3px, 2px)' }} />
+                <ChevronLeft className="h-7 w-7 text-neutral-500 font-bold stroke-[3]" style={{ transform: 'translate(2px, 2px)' }} />
               )}
             </Button>
           </div>
