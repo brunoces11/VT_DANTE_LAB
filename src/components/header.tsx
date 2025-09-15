@@ -62,10 +62,16 @@ export default function Header() {
             <div className="hidden md:flex items-center space-x-8">
               <nav className="flex space-x-8">
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
-                  Agentes de IA
+                  Como funciona
+                </a>
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                  Base Legal
                 </a>
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
                   Planos
+                </a>
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                  Contato
                 </a>
                 <div className="relative">
                   <button
