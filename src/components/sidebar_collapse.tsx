@@ -147,7 +147,7 @@ export default function SidebarCollapse() {
           {isCollapsed ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex justify-center">
+                <div className="flex justify-center mb-2">
                   <Button
                     onClick={handleNewChat}
                     className="bg-neutral-500 hover:bg-neutral-600 text-white p-2 h-8 w-8 flex items-center justify-center"
@@ -179,9 +179,9 @@ export default function SidebarCollapse() {
             </h2>
           )}
           
-          <div className={isCollapsed ? 'space-y-5' : 'space-y-2'}>
-            {chats.map((chat) => (
-              <div key={chat.id}>
+          <div className={isCollapsed ? 'space-y-3' : 'space-y-2'}>
+            {chats.map((chat, index) => (
+              <div key={chat.id} className={isCollapsed && index === 0 ? 'mt-2' : ''}>
                 {isCollapsed ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
