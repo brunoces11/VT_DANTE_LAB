@@ -57,7 +57,7 @@ export default function BaseLegal() {
       date: '20/Dez/2024',
       title: 'Lei 13.465/17 - Marco Legal da Regularização Fundiária',
       description: 'Regularização fundiária rural e urbana - REURB.',
-      status: 'pending',
+      status: 'updated',
       category: 'Lei Federal'
     }
   ];
