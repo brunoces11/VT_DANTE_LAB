@@ -121,7 +121,7 @@ export default function Header() {
               <Button 
                 size="sm" 
                 onClick={handleChatClick}
-                className="bg-orange-50 hover:bg-orange-100 text-orange-900"
+                className="bg-orange-500 hover:bg-orange-600 text-white"
               >
                 💬 Iniciar Chat
               </Button>
@@ -205,8 +205,8 @@ export default function Header() {
                   </Button>
                   <Button 
                     size="sm" 
+                    onClick={handleChatClick}
                     style={{ backgroundColor: '#983C26' }}
-                    className="w-full hover:opacity-90 text-white"
                     className="w-full hover:opacity-90 text-white"
                   >
                     💬 Iniciar Chat
