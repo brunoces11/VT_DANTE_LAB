@@ -1,11 +1,30 @@
 import React, { useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Home, ChevronDown } from 'lucide-react';
 
 export default function ChatMsgHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState('Santa Catarina');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const locations = ['Santa Catarina', 'Paraná', 'São Paulo', 'Mato Grosso'];
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const handleLocationSelect = (location: string) => {
     setSelectedLocation(location);
@@ -25,7 +44,7 @@ export default function ChatMsgHeader() {
         </div>
       </div>
       
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex items-center space-x-2 px-4 py-2 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors"
