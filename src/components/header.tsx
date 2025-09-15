@@ -61,7 +61,7 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <nav className="flex items-center space-x-6">
+              <nav className="flex items-center space-x-5">
                 <button
                   onClick={() => navigate('/como-funciona')}
                   className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
@@ -151,7 +151,7 @@ export default function Header() {
               <Button 
                 size="sm" 
                 onClick={handleChatClick}
-                className="bg-orange-600 hover:bg-orange-700 text-white"
+                className="bg-orange-700 hover:bg-orange-600 text-white"
               >
                 💬 Iniciar Chat
               </Button>

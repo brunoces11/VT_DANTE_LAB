@@ -43,7 +43,6 @@ export default function ChatInput({ onSendMessage, isLoading }: ChatInputProps) 
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-            disabled={isLoading}
             className="w-full bg-white border-neutral-200 focus:border-orange-400 focus:ring-orange-400 h-12 pr-16"
           />
           <Button 
