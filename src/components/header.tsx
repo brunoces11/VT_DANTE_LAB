@@ -64,9 +64,12 @@ export default function Header() {
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
                   Como funciona
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <button
+                  onClick={() => navigate('/base-legal')}
+                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                >
                   Base Legal
-                </a>
+                </button>
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
                   Planos
                 </a>
@@ -96,11 +99,11 @@ export default function Header() {
                       <button
                         onClick={() => {
                           setIsLabDropdownOpen(false);
-                          navigate('/chat-page2');
+                          navigate('/dante-ui');
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
                       >
-                        Chat Page 2
+                        Dante UI
                       </button>
                     </div>
                   )}
@@ -151,9 +154,12 @@ export default function Header() {
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
                   Como funciona
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
+                <button
+                  onClick={() => navigate('/base-legal')}
+                  className="text-neutral-700 hover:text-neutral-900 text-sm font-medium"
+                >
                   Base Legal
-                </a>
+                </button>
                 <a href="#" className="text-neutral-700 hover:text-neutral-900 text-sm font-medium">
                   Planos
                 </a>
@@ -185,11 +191,11 @@ export default function Header() {
                         onClick={() => {
                           setIsLabDropdownOpen(false);
                           setIsMenuOpen(false);
-                          navigate('/chat-page2');
+                          navigate('/dante-ui');
                         }}
-                        className="block text-neutral-600 hover:text-neutral-900 text-sm font-medium mt-2"
+                        className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
                       >
-                        Chat Page 2
+                        Dante UI
                       </button>
                     </div>
                   )}
