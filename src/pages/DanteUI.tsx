@@ -24,13 +24,38 @@ export default function DanteUI() {
     { bg: 'bg-orange-400', name: 'orange-400', hex: '#FB923C' },
     { bg: 'bg-orange-500', name: 'orange-500', hex: '#F97316' },
     { bg: 'bg-orange-600', name: 'orange-600', hex: '#EA580C' },
+    { bg: 'bg-orange-700', name: 'orange-700', hex: '#C2410C' },
+    { bg: 'bg-orange-800', name: 'orange-800', hex: '#9A3412' },
+    { bg: 'bg-orange-900', name: 'orange-900', hex: '#7C2D12' },
     { bg: 'bg-red-50', name: 'red-50', hex: '#FEF2F2' },
     { bg: 'bg-red-600', name: 'red-600', hex: '#DC2626' },
     { bg: 'bg-green-50', name: 'green-50', hex: '#F0FDF4' },
     { bg: 'bg-green-500', name: 'green-500', hex: '#22C55E' },
+    { bg: 'bg-green-600', name: 'green-600', hex: '#16A34A' },
+    { bg: 'bg-green-700', name: 'green-700', hex: '#15803D' },
+    { bg: 'bg-green-800', name: 'green-800', hex: '#166534' },
+    { bg: 'bg-green-900', name: 'green-900', hex: '#14532D' },
+    { bg: 'bg-slate-500', name: 'slate-500', hex: '#64748B' },
+    { bg: 'bg-slate-600', name: 'slate-600', hex: '#475569' },
+    { bg: 'bg-slate-700', name: 'slate-700', hex: '#334155' },
+    { bg: 'bg-slate-800', name: 'slate-800', hex: '#1E293B' },
+    { bg: 'bg-slate-900', name: 'slate-900', hex: '#0F172A' },
+    { bg: 'bg-sky-500', name: 'sky-500', hex: '#0EA5E9' },
+    { bg: 'bg-sky-600', name: 'sky-600', hex: '#0284C7' },
+    { bg: 'bg-sky-700', name: 'sky-700', hex: '#0369A1' },
+    { bg: 'bg-sky-800', name: 'sky-800', hex: '#075985' },
+    { bg: 'bg-sky-900', name: 'sky-900', hex: '#0C4A6E' },
+    { bg: 'bg-purple-500', name: 'purple-500', hex: '#A855F7' },
+    { bg: 'bg-purple-600', name: 'purple-600', hex: '#9333EA' },
+    { bg: 'bg-purple-700', name: 'purple-700', hex: '#7C3AED' },
+    { bg: 'bg-purple-800', name: 'purple-800', hex: '#6B21A8' },
+    { bg: 'bg-purple-900', name: 'purple-900', hex: '#581C87' },
     { bg: 'bg-amber-900', name: 'amber-900', hex: '#78350F' },
   ];
 
+  // Dividir cores em duas colunas para layout lado a lado
+  const leftColors = colors.slice(0, Math.ceil(colors.length / 2));
+  const rightColors = colors.slice(Math.ceil(colors.length / 2));
   return (
     <div className="min-h-screen bg-white pt-16">
       <Header />
@@ -48,9 +73,18 @@ export default function DanteUI() {
 
           <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full max-w-sm mx-auto">
+              <table className="w-full">
                 <thead className="bg-neutral-50">
                   <tr>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-900 w-16">
+                      Cor
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-900">
+                      Nome
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-900">
+                      Hexadecimal
+                    </th>
                     <th className="px-4 py-3 text-left text-sm font-semibold text-neutral-900 w-16">
                       Cor
                     </th>
@@ -63,21 +97,37 @@ export default function DanteUI() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-200">
-                  {colors.map((color, index) => (
+                  {leftColors.map((leftColor, index) => {
+                    const rightColor = rightColors[index];
+                    return (
                     <tr key={index} className="hover:bg-neutral-50">
                       <td className="px-4 py-3">
                         <div 
-                          className={`w-8 h-8 rounded border border-neutral-300 ${color.bg}`}
+                          className={`w-8 h-8 rounded border border-neutral-300 ${leftColor.bg}`}
                         ></div>
                       </td>
                       <td className="px-4 py-3 text-sm font-mono text-neutral-700">
-                        {color.name}
+                        {leftColor.name}
                       </td>
                       <td className="px-4 py-3 text-sm font-mono text-neutral-700">
-                        {color.hex}
+                        {leftColor.hex}
+                      </td>
+                      <td className="px-4 py-3">
+                        {rightColor ? (
+                          <div 
+                            className={`w-8 h-8 rounded border border-neutral-300 ${rightColor.bg}`}
+                          ></div>
+                        ) : null}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-mono text-neutral-700">
+                        {rightColor ? rightColor.name : ''}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-mono text-neutral-700">
+                        {rightColor ? rightColor.hex : ''}
                       </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
