@@ -98,7 +98,7 @@ export default function Contato() {
           </div>
 
           {/* Chat Container */}
-          <div className="bg-white rounded-3xl border-2 border-neutral-200 shadow-sm overflow-hidden mx-auto" style={{ maxHeight: '440px' }}>
+          <div className="bg-white rounded-3xl border-2 border-neutral-200 overflow-hidden mx-auto" style={{ maxHeight: '440px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.08)' }}>
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar" style={{ maxHeight: '340px' }}>
@@ -177,9 +177,6 @@ export default function Contato() {
                   <Send className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="text-xs text-neutral-500 mt-2">
-                💡 Dica: Seja específico sobre sua dúvida para receber a melhor orientação
-              </p>
             </div>
           </div>
 
