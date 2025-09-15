@@ -161,20 +161,21 @@ export default function Contato() {
 
             {/* Input Area */}
             <div className="border-t border-neutral-200 p-4 rounded-b-3xl">
-              <div className="flex gap-2">
+              <div className="relative">
                 <Input
                   placeholder="Descreva o motivo do seu contato ou faça suas perguntas para obter resposta imediata"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="flex-1 border-neutral-200 focus:border-orange-400 focus:ring-orange-400"
+                  className="w-full border-2 border-neutral-200 focus:border-orange-400 focus:ring-orange-400 pr-24 rounded-2xl"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!inputValue.trim() || isLoading}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-6"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl flex items-center gap-2"
                 >
                   <Send className="h-4 w-4" />
+                  <span className="text-sm font-medium">Enviar</span>
                 </Button>
               </div>
             </div>
