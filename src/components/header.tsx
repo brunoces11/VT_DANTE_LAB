@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Menu, X, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import AuthModal from '@/components/auth/AuthModal';
 
@@ -13,6 +13,7 @@ export default function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -60,29 +61,45 @@ export default function Header() {
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <nav className="flex space-x-8">
+              <nav className="flex items-center space-x-6">
                 <button
                   onClick={() => navigate('/como-funciona')}
-                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors"
+                  className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
+                    location.pathname === '/como-funciona' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
                 >
                   Como funciona
                 </button>
+                <span className="text-amber-900">|</span>
                 <button
                   onClick={() => navigate('/base-legal')}
-                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors"
+                  className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
+                    location.pathname === '/base-legal' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
                 >
                   Base Legal
                 </button>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors">
+                <span className="text-amber-900">|</span>
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 text-sm font-medium px-3 py-2 rounded-md transition-colors">
                   Planos
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors">
+                <span className="text-amber-900">|</span>
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 text-sm font-medium px-3 py-2 rounded-md transition-colors">
                   Contato
                 </a>
+                <span className="text-amber-900">|</span>
                 <div className="relative">
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
-                    className="flex items-center text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors"
+                    className={`flex items-center text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
+                      location.pathname === '/chat-page' || location.pathname === '/dante-ui'
+                        ? 'text-orange-700' 
+                        : 'text-neutral-700 hover:text-neutral-900'
+                    }`}
                   >
                     Lab
                     <ChevronDown className="ml-1 h-4 w-4" />
@@ -159,7 +176,11 @@ export default function Header() {
                     setIsMenuOpen(false);
                     navigate('/como-funciona');
                   }}
-                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full"
+                  className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
+                    location.pathname === '/como-funciona' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
                 >
                   Como funciona
                 </button>
@@ -168,20 +189,28 @@ export default function Header() {
                     setIsMenuOpen(false);
                     navigate('/base-legal');
                   }}
-                  className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full"
+                  className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
+                    location.pathname === '/base-legal' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
                 >
                   Base Legal
                 </button>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
                   Planos
                 </a>
-                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-200 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
+                <a href="#" className="text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 text-sm font-medium px-3 py-2 rounded-md transition-colors block">
                   Contato
                 </a>
                 <div>
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
-                    className="flex items-center text-neutral-700 hover:text-neutral-900 text-sm font-medium w-full text-left"
+                    className={`flex items-center text-sm font-medium w-full text-left hover:text-neutral-900 ${
+                      location.pathname === '/chat-page' || location.pathname === '/dante-ui'
+                        ? 'text-orange-700' 
+                        : 'text-neutral-700'
+                    }`}
                   >
                     Lab
                     <ChevronDown className="ml-1 h-4 w-4" />

@@ -28,6 +28,7 @@ export default function DanteUI() {
     { bg: 'bg-red-600', name: 'red-600', hex: '#DC2626' },
     { bg: 'bg-green-50', name: 'green-50', hex: '#F0FDF4' },
     { bg: 'bg-green-500', name: 'green-500', hex: '#22C55E' },
+    { bg: 'bg-amber-900', name: 'amber-900', hex: '#78350F' },
   ];
 
   return (
