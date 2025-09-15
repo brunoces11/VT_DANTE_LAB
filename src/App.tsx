@@ -6,6 +6,7 @@ import ChatPage from '@/pages/ChatPage';
 import DanteUI from '@/pages/DanteUI';
 import BaseLegal from '@/pages/BaseLegal';
 import ComoFunciona from '@/pages/ComoFunciona';
+import Planos from '@/pages/Planos';
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
           <Route path="/dante-ui" element={<DanteUI />} />
           <Route path="/base-legal" element={<BaseLegal />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
+          <Route path="/planos" element={<Planos />} />
         </Routes>
       </Router>
     </AuthProvider>
