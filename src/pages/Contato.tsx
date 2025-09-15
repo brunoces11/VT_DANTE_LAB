@@ -93,38 +93,20 @@ export default function Contato() {
               Fale Conosco
             </h1>
             <p className="text-lg text-neutral-600 max-w-2xl mx-auto mb-6">
-              Tem dúvidas sobre o Dante AI? Nosso assistente inteligente está aqui para ajudar! 
-              Esclareça suas questões sobre funcionalidades, planos, implementação ou qualquer 
+              Tem dúvidas sobre o Dante AI? Use nosso formulário inteligente abaixo para 
+              esclarecer suas questões sobre funcionalidades, planos, implementação ou qualquer 
               outro aspecto do nosso sistema.
             </p>
-            <div className="inline-flex items-center px-4 py-2 bg-orange-50 rounded-lg border border-orange-200">
-              <Bot className="h-5 w-5 text-orange-600 mr-2" />
-              <span className="text-sm font-medium text-orange-700">
-                Atendimento inteligente 24/7 disponível
-              </span>
-            </div>
+            <h2 className="text-xl font-semibold text-neutral-800 mt-6">
+              Formulário Inteligente
+            </h2>
+            <p className="text-neutral-600 mt-2">
+              Converse com nossa IA de atendimento, tire suas dúvidas, faça sua solicitação e deixe sua mensagem...
+            </p>
           </div>
 
           {/* Chat Container */}
-          <div className="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-            {/* Chat Header */}
-            <div className="bg-neutral-50 px-6 py-4 border-b border-neutral-200">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                  <Bot className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-neutral-900">Assistente Dante AI</h3>
-                  <p className="text-sm text-neutral-600">Especialista em atendimento</p>
-                </div>
-                <div className="ml-auto">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-xs text-neutral-500">Online</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden">
 
             {/* Messages Area */}
             <div className="h-96 overflow-y-auto p-6 space-y-4 custom-scrollbar">
@@ -186,7 +168,7 @@ export default function Contato() {
             </div>
 
             {/* Input Area */}
-            <div className="border-t border-neutral-200 p-4">
+            <div className="border-t border-neutral-200 p-4 rounded-b-3xl">
               <div className="flex gap-2">
                 <Input
                   placeholder="Digite sua pergunta sobre o Dante AI..."
