@@ -98,7 +98,7 @@ export default function Contato() {
           </div>
 
           {/* Chat Container */}
-          <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden max-w-[450px] mx-auto">
 
             {/* Messages Area */}
             <div className="h-96 overflow-y-auto p-6 space-y-4 custom-scrollbar">
@@ -163,7 +163,7 @@ export default function Contato() {
             <div className="border-t border-neutral-200 p-4 rounded-b-3xl">
               <div className="flex gap-2">
                 <Input
-                  placeholder="Digite sua pergunta sobre o Dante AI..."
+                  placeholder="Descreva o motivo do seu contato ou faça suas perguntas para obter resposta imediata"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
