@@ -89,19 +89,11 @@ export default function Contato() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-neutral-900 mb-4">
-              Fale Conosco
+            <h1 className="text-3xl font-bold text-neutral-900 mb-6">
+              Contato | Formulário Inteligente
             </h1>
-            <p className="text-lg text-neutral-600 max-w-2xl mx-auto mb-6">
-              Tem dúvidas sobre o Dante AI? Use nosso formulário inteligente abaixo para 
-              esclarecer suas questões sobre funcionalidades, planos, implementação ou qualquer 
-              outro aspecto do nosso sistema.
-            </p>
-            <h2 className="text-xl font-semibold text-neutral-800 mt-6">
-              Formulário Inteligente
-            </h2>
-            <p className="text-neutral-600 mt-2">
-              Converse com nossa IA de atendimento, tire suas dúvidas, faça sua solicitação e deixe sua mensagem...
+            <p className="text-lg text-neutral-600 max-w-3xl mx-auto leading-relaxed">
+              Converse com nossa IA de atendimento e obtenha respostas instantâneas para suas dúvidas sobre funcionalidades, planos, implementação ou qualquer aspecto do Dante AI. Nossa inteligência artificial está preparada para esclarecer suas questões e, quando necessário, encaminhar sua mensagem diretamente para o departamento responsável.
             </p>
           </div>
 
