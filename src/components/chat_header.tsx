@@ -12,6 +12,7 @@ export default function ChatHeader() {
         <button 
           onClick={() => navigate('/')}
           className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          style={{ marginLeft: '16px' }}
         >
           <div className="p-2 rounded-lg" style={{ backgroundColor: '#3D1413' }}>
             <Brain className="h-6 w-6 text-white" />

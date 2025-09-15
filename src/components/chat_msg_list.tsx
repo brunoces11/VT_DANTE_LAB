@@ -39,8 +39,9 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                 className={`flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 ${
                   message.sender === 'user'
                     ? 'bg-neutral-900'
-                    : 'bg-gradient-to-br from-orange-500 to-orange-600'
+                    : ''
                 }`}
+                style={message.sender === 'bot' ? { backgroundColor: '#B14627' } : {}}
               >
                 {message.sender === 'user' ? (
                   <User className="h-4 w-4 text-white" />

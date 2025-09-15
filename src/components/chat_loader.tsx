@@ -10,7 +10,10 @@ export default function ChatLoader({ loadingText = 'Processando...' }: ChatLoade
     <div className="flex justify-start">
       <div className="flex items-start space-x-3 max-w-[85%]">
         {/* Avatar */}
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 bg-gradient-to-br from-orange-500 to-orange-600">
+        <div 
+          className="flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0"
+          style={{ backgroundColor: '#B14627' }}
+        >
           <Home className="h-4 w-4 text-white" />
         </div>
 

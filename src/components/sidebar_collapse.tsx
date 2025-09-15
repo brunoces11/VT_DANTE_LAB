@@ -150,7 +150,8 @@ export default function SidebarCollapse() {
                 <div className="flex justify-center">
                   <Button
                     onClick={handleNewChat}
-                    className="bg-neutral-700 hover:bg-neutral-800 text-white p-2 h-8 w-8 flex items-center justify-center"
+                    className="text-white p-2 h-8 w-8 flex items-center justify-center hover:opacity-90"
+                    style={{ backgroundColor: '#3D1413' }}
                   >
                     <ScrollText className="h-4 w-4" />
                   </Button>
@@ -163,7 +164,8 @@ export default function SidebarCollapse() {
           ) : (
             <Button
               onClick={handleNewChat}
-              className="w-full flex items-center justify-center space-x-2 bg-neutral-700 hover:bg-neutral-800 text-white"
+              className="w-full flex items-center justify-center space-x-2 text-white hover:opacity-90"
+              style={{ backgroundColor: '#3D1413' }}
             >
               <ScrollText className="h-4 w-4" />
               <span>Novo Chat</span>
