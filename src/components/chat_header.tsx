@@ -7,12 +7,11 @@ export default function ChatHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 max-h-[60px] h-[60px] w-full bg-gray-100 border-b border-gray-200">
-      <div className="flex items-center h-full px-6">
+      <div className="flex items-center h-full pl-1 pr-6">
         {/* Logo no canto esquerdo */}
         <button 
           onClick={() => navigate('/')}
           className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
-          style={{ marginLeft: '16px' }}
         >
           <div className="p-2 rounded-lg" style={{ backgroundColor: '#3D1413' }}>
             <Brain className="h-6 w-6 text-white" />
