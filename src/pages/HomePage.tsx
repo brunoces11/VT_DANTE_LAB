@@ -7,7 +7,7 @@ import Assinatura from '@/components/assinatura';
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-white pt-16">
+    <main className="min-h-screen bg-white">
       <Header />
       <Hero />
       <Features />
