@@ -15,7 +15,7 @@ export default function Contato() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      content: "Olá! 👋 Sou o assistente de atendimento do Dante AI. Como posso ajudá-lo hoje? Posso esclarecer dúvidas sobre nossos serviços, funcionalidades, planos ou qualquer outra questão sobre o Dante AI.",
+      content: "Olá! 👋 Sou o assistente de IA para esclarecer dúvidas sobre o Dante AI. Estou preparado para esclarecer suas questões instantaneamente e, quando necessário, encaminhar sua mensagem diretamente para o departamento responsável. Como posso ajudá-lo hoje?",
       sender: 'bot',
       timestamp: new Date(),
     },
@@ -93,7 +93,7 @@ export default function Contato() {
               Contato | Formulário Inteligente
             </h1>
             <p className="text-lg text-neutral-600 max-w-3xl mx-auto leading-relaxed">
-              Converse com nossa IA de atendimento e obtenha respostas instantâneas para suas dúvidas sobre funcionalidades, planos, implementação ou qualquer aspecto do Dante AI. Nossa inteligência artificial está preparada para esclarecer suas questões e, quando necessário, encaminhar sua mensagem diretamente para o departamento responsável.
+              Converse com nossa IA de atendimento e obtenha respostas instantâneas para suas dúvidas sobre funcionalidades, planos, implementação ou qualquer aspecto do Dante AI.
             </p>
           </div>
 
