@@ -84,8 +84,36 @@ export default function ChatMsgHeader() {
             <p className="text-xs text-neutral-600">
               login: 9:45am
             </p>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Perfil do Usuário */}
+        <div className="flex items-center space-x-3">
+          {/* Informações do usuário */}
+          <div className="text-right">
+            <p className="text-sm font-medium" style={{ color: '#8B4513' }}>
+              Juliana Luz
+            </p>
+            <p className="text-xs text-neutral-600">
+              login: 9:45am
+            </p>
           </div>
           
+          {/* Avatar do usuário */}
+          <button className="relative">
+            <div 
+              className="w-10 h-10 rounded-full bg-neutral-300 border-2 border-white flex items-center justify-center"
+              style={{ 
+                boxShadow: '3px 3px 6px rgba(0, 0, 0, 0.1)' 
+              }}
+            >
+              <User className="h-5 w-5 text-neutral-600" />
+            </div>
+          </button>
+        </div>
           {/* Avatar do usuário */}
           <button className="relative">
             <div 
