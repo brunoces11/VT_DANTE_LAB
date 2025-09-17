@@ -21,6 +21,7 @@ export default function ChatContato() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -28,7 +29,12 @@ export default function ChatContato() {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Só faz scroll automático após o carregamento inicial
+    if (!isInitialLoad) {
+      scrollToBottom();
+    } else {
+      setIsInitialLoad(false);
+    }
   }, [messages]);
 
   const handleSendMessage = async () => {
