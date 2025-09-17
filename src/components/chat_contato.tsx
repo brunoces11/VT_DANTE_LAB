@@ -25,7 +25,12 @@ export default function ChatContato() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      const messagesContainer = messagesEndRef.current.closest('.messages-container');
+      if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+    }
   };
 
   useEffect(() => {
@@ -89,7 +94,7 @@ export default function ChatContato() {
   return (
     <div className="bg-white rounded-3xl border-2 border-neutral-200 overflow-hidden mx-auto" style={{ height: '400px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.08)' }}>
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar" style={{ height: '320px' }}>
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar messages-container" style={{ height: '320px' }}>
         {messages.map((message) => (
           <div
             key={message.id}
