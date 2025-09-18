@@ -5,6 +5,7 @@ import { Brain, User, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import PainelUsuario from '@/components/painel_usuario';
 import UserAvatar from '@/components/ui/user-avatar';
+import UserDropdown from '@/components/ui/user-dropdown';
 
 export default function ChatHeader() {
   const navigate = useNavigate();
@@ -66,24 +67,12 @@ export default function ChatHeader() {
                 onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
               />
               
-              {isUserDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
-                  <button
-                    onClick={handlePainelUsuario}
-                    className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 flex items-center space-x-2"
-                  >
-                    <Settings className="h-4 w-4" />
-                    <span>Painel do Usuário</span>
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span>Sair</span>
-                  </button>
-                </div>
-              )}
+              <UserDropdown
+                isOpen={isUserDropdownOpen}
+                onClose={() => setIsUserDropdownOpen(false)}
+                onOpenPanel={handlePainelUsuario}
+                onLogout={handleLogout}
+              />
             </div>
           )}
         </div>
