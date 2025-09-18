@@ -94,6 +94,21 @@ export default function Header() {
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <nav className="flex items-center space-x-5">
+                {user && (
+                  <>
+                    <button
+                      onClick={() => navigate('/chat-page')}
+                      className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
+                        location.pathname === '/chat-page' 
+                          ? 'text-orange-700' 
+                          : 'text-neutral-700 hover:text-neutral-900'
+                      }`}
+                    >
+                      Novo Chat
+                    </button>
+                    <span className="text-amber-900">|</span>
+                  </>
+                )}
                 <button
                   onClick={() => navigate('/como-funciona')}
                   className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
@@ -239,6 +254,21 @@ export default function Header() {
           {isMenuOpen && (
             <div className="md:hidden border-t border-neutral-200 pt-4 pb-4">
               <nav className="flex flex-col space-y-4">
+                {user && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      navigate('/chat-page');
+                    }}
+                    className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
+                      location.pathname === '/chat-page' 
+                        ? 'text-orange-700' 
+                        : 'text-neutral-700 hover:text-neutral-900'
+                    }`}
+                  >
+                    Novo Chat
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);
