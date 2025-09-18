@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const { data, error } = await getProfile(userId);
       
-      if (error && error.message?.includes('No rows')) {
+      if (error && error.details?.includes('0 rows')) {
         // Perfil não existe, criar um novo
         const { data: newProfile } = await createProfile(userId, {});
         setProfile(newProfile);
