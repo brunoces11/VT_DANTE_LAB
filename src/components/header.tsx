@@ -1,27 +1,31 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Menu, X, ChevronDown, User } from 'lucide-react';
+import { Brain, Menu, X, ChevronDown, User, LogOut, Settings } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import AuthModal from '@/components/auth/AuthModal';
+import PainelUsuario from '@/components/painel_usuario';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLabDropdownOpen, setIsLabDropdownOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user } = useAuth();
+  const [isPainelUsuarioOpen, setIsPainelUsuarioOpen] = useState(false);
+  const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isLabDropdownOpen) {
+      if (isLabDropdownOpen || isUserDropdownOpen) {
         const target = event.target as Element;
         if (!target.closest('.relative')) {
           setIsLabDropdownOpen(false);
+          setIsUserDropdownOpen(false);
         }
       }
     };
@@ -30,7 +34,7 @@ export default function Header() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isLabDropdownOpen]);
+  }, [isLabDropdownOpen, isUserDropdownOpen]);
 
   const handleChatClick = () => {
     console.log('User state:', user); // Debug log
@@ -53,6 +57,16 @@ export default function Header() {
     navigate('/chat-page');
   };
 
+  const handleLogout = async () => {
+    await logout();
+    setIsUserDropdownOpen(false);
+    navigate('/');
+  };
+
+  const handlePainelUsuario = () => {
+    setIsUserDropdownOpen(false);
+    setIsPainelUsuarioOpen(true);
+  };
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-[9999] bg-white/85 backdrop-blur-[5px] border-b border-neutral-200 shadow-sm">
@@ -160,17 +174,47 @@ export default function Header() {
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
-                // Avatar do usuário logado
-                <div className="flex items-center">
-                  <div 
-                    className="w-9 h-9 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors"
-                    style={{
-                      boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
-                    }}
-                    title={user.email || 'Usuário logado'}
-                  >
-                    <User className="h-5 w-5 text-neutral-600" />
+                // Dropdown do usuário logado
+                <div className="relative">
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                      className="w-9 h-9 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors overflow-hidden"
+                      style={{
+                        boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
+                      }}
+                      title={user.email || 'Usuário logado'}
+                    >
+                      {profile?.avatar_url ? (
+                        <img 
+                          src={profile.avatar_url} 
+                          alt="Avatar" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="h-5 w-5 text-neutral-600" />
+                      )}
+                    </button>
                   </div>
+                  
+                  {isUserDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
+                      <button
+                        onClick={handlePainelUsuario}
+                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900 flex items-center space-x-2"
+                      >
+                        <Settings className="h-4 w-4" />
+                        <span>Painel do Usuário</span>
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Sair</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 // Botões para usuários não logados
@@ -309,17 +353,51 @@ export default function Header() {
                   )}
                 </div>
                 {user ? (
-                  // Avatar do usuário logado no mobile
-                  <div className="flex justify-center pt-4 border-t border-neutral-200">
-                    <div 
-                      className="w-9 h-9 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center"
-                      style={{
-                        boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
-                      }}
-                      title={user.email || 'Usuário logado'}
-                    >
-                      <User className="h-5 w-5 text-neutral-600" />
+                  // Opções do usuário logado no mobile
+                  <div className="pt-4 border-t border-neutral-200 space-y-2">
+                    <div className="flex justify-center mb-4">
+                      <div 
+                        className="w-12 h-12 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center overflow-hidden"
+                        style={{
+                          boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
+                        }}
+                        title={user.email || 'Usuário logado'}
+                      >
+                        {profile?.avatar_url ? (
+                          <img 
+                            src={profile.avatar_url} 
+                            alt="Avatar" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-6 w-6 text-neutral-600" />
+                        )}
+                      </div>
                     </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handlePainelUsuario();
+                      }}
+                      className="w-full text-neutral-700 border-neutral-300 flex items-center space-x-2"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Painel do Usuário</span>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        handleLogout();
+                      }}
+                      className="w-full text-red-600 border-red-300 hover:bg-red-50 flex items-center space-x-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Sair</span>
+                    </Button>
                   </div>
                 ) : (
                   // Botões para usuários não logados no mobile
@@ -351,6 +429,11 @@ export default function Header() {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
+      />
+      
+      <PainelUsuario 
+        isOpen={isPainelUsuarioOpen}
+        onClose={() => setIsPainelUsuarioOpen(false)}
       />
     </>
   );

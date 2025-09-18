@@ -40,3 +40,25 @@ export const register = async (email: string, password: string, name: string) =>
     };
   }
 };
+
+export const updateUserPassword = async (newPassword: string) => {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    
+    if (error) {
+      console.error('Error updating password:', error);
+      return { error };
+    }
+    
+    return { error: null };
+  } catch (err) {
+    console.error('Error in updateUserPassword:', err);
+    return { 
+      error: { 
+        message: 'Erro ao atualizar senha. Verifique sua conexão e tente novamente.' 
+      } 
+    };
+  }
+};
