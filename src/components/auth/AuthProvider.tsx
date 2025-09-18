@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../../../services/supa_init';
+import { login as authLogin, logout as authLogout, register as authRegister } from '../../../services/supa_auth';
 
 interface AuthContextType { 
   user: User | null;
@@ -51,44 +52,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      return { error };
-    } catch (err) {
-      return { 
-        error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
-        } 
-      };
-    }
+    return await authLogin(email, password);
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    await authLogout();
   };
 
   const register = async (email: string, password: string, name: string) => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name: name,
-          },
-        },
-      });
-      return { error };
-    } catch (err) {
-      return { 
-        error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
-        } 
-      };
-    }
+    return await authRegister(email, password, name);
   };
 
   const authValue: AuthContextType = {
