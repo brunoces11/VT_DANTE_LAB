@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Brain, User, Settings, LogOut } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import PainelUsuario from '@/components/painel_usuario';
+import UserAvatar from '@/components/ui/user-avatar';
 
 export default function ChatHeader() {
   const navigate = useNavigate();
@@ -60,26 +61,10 @@ export default function ChatHeader() {
           {/* Avatar do usuário no canto direito */}
           {user && (
             <div className="relative user-dropdown-chat">
-              <div className="flex items-center">
-                <button
-                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                  className="w-9 h-9 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors overflow-hidden"
-                  style={{
-                    boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
-                  }}
-                  title={user.email || 'Usuário logado'}
-                >
-                  {profile?.avatar_url ? (
-                    <img 
-                      src={profile.avatar_url} 
-                      alt="Avatar" 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="h-5 w-5 text-neutral-600" />
-                  )}
-                </button>
-              </div>
+              <UserAvatar 
+                size="md"
+                onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+              />
               
               {isUserDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
