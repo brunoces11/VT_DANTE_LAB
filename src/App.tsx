@@ -12,8 +12,8 @@ import Contato from '@/pages/Contato';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -24,8 +24,8 @@ function App() {
           <Route path="/planos" element={<Planos />} />
           <Route path="/contato" element={<Contato />} />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
