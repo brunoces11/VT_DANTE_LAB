@@ -163,13 +163,13 @@ export default function Header() {
                 // Avatar do usuário logado
                 <div className="flex items-center">
                   <div 
-                    className="w-8 h-8 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors"
+                    className="w-9 h-9 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors"
                     style={{
-                      boxShadow: '0 0 0 2px white, 0 3px 6px rgba(0, 0, 0, 0.1)'
+                      boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
                     }}
                     title={user.email || 'Usuário logado'}
                   >
-                    <User className="h-4 w-4 text-neutral-600" />
+                    <User className="h-5 w-5 text-neutral-600" />
                   </div>
                 </div>
               ) : (
@@ -312,13 +312,13 @@ export default function Header() {
                   // Avatar do usuário logado no mobile
                   <div className="flex justify-center pt-4 border-t border-neutral-200">
                     <div 
-                      className="w-8 h-8 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center"
+                      className="w-9 h-9 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center"
                       style={{
-                        boxShadow: '0 0 0 2px white, 0 3px 6px rgba(0, 0, 0, 0.1)'
+                        boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
                       }}
                       title={user.email || 'Usuário logado'}
                     >
-                      <User className="h-4 w-4 text-neutral-600" />
+                      <User className="h-5 w-5 text-neutral-600" />
                     </div>
                   </div>
                 ) : (
