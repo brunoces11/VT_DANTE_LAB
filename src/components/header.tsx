@@ -170,9 +170,6 @@ export default function Header() {
               <Button 
                 size="sm" 
                 onClick={() => {
-                  console.log('Mobile chat button clicked, user:', user);
-                  handleChatClick();
-                }}
                   console.log('Chat button clicked, user:', user);
                   handleChatClick();
                 }}
