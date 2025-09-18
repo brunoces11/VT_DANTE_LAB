@@ -34,9 +34,14 @@ export default function ChatHeader() {
   }, [isUserDropdownOpen]);
 
   const handleLogout = async () => {
-    await logout();
-    setIsUserDropdownOpen(false);
-    navigate('/');
+    try {
+      await logout();
+      setIsUserDropdownOpen(false);
+      // O AuthProvider já gerencia a navegação para '/'
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      setIsUserDropdownOpen(false);
+    }
   };
 
   const handlePainelUsuario = () => {
