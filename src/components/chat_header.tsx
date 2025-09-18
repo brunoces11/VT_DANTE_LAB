@@ -34,9 +34,14 @@ export default function ChatHeader() {
   }, [isUserDropdownOpen]);
 
   const handleLogout = async () => {
-    await logout();
-    setIsUserDropdownOpen(false);
-    navigate('/');
+    try {
+      await logout();
+      setIsUserDropdownOpen(false);
+      // O AuthProvider já gerencia a navegação para '/'
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      setIsUserDropdownOpen(false);
+    }
   };
 
   const handlePainelUsuario = () => {
@@ -46,7 +51,7 @@ export default function ChatHeader() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 max-h-[60px] h-[60px] w-full bg-gray-100 border-b border-gray-200">
+      <header className="fixed top-0 left-0 right-0 z-[9999] max-h-[60px] h-[60px] w-full bg-gray-100 border-b border-gray-200">
         <div className="flex items-center justify-between h-full pl-4 pr-6">
         {/* Logo no canto esquerdo */}
         <button 
