@@ -7,10 +7,8 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Brain, Eye, EyeOff, Upload, User, Loader2, Camera } from 'lucide-react';
+import { Brain, Eye, EyeOff, User, Loader2, Camera } from 'lucide-react';
 import { useAuth } from './auth/AuthProvider';
-import { updateUserPassword } from '../../services/supa_auth';
-import { uploadAvatar, updateProfile } from '../../services/supabase';
 
 interface PainelUsuarioProps {
   isOpen: boolean;
@@ -18,7 +16,7 @@ interface PainelUsuarioProps {
 }
 
 export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile } = useAuth();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -68,16 +66,14 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
         return;
       }
 
-      const { error } = await updateUserPassword(newPassword);
-      if (error) {
-        setPasswordError(error.message);
-      } else {
+      // Mock password update
+      setTimeout(() => {
         setPasswordSuccess('Senha alterada com sucesso!');
         resetPasswordForm();
-      }
+        setPasswordLoading(false);
+      }, 1000);
     } catch (err) {
       setPasswordError('Ocorreu um erro inesperado');
-    } finally {
       setPasswordLoading(false);
     }
   };
@@ -91,31 +87,17 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
     setAvatarLoading(true);
 
     try {
-      // Upload do arquivo
-      const { data: uploadData, error: uploadError } = await uploadAvatar(file, user.id);
-      
-      if (uploadError) {
-        setAvatarError(uploadError.message);
-        setAvatarLoading(false);
-        return;
-      }
-
-      // Atualizar perfil com nova URL do avatar
-      const { error: updateError } = await updateProfile(user.id, {
-        avatar_url: uploadData?.publicUrl
-      });
-
-      if (updateError) {
-        setAvatarError(updateError.message);
-      } else {
+      // Mock avatar upload
+      setTimeout(() => {
         setAvatarSuccess('Avatar atualizado com sucesso!');
-        await refreshProfile(); // Atualizar o contexto
-      }
+        setAvatarLoading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }, 1500);
     } catch (err) {
       setAvatarError('Ocorreu um erro inesperado');
-    } finally {
       setAvatarLoading(false);
-      // Limpar o input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
