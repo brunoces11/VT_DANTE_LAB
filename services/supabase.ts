@@ -73,7 +73,7 @@ export const uploadAvatar = async (file: File, userId: string) => {
     if (!allowedTypes.includes(file.type)) {
       return { 
         data: null, 
-        error: { message: 'Tipo de arquivo não permitido' } 
+        error: { message: 'Tipo de arquivo não permitido. Use PNG, JPEG, JPG ou GIF.' } 
       };
     }
 
@@ -82,7 +82,7 @@ export const uploadAvatar = async (file: File, userId: string) => {
     if (file.size > maxSize) {
       return { 
         data: null, 
-        error: { message: 'Arquivo muito grande' } 
+        error: { message: 'Arquivo muito grande. O tamanho máximo é 4MB.' } 
       };
     }
 
@@ -98,6 +98,7 @@ export const uploadAvatar = async (file: File, userId: string) => {
         upsert: false
       });
 
+
     if (error) {
       return { data: null, error };
     }
@@ -106,6 +107,7 @@ export const uploadAvatar = async (file: File, userId: string) => {
     const { data: publicUrlData } = supabase.storage
       .from('user_avatar')
       .getPublicUrl(fileName);
+
 
     return { 
       data: { 
@@ -117,7 +119,7 @@ export const uploadAvatar = async (file: File, userId: string) => {
   } catch (err) {
     return { 
       data: null, 
-      error: { message: 'Erro no upload' } 
+      error: { message: 'Erro ao fazer upload do avatar' } 
     };
   }
 };
