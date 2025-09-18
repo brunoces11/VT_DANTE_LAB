@@ -73,10 +73,13 @@ export const createProfile = async (userId: string, profileData: { avatar_url?: 
 
 // Storage Functions
 export const uploadAvatar = async (file: File, userId: string) => {
+  console.log('🔍 uploadAvatar called for userId:', userId, 'file:', file.name, 'size:', file.size)
+  
   try {
     // Validar tipo de arquivo
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
+      console.error('❌ Invalid file type:', file.type)
       return { 
         data: null, 
         error: { message: 'Tipo de arquivo não permitido. Use PNG, JPEG, JPG ou GIF.' } 
@@ -86,6 +89,7 @@ export const uploadAvatar = async (file: File, userId: string) => {
     // Validar tamanho do arquivo (4MB)
     const maxSize = 4 * 1024 * 1024; // 4MB em bytes
     if (file.size > maxSize) {
+      console.error('❌ File too large:', file.size, 'max:', maxSize)
       return { 
         data: null, 
         error: { message: 'Arquivo muito grande. O tamanho máximo é 4MB.' } 
@@ -95,6 +99,7 @@ export const uploadAvatar = async (file: File, userId: string) => {
     // Gerar nome único para o arquivo
     const fileExt = file.name.split('.').pop();
     const fileName = `${userId}/${Date.now()}.${fileExt}`;
+    console.log('📁 Upload path:', fileName)
 
     // Upload do arquivo
     const { data, error } = await supabase.storage
@@ -103,6 +108,8 @@ export const uploadAvatar = async (file: File, userId: string) => {
         cacheControl: '3600',
         upsert: false
       });
+
+    console.log('📊 Upload result:', { data, error })
 
     if (error) {
       console.error('Error uploading avatar:', error);
@@ -113,6 +120,8 @@ export const uploadAvatar = async (file: File, userId: string) => {
     const { data: publicUrlData } = supabase.storage
       .from('user_avatar')
       .getPublicUrl(fileName);
+
+    console.log('🔗 Public URL:', publicUrlData.publicUrl)
 
     return { 
       data: { 
