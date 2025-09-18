@@ -13,12 +13,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
-  define: {
-    // Garantir que as variáveis de ambiente sejam expostas corretamente
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-  },
   server: {
-    // Configurações para desenvolvimento
     host: true,
     port: 5173,
   },

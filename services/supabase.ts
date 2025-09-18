@@ -10,13 +10,11 @@ export const getProfile = async (userId: string) => {
       .single();
 
     if (error) {
-      console.error('Error fetching profile:', error);
       return { data: null, error };
     }
 
     return { data, error: null };
   } catch (err) {
-    console.error('Error in getProfile:', err);
     return { 
       data: null, 
       error: { message: 'Erro ao buscar perfil do usuário' } 
@@ -34,13 +32,11 @@ export const updateProfile = async (userId: string, updates: { avatar_url?: stri
       .single();
 
     if (error) {
-      console.error('Error updating profile:', error);
       return { data: null, error };
     }
 
     return { data, error: null };
   } catch (err) {
-    console.error('Error in updateProfile:', err);
     return { 
       data: null, 
       error: { message: 'Erro ao atualizar perfil do usuário' } 
@@ -57,13 +53,11 @@ export const createProfile = async (userId: string, profileData: { avatar_url?: 
       .single();
 
     if (error) {
-      console.error('Error creating profile:', error);
       return { data: null, error };
     }
 
     return { data, error: null };
   } catch (err) {
-    console.error('Error in createProfile:', err);
     return { 
       data: null, 
       error: { message: 'Erro ao criar perfil do usuário' } 
@@ -73,13 +67,10 @@ export const createProfile = async (userId: string, profileData: { avatar_url?: 
 
 // Storage Functions
 export const uploadAvatar = async (file: File, userId: string) => {
-  console.log('🔍 uploadAvatar called for userId:', userId, 'file:', file.name, 'size:', file.size)
-  
   try {
     // Validar tipo de arquivo
     const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      console.error('❌ Invalid file type:', file.type)
       return { 
         data: null, 
         error: { message: 'Tipo de arquivo não permitido. Use PNG, JPEG, JPG ou GIF.' } 
@@ -89,7 +80,6 @@ export const uploadAvatar = async (file: File, userId: string) => {
     // Validar tamanho do arquivo (4MB)
     const maxSize = 4 * 1024 * 1024; // 4MB em bytes
     if (file.size > maxSize) {
-      console.error('❌ File too large:', file.size, 'max:', maxSize)
       return { 
         data: null, 
         error: { message: 'Arquivo muito grande. O tamanho máximo é 4MB.' } 
@@ -99,7 +89,6 @@ export const uploadAvatar = async (file: File, userId: string) => {
     // Gerar nome único para o arquivo
     const fileExt = file.name.split('.').pop();
     const fileName = `${userId}/${Date.now()}.${fileExt}`;
-    console.log('📁 Upload path:', fileName)
 
     // Upload do arquivo
     const { data, error } = await supabase.storage
@@ -109,10 +98,8 @@ export const uploadAvatar = async (file: File, userId: string) => {
         upsert: false
       });
 
-    console.log('📊 Upload result:', { data, error })
 
     if (error) {
-      console.error('Error uploading avatar:', error);
       return { data: null, error };
     }
 
@@ -121,7 +108,6 @@ export const uploadAvatar = async (file: File, userId: string) => {
       .from('user_avatar')
       .getPublicUrl(fileName);
 
-    console.log('🔗 Public URL:', publicUrlData.publicUrl)
 
     return { 
       data: { 
@@ -131,7 +117,6 @@ export const uploadAvatar = async (file: File, userId: string) => {
       error: null 
     };
   } catch (err) {
-    console.error('Error in uploadAvatar:', err);
     return { 
       data: null, 
       error: { message: 'Erro ao fazer upload do avatar' } 
@@ -146,13 +131,11 @@ export const deleteAvatar = async (filePath: string) => {
       .remove([filePath]);
 
     if (error) {
-      console.error('Error deleting avatar:', error);
       return { error };
     }
 
     return { error: null };
   } catch (err) {
-    console.error('Error in deleteAvatar:', err);
     return { error: { message: 'Erro ao deletar avatar' } };
   }
 };

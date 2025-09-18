@@ -42,25 +42,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const loadUserProfile = async (userId: string) => {
-    console.log('🔍 loadUserProfile called for userId:', userId)
-    
     try {
       const { data, error } = await getProfile(userId);
       
-      console.log('📊 loadUserProfile - getProfile result:', { data, error })
-      
       if (!data && !error) {
         // Perfil não existe, criar um novo
-        console.log('📝 Creating new profile for user:', userId)
         const { data: newProfile } = await createProfile(userId, {});
-        console.log('📊 New profile created:', newProfile)
         setProfile(newProfile);
       } else if (data) {
-        console.log('✅ Profile loaded successfully:', data)
         setProfile(data);
       }
     } catch (err) {
-      console.error('Error loading user profile:', err);
+      // Silently handle profile loading errors
     }
   };
 
@@ -70,16 +63,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
   useEffect(() => {
-    console.log('🔍 AuthProvider useEffect - Getting initial session')
-    
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('📊 Initial session:', session ? 'Found' : 'Not found')
-      
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        console.log('👤 User found, loading profile for:', session.user.id)
         loadUserProfile(session.user.id);
       }
       setLoading(false);
@@ -89,15 +77,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('🔄 Auth state changed:', _event, session ? 'Session exists' : 'No session')
-      
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        console.log('👤 Loading profile for user:', session.user.id)
         loadUserProfile(session.user.id);
       } else {
-        console.log('🚪 User logged out, clearing profile')
         setProfile(null);
       }
       setLoading(false);
