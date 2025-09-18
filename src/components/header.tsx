@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Menu, X, ChevronDown } from 'lucide-react';
+import { Brain, Menu, X, ChevronDown, User } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -159,24 +159,42 @@ export default function Header() {
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleLoginClick}
-                className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
-              >
-                Entrar
-              </Button>
-              <Button 
-                size="sm" 
-                onClick={() => {
-                  console.log('Chat button clicked, user:', user);
-                  handleChatClick();
-                }}
-                className="bg-orange-700 hover:bg-orange-600 text-white"
-              >
-                💬 Iniciar Chat
-              </Button>
+              {user ? (
+                // Avatar do usuário logado
+                <div className="flex items-center">
+                  <div 
+                    className="w-8 h-8 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center cursor-pointer hover:bg-neutral-200 transition-colors"
+                    style={{
+                      boxShadow: '0 0 0 2px white, 0 3px 6px rgba(0, 0, 0, 0.1)'
+                    }}
+                    title={user.email || 'Usuário logado'}
+                  >
+                    <User className="h-4 w-4 text-neutral-600" />
+                  </div>
+                </div>
+              ) : (
+                // Botões para usuários não logados
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleLoginClick}
+                    className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
+                  >
+                    Entrar
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={() => {
+                      console.log('Chat button clicked, user:', user);
+                      handleChatClick();
+                    }}
+                    className="bg-orange-700 hover:bg-orange-600 text-white"
+                  >
+                    💬 Iniciar Chat
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -290,23 +308,39 @@ export default function Header() {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col space-y-2 pt-4 border-t border-neutral-200">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleLoginClick}
-                    className="w-full text-neutral-700 border-neutral-300"
-                  >
-                    Entrar
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={handleChatClick}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    💬 Iniciar Chat
-                  </Button>
-                </div>
+                {user ? (
+                  // Avatar do usuário logado no mobile
+                  <div className="flex justify-center pt-4 border-t border-neutral-200">
+                    <div 
+                      className="w-8 h-8 rounded-full bg-neutral-100 border-2 border-white flex items-center justify-center"
+                      style={{
+                        boxShadow: '0 0 0 2px white, 0 3px 6px rgba(0, 0, 0, 0.1)'
+                      }}
+                      title={user.email || 'Usuário logado'}
+                    >
+                      <User className="h-4 w-4 text-neutral-600" />
+                    </div>
+                  </div>
+                ) : (
+                  // Botões para usuários não logados no mobile
+                  <div className="flex flex-col space-y-2 pt-4 border-t border-neutral-200">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleLoginClick}
+                      className="w-full text-neutral-700 border-neutral-300"
+                    >
+                      Entrar
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      onClick={handleChatClick}
+                      className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      💬 Iniciar Chat
+                    </Button>
+                  </div>
+                )}
               </nav>
             </div>
           )}
