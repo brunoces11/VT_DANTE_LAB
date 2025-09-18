@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import ChatHeader from '@/components/chat_header';
-import SidebarCollapse from '@/components/sidebar_collapse';
-import ChatArea from '@/components/chat_area';
+import ChatSessao from '@/components/ChatSessao';
 
 export default function ChatPage() {
   return (
@@ -11,11 +10,8 @@ export default function ChatPage() {
       
       {/* Layout principal com flexbox */}
       <div className="flex h-full" style={{ paddingTop: '60px' }}>
-        {/* Sidebar fixa à esquerda */}
-        <SidebarCollapse />
-        
-        {/* Área de chat à direita */}
-        <ChatArea />
+        {/* Chat completo com sidebar integrada */}
+        <ChatSessao />
       </div>
     </div>
   );
