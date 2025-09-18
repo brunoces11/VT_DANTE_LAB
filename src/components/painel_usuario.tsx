@@ -9,8 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, User, Loader2, Camera } from 'lucide-react';
 import { useAuth } from './auth/AuthProvider';
-import { updateUserPassword } from '../services/supa_auth';
-import { uploadAvatar, updateProfile } from '../services/supabase';
+import { authService, storageService, profileService } from '../services/supabase';
 
 interface PainelUsuarioProps {
   isOpen: boolean;
@@ -69,7 +68,7 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
         return;
       }
 
-      const { error } = await updateUserPassword(newPassword);
+      const { error } = await authService.updatePassword(newPassword);
       if (error) {
         setPasswordError(error.message);
       } else {
@@ -92,14 +91,14 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
     setAvatarLoading(true);
 
     try {
-      const uploadResult = await uploadAvatar(file, user.id);
+      const uploadResult = await storageService.uploadAvatar(file, user.id);
       if (uploadResult.error) {
         setAvatarError(uploadResult.error.message);
         return;
       }
 
       // Update profile with new avatar URL
-      const updateResult = await updateProfile(user.id, {
+      const updateResult = await profileService.updateProfile(user.id, {
         avatar_url: uploadResult.data?.publicUrl
       });
 
