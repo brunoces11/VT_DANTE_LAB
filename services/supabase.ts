@@ -6,7 +6,7 @@ export const getProfile = async (userId: string) => {
     const { data, error } = await supabase
       .from('tab_user')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
 
     if (error) {
@@ -29,7 +29,7 @@ export const updateProfile = async (userId: string, updates: { avatar_url?: stri
     const { data, error } = await supabase
       .from('tab_user')
       .update(updates)
-      .eq('id', userId)
+      .eq('user_id', userId)
       .select()
       .single();
 
@@ -52,7 +52,7 @@ export const createProfile = async (userId: string, profileData: { avatar_url?: 
   try {
     const { data, error } = await supabase
       .from('tab_user')
-      .insert({ id: userId, ...profileData })
+      .insert({ user_id: userId, ...profileData })
       .select()
       .single();
 
