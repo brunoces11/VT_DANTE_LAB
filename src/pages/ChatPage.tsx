@@ -5,7 +5,7 @@ import ChatArea from '@/components/chat_area';
 
 export default function ChatPage() {
   return (
-    <div className="h-screen bg-white overflow-hidden relative">
+    <div className="h-screen bg-white overflow-hidden">
       {/* Header fixo no topo */}
       <ChatHeader />
       
