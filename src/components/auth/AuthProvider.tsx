@@ -1,5 +1,4 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase, authService, profileService } from '../../services/supabase'
 
 interface User {
@@ -40,7 +39,6 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [session, setSession] = useState<any>(null)
@@ -127,16 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async () => {
     setLoading(true)
     try {
-      const { error } = await authService.logout()
-      if (error) {
-        console.error('Erro no logout:', error)
-      }
-      // Forçar limpeza do estado local mesmo se houver erro
-      setUser(null)
-      setProfile(null)
-      setSession(null)
-      // Navegar para a página inicial após logout
-      navigate('/')
+      await authService.logout()
     } finally {
       setLoading(false)
     }
