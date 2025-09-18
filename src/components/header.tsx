@@ -33,11 +33,12 @@ export default function Header() {
   }, [isLabDropdownOpen]);
 
   const handleChatClick = () => {
+    console.log('User state:', user); // Debug log
     if (user) {
-      // Usuário está logado, pode acessar o chat
+      console.log('User is logged in, navigating to chat'); // Debug log
       navigate('/chat-page');
     } else {
-      // Usuário não está logado, abrir modal de login
+      console.log('User not logged in, opening auth modal'); // Debug log
       setIsAuthModalOpen(true);
     }
   };
@@ -168,7 +169,13 @@ export default function Header() {
               </Button>
               <Button 
                 size="sm" 
-                onClick={handleChatClick}
+                onClick={() => {
+                  console.log('Mobile chat button clicked, user:', user);
+                  handleChatClick();
+                }}
+                  console.log('Chat button clicked, user:', user);
+                  handleChatClick();
+                }}
                 className="bg-orange-700 hover:bg-orange-600 text-white"
               >
                 💬 Iniciar Chat
