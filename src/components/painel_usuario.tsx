@@ -8,7 +8,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, User, Loader2, Camera } from 'lucide-react';
-import { LogOut } from 'lucide-react';
 import { useAuth } from './auth/AuthProvider';
 import { authService, storageService, profileService } from '../services/supabase';
 
@@ -19,7 +18,7 @@ interface PainelUsuarioProps {
 
 export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
   const { user, profile } = useAuth();
-  const { refreshProfile, logout } = useAuth();
+  const { refreshProfile } = useAuth();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -30,7 +29,6 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [avatarError, setAvatarError] = useState('');
   const [avatarSuccess, setAvatarSuccess] = useState('');
-  const [logoutLoading, setLogoutLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetPasswordForm = () => {
@@ -129,18 +127,6 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
     fileInputRef.current?.click();
   };
 
-  const handleLogout = async () => {
-    setLogoutLoading(true);
-    try {
-      await logout();
-      onClose(); // Fecha o modal
-      // O AuthProvider já gerencia a navegação e limpeza do estado
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-    } finally {
-      setLogoutLoading(false);
-    }
-  };
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
@@ -297,34 +283,6 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
                 )}
               </Button>
             </form>
-          </div>
-
-          {/* Seção de Logout */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">
-              Sair da Conta
-            </h3>
-            <p className="text-sm text-neutral-600 mb-4">
-              Desconectar da sua conta e retornar à página inicial.
-            </p>
-            <Button
-              onClick={handleLogout}
-              disabled={logoutLoading}
-              variant="outline"
-              className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 hover:text-red-700"
-            >
-              {logoutLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saindo...
-                </>
-              ) : (
-                <>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sair da Conta
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </DialogContent>

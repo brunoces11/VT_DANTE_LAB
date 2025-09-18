@@ -29,7 +29,7 @@ export default function UserDropdown({
       </button>
       <button
         onClick={onLogout}
-        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center space-x-2 transition-colors"
+        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
       >
         <LogOut className="h-4 w-4" />
         <span>Sair</span>
