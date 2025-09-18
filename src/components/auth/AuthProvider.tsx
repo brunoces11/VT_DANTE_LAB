@@ -1,4 +1,7 @@
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
+import { supabase } from '../../services/supa_init';
+import { login as supabaseLogin, logout as supabaseLogout, register as supabaseRegister } from '../../services/supa_auth';
+import { getProfile, createProfile } from '../../services/supabase';
 
 interface User {
   id: string;
@@ -6,8 +9,10 @@ interface User {
 }
 
 interface UserProfile {
-  id: string;
+  user_id: string;
   avatar_url?: string;
+  created_at?: string;
+  updated_at?: string;
   [key: string]: any;
 }
 
@@ -40,31 +45,103 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get initial session
+    const getInitialSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          setUser({ id: session.user.id, email: session.user.email });
+          setSession(session);
+          await loadUserProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error('Error getting initial session:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getInitialSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setUser({ id: session.user.id, email: session.user.email });
+          setSession(session);
+          await loadUserProfile(session.user.id);
+        } else {
+          setUser(null);
+          setProfile(null);
+          setSession(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await getProfile(userId);
+      
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading profile:', error);
+        return;
+      }
+
+      if (data) {
+        setProfile(data);
+      } else {
+        // Create profile if it doesn't exist
+        const { data: newProfile } = await createProfile(userId, {});
+        if (newProfile) {
+          setProfile(newProfile);
+        }
+      }
+    } catch (error) {
+      console.error('Error in loadUserProfile:', error);
+    }
+  };
 
   const refreshProfile = async () => {
-    // Mock implementation for demo
-    console.log('Profile refresh requested');
+    if (user?.id) {
+      await loadUserProfile(user.id);
+    }
   };
 
   const login = async (email: string, password: string) => {
-    // Mock login for demo
-    const mockUser = { id: '1', email };
-    setUser(mockUser);
-    return { error: null };
+    setLoading(true);
+    try {
+      const result = await supabaseLogin(email, password);
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    setUser(null);
-    setProfile(null);
-    setSession(null);
+    setLoading(true);
+    try {
+      await supabaseLogout();
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (email: string, password: string, name: string) => {
-    // Mock register for demo
-    const mockUser = { id: '1', email };
-    setUser(mockUser);
-    return { error: null };
+    setLoading(true);
+    try {
+      const result = await supabaseRegister(email, password, name);
+      return result;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const authValue: AuthContextType = {
