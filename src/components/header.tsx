@@ -21,16 +21,23 @@ export default function Header() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isLabDropdownOpen || isUserDropdownOpen) {
-        const target = event.target as Element;
-        if (!target.closest('.relative')) {
-          setIsLabDropdownOpen(false);
-          setIsUserDropdownOpen(false);
-        }
+      const target = event.target as Element;
+      
+      // Close lab dropdown if clicking outside
+      if (isLabDropdownOpen && !target.closest('.lab-dropdown')) {
+        setIsLabDropdownOpen(false);
+      }
+      
+      // Close user dropdown if clicking outside
+      if (isUserDropdownOpen && !target.closest('.user-dropdown')) {
+        setIsUserDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    if (isLabDropdownOpen || isUserDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
@@ -132,7 +139,7 @@ export default function Header() {
                   Contato
                 </button>
                 <span className="text-amber-900">|</span>
-                <div className="relative">
+                <div className="relative lab-dropdown">
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
                     className={`flex items-center text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
@@ -175,7 +182,7 @@ export default function Header() {
             <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 // Dropdown do usuário logado
-                <div className="relative">
+                <div className="relative user-dropdown">
                   <div className="flex items-center">
                     <button
                       onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
