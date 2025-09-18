@@ -33,13 +33,24 @@ export default function Header() {
   }, [isLabDropdownOpen]);
 
   const handleChatClick = () => {
-    navigate('/chat-page');
+    if (user) {
+      // Usuário está logado, pode acessar o chat
+      navigate('/chat-page');
+    } else {
+      // Usuário não está logado, abrir modal de login
+      setIsAuthModalOpen(true);
+    }
   };
 
   const handleLoginClick = () => {
     setIsAuthModalOpen(true);
   };
 
+  const handleAuthSuccess = () => {
+    // Após login bem-sucedido, redirecionar para o chat
+    setIsAuthModalOpen(false);
+    navigate('/chat-page');
+  };
 
   return (
     <>
@@ -301,6 +312,7 @@ export default function Header() {
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
       />
     </>
   );
