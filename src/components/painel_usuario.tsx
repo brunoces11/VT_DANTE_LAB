@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, User, Loader2, Camera } from 'lucide-react';
 import { useAuth } from './auth/AuthProvider';
+import { authService, storageService, profileService } from '../services/supabase';
 
 interface PainelUsuarioProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface PainelUsuarioProps {
 
 export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
   const { user, profile } = useAuth();
+  const { refreshProfile } = useAuth();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -66,14 +68,16 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
         return;
       }
 
-      // Mock password update
-      setTimeout(() => {
+      const { error } = await authService.updatePassword(newPassword);
+      if (error) {
+        setPasswordError(error.message);
+      } else {
         setPasswordSuccess('Senha alterada com sucesso!');
         resetPasswordForm();
-        setPasswordLoading(false);
-      }, 1000);
+      }
     } catch (err) {
       setPasswordError('Ocorreu um erro inesperado');
+    } finally {
       setPasswordLoading(false);
     }
   };
@@ -87,16 +91,31 @@ export default function PainelUsuario({ isOpen, onClose }: PainelUsuarioProps) {
     setAvatarLoading(true);
 
     try {
-      // Mock avatar upload
-      setTimeout(() => {
+      const uploadResult = await storageService.uploadAvatar(file, user.id);
+      if (uploadResult.error) {
+        setAvatarError(uploadResult.error.message);
+        return;
+      }
+
+      // Update profile with new avatar URL
+      const updateResult = await profileService.updateProfile(user.id, {
+        avatar_url: uploadResult.data?.publicUrl
+      });
+
+      if (updateResult.error) {
+        setAvatarError('Erro ao atualizar perfil');
+        return;
+      }
+
+      // Refresh profile in context
+      await refreshProfile();
+      
+      if (uploadResult.data?.publicUrl) {
         setAvatarSuccess('Avatar atualizado com sucesso!');
-        setAvatarLoading(false);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      }, 1500);
+      }
     } catch (err) {
       setAvatarError('Ocorreu um erro inesperado');
+    } finally {
       setAvatarLoading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';

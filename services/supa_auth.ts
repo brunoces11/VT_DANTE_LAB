@@ -47,17 +47,11 @@ export const updateUserPassword = async (newPassword: string) => {
       password: newPassword
     });
     
-    if (error) {
-      console.error('Error updating password:', error);
-      return { error };
-    }
-    
-    return { error: null };
+    return { error };
   } catch (err) {
-    console.error('Error in updateUserPassword:', err);
     return { 
       error: { 
-        message: 'Erro ao atualizar senha. Verifique sua conexão e tente novamente.' 
+        message: 'Erro ao atualizar senha' 
       } 
     };
   }

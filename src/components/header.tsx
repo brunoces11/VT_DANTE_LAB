@@ -44,12 +44,9 @@ export default function Header() {
   }, [isLabDropdownOpen, isUserDropdownOpen]);
 
   const handleChatClick = () => {
-    console.log('User state:', user); // Debug log
     if (user) {
-      console.log('User is logged in, navigating to chat'); // Debug log
       navigate('/chat-page');
     } else {
-      console.log('User not logged in, opening auth modal'); // Debug log
       setIsAuthModalOpen(true);
     }
   };
@@ -237,7 +234,6 @@ export default function Header() {
                   <Button 
                     size="sm" 
                     onClick={() => {
-                      console.log('Chat button clicked, user:', user);
                       handleChatClick();
                     }}
                     className="bg-orange-700 hover:bg-orange-600 text-white"
