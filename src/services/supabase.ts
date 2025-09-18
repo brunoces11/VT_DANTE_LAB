@@ -35,8 +35,16 @@ export const authService = {
   },
 
   async logout() {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Erro no logout:', error)
+      }
+      return { error }
+    } catch (err) {
+      console.error('Erro inesperado no logout:', err)
+      return { error: err }
+    }
   },
 
   async updatePassword(newPassword: string) {
