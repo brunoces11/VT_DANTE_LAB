@@ -70,7 +70,7 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
       if (result.error) {
         setPasswordError(result.error.message || 'Erro ao alterar senha');
       } else {
-        setPasswordSuccess('Senha alterada com sucesso! Um email de confirmação foi enviado.');
+        setPasswordSuccess('✔️ Senha modificada com sucesso! Um email de confirmação foi enviado para seu endereço.');
         resetPasswordForm();
       }
     } catch (err: any) {

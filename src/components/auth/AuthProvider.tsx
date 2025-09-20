@@ -100,7 +100,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       if (!error) {
         // Supabase automaticamente envia email de confirmação de mudança de senha
-        console.log('Senha alterada com sucesso');
+        console.log('Senha alterada com sucesso - Email de confirmação enviado automaticamente');
+        
+        // Opcional: Enviar email customizado adicional se necessário
+        // Isso pode ser implementado via Edge Function se quiser personalizar o email
       }
       
       return { error };
