@@ -1,12 +1,18 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Brain } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import UserProfileIcon from '@/components/user_profile_icon';
 
 export default function ChatHeader() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/'); // Redireciona para a página inicial após logout
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 max-h-[60px] h-[60px] w-full bg-gray-100 border-b border-gray-200">
@@ -24,7 +30,10 @@ export default function ChatHeader() {
 
         {/* Avatar do usuário no canto direito */}
         {user && (
-          <UserProfileIcon size="md" />
+          <UserProfileIcon 
+            size="md" 
+            onLogout={handleLogout}
+          />
         )}
       </div>
     </header>

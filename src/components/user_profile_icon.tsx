@@ -7,12 +7,14 @@ interface UserProfileIconProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   showTooltip?: boolean;
+  onLogout?: () => void;
 }
 
 export default function UserProfileIcon({ 
   size = 'md', 
   className = '',
-  showTooltip = true 
+  showTooltip = true,
+  onLogout
 }: UserProfileIconProps) {
   const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -60,7 +62,11 @@ export default function UserProfileIcon({
 
   const handleLogout = async () => {
     setIsDropdownOpen(false);
-    await logout();
+    if (onLogout) {
+      onLogout(); // Usa o callback customizado se fornecido
+    } else {
+      await logout(); // Usa o logout padrão se não houver callback
+    }
   };
 
   if (!user) return null;
