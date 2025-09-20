@@ -22,7 +22,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? '', // Usamos a anon key, mas o token de acesso define o contexto
       {
         global: {
-          headers: { Authorization: `Bearer ${accessToken}` },
+          headers: { Authorization: \`Bearer ${accessToken}` },
         },
       }
     )
