@@ -286,3 +286,6 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
   );
 }
 
+
+
+export default UserProfilePanel
