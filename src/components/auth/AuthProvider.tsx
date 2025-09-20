@@ -1,6 +1,7 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../../../services/supa_init';
+import { FUN_DT_LOGIN_NEW_SESSION } from '../../../services/supabase';
 
 interface AuthContextType { 
   user: User | null;
@@ -57,6 +58,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         email,
         password,
       });
+      
+      // Se login foi bem-sucedido, criar nova sessão de chat
+      if (!error) {
+        try {
+          console.log('Login bem-sucedido, criando nova sessão de chat...');
+          const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
+          
+          if (sessionResult.success) {
+            console.log('Nova sessão de chat criada:', sessionResult.session);
+          } else {
+            console.error('Erro ao criar sessão de chat:', sessionResult.error);
+          }
+        } catch (sessionError) {
+          console.error('Erro inesperado ao criar sessão de chat:', sessionError);
+          // Não interrompe o login mesmo se a criação da sessão falhar
+        }
+      }
+      
       return { error };
     } catch (err) {
       return { 
@@ -82,6 +101,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           },
         },
       });
+      
+      // Se registro foi bem-sucedido, criar nova sessão de chat
+      if (!error) {
+        try {
+          console.log('Registro bem-sucedido, criando nova sessão de chat...');
+          const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
+          
+          if (sessionResult.success) {
+            console.log('Nova sessão de chat criada:', sessionResult.session);
+          } else {
+            console.error('Erro ao criar sessão de chat:', sessionResult.error);
+          }
+        } catch (sessionError) {
+          console.error('Erro inesperado ao criar sessão de chat:', sessionError);
+          // Não interrompe o registro mesmo se a criação da sessão falhar
+        }
+      }
+      
       return { error };
     } catch (err) {
       return { 
