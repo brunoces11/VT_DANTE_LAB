@@ -104,17 +104,6 @@ export default function Header() {
                   Planos
                 </button>
                 <span className="text-amber-900">|</span>
-                <button
-                  onClick={() => navigate('/contato')}
-                  className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
-                    location.pathname === '/contato' 
-                      ? 'text-orange-700' 
-                      : 'text-neutral-700 hover:text-neutral-900'
-                  }`}
-                >
-                  Contato
-                </button>
-                <span className="text-amber-900">|</span>
                 <div className="relative">
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
@@ -164,7 +153,7 @@ export default function Header() {
                 💬 Iniciar Chat
               </Button>
               {user ? (
-                <UserProfileIcon size="lg" />
+                <UserProfileIcon size="md" />
               ) : (
                 <Button 
                   variant="outline" 
@@ -237,19 +226,6 @@ export default function Header() {
                 >
                   Planos
                 </button>
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    navigate('/contato');
-                  }}
-                  className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
-                    location.pathname === '/contato' 
-                      ? 'text-orange-700' 
-                      : 'text-neutral-700 hover:text-neutral-900'
-                  }`}
-                >
-                  Contato
-                </button>
                 <div>
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
@@ -308,7 +284,7 @@ export default function Header() {
                   )}
                   {user && (
                     <div className="flex justify-center pt-2">
-                      <UserProfileIcon size="lg" showTooltip={true} />
+                      <UserProfileIcon size="md" showTooltip={true} />
                     </div>
                   )}
                 </div>
