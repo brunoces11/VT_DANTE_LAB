@@ -202,7 +202,7 @@ export default function Header() {
                 >
                   Base Legal
                 </button>
-                <button
+                <div>
                   <button
                     onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
                     className={`flex items-center text-sm font-medium w-full text-left hover:text-neutral-900 ${
