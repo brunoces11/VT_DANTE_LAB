@@ -81,28 +81,9 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
     }
   };
 
-  const resetPasswordForm = () => {
-    setNewPassword('');
-    setConfirmPassword('');
-    setShowNewPassword(false);
-    setShowConfirmPassword(false);
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handlePasswordChange(e as any);
-    }
-  };
-      if (error) {
-        setPasswordError(error.message);
-      } else {
-        setPasswordSuccess('Senha alterada com sucesso!');
-        resetPasswordForm();
-      }
-    } catch (err) {
-      setPasswordError('Ocorreu um erro inesperado');
-    } finally {
-      setPasswordLoading(false);
     }
   };
 
