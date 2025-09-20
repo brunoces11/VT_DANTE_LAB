@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import AuthModal from '@/components/auth/AuthModal';
+import UserProfileIcon from '@/components/user_profile_icon';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,13 +34,21 @@ export default function Header() {
   }, [isLabDropdownOpen]);
 
   const handleChatClick = () => {
-    navigate('/chat-page');
+    if (user) {
+      navigate('/chat-page');
+    } else {
+      setIsAuthModalOpen(true);
+    }
   };
 
   const handleLoginClick = () => {
     setIsAuthModalOpen(true);
   };
 
+  const handleAuthSuccess = () => {
+    setIsAuthModalOpen(false);
+    navigate('/chat-page');
+  };
 
   return (
     <>
@@ -148,20 +157,24 @@ export default function Header() {
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4">
               <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleLoginClick}
-                className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
-              >
-                Entrar
-              </Button>
-              <Button 
                 size="sm" 
                 onClick={handleChatClick}
                 className="bg-orange-700 hover:bg-orange-600 text-white"
               >
                 💬 Iniciar Chat
               </Button>
+              {user ? (
+                <UserProfileIcon size="lg" />
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLoginClick}
+                  className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
+                >
+                  Entrar
+                </Button>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -277,6 +290,14 @@ export default function Header() {
                 </div>
                 <div className="flex flex-col space-y-2 pt-4 border-t border-neutral-200">
                   <Button 
+                    size="sm" 
+                    onClick={handleChatClick}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    💬 Iniciar Chat
+                  </Button>
+                  {!user && (
+                  <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={handleLoginClick}
@@ -284,13 +305,12 @@ export default function Header() {
                   >
                     Entrar
                   </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={handleChatClick}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    💬 Iniciar Chat
-                  </Button>
+                  )}
+                  {user && (
+                    <div className="flex justify-center pt-2">
+                      <UserProfileIcon size="lg" showTooltip={true} />
+                    </div>
+                  )}
                 </div>
               </nav>
             </div>
@@ -301,6 +321,7 @@ export default function Header() {
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
       />
     </>
   );
