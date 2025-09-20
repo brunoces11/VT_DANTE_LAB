@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import AuthModal from '@/components/auth/AuthModal';
+import UserProfileIcon from '@/components/user_profile_icon';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,13 +34,21 @@ export default function Header() {
   }, [isLabDropdownOpen]);
 
   const handleChatClick = () => {
-    navigate('/chat-page');
+    if (user) {
+      navigate('/chat-page');
+    } else {
+      setIsAuthModalOpen(true);
+    }
   };
 
   const handleLoginClick = () => {
     setIsAuthModalOpen(true);
   };
 
+  const handleAuthSuccess = () => {
+    setIsAuthModalOpen(false);
+    navigate('/chat-page');
+  };
 
   return (
     <>
@@ -82,17 +91,6 @@ export default function Header() {
                   }`}
                 >
                   Base Legal
-                </button>
-                <span className="text-amber-900">|</span>
-                <button
-                  onClick={() => navigate('/planos')}
-                  className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
-                    location.pathname === '/planos' 
-                      ? 'text-orange-700' 
-                      : 'text-neutral-700 hover:text-neutral-900'
-                  }`}
-                >
-                  Planos
                 </button>
                 <span className="text-amber-900">|</span>
                 <button
@@ -148,20 +146,24 @@ export default function Header() {
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4">
               <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleLoginClick}
-                className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
-              >
-                Entrar
-              </Button>
-              <Button 
                 size="sm" 
                 onClick={handleChatClick}
                 className="bg-orange-700 hover:bg-orange-600 text-white"
               >
                 💬 Iniciar Chat
               </Button>
+              {user ? (
+                <UserProfileIcon size="md" />
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLoginClick}
+                  className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
+                >
+                  Entrar
+                </Button>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -210,19 +212,6 @@ export default function Header() {
                   }`}
                 >
                   Base Legal
-                </button>
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    navigate('/planos');
-                  }}
-                  className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
-                    location.pathname === '/planos' 
-                      ? 'text-orange-700' 
-                      : 'text-neutral-700 hover:text-neutral-900'
-                  }`}
-                >
-                  Planos
                 </button>
                 <button
                   onClick={() => {
@@ -277,6 +266,14 @@ export default function Header() {
                 </div>
                 <div className="flex flex-col space-y-2 pt-4 border-t border-neutral-200">
                   <Button 
+                    size="sm" 
+                    onClick={handleChatClick}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    💬 Iniciar Chat
+                  </Button>
+                  {!user && (
+                  <Button 
                     variant="outline" 
                     size="sm" 
                     onClick={handleLoginClick}
@@ -284,13 +281,12 @@ export default function Header() {
                   >
                     Entrar
                   </Button>
-                  <Button 
-                    size="sm" 
-                    onClick={handleChatClick}
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    💬 Iniciar Chat
-                  </Button>
+                  )}
+                  {user && (
+                    <div className="flex justify-center pt-2">
+                      <UserProfileIcon size="md" showTooltip={true} />
+                    </div>
+                  )}
                 </div>
               </nav>
             </div>
@@ -301,6 +297,7 @@ export default function Header() {
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
       />
     </>
   );

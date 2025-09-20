@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ error?: any }>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<{ error?: any }>;
+  changePassword: (newPassword: string) => Promise<{ error?: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -91,6 +92,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const changePassword = async (newPassword: string) => {
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (!error) {
+        // Supabase automaticamente envia email de confirmação de mudança de senha
+        console.log('Senha alterada com sucesso - Email de confirmação enviado automaticamente');
+        
+        // Opcional: Enviar email customizado adicional se necessário
+        // Isso pode ser implementado via Edge Function se quiser personalizar o email
+      }
+      
+      return { error };
+    } catch (err) {
+      console.error('Erro no changePassword:', err);
+      return { 
+        error: { 
+          message: 'Erro ao alterar senha: Verifique sua conexão e tente novamente.' 
+        } 
+      };
+    }
+  };
   const authValue: AuthContextType = {
     user,
     session,
@@ -98,6 +123,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     register,
+    changePassword,
   };
 
   return (

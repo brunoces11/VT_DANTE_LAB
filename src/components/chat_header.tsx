@@ -1,13 +1,27 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Brain } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthProvider';
+import UserProfileIcon from '@/components/user_profile_icon';
 
 export default function ChatHeader() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/'); // Redireciona para a página inicial após logout
+    } catch (error) {
+      console.error('Erro no logout:', error);
+      // Mesmo com erro, redireciona para garantir que o usuário saia
+      navigate('/');
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 max-h-[60px] h-[60px] w-full bg-gray-100 border-b border-gray-200">
-      <div className="flex items-center h-full pl-4 pr-6">
+      <div className="flex items-center justify-between h-full pl-4 pr-6">
         {/* Logo no canto esquerdo */}
         <button 
           onClick={() => navigate('/')}
@@ -18,6 +32,14 @@ export default function ChatHeader() {
           </div>
           <span className="text-xl font-bold text-neutral-900">Dante-IA</span>
         </button>
+
+        {/* Avatar do usuário no canto direito */}
+        {user && (
+          <UserProfileIcon 
+            size="md" 
+            onLogout={handleLogout}
+          />
+        )}
       </div>
     </header>
   );

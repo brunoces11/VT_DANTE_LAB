@@ -1,7 +1,11 @@
 import React from 'react';
 import Header from '@/components/header';
+import UserProfilePanel from '@/components/user_profile_panel';
+import UserProfileIcon from '@/components/user_profile_icon';
 
 export default function DanteUI() {
+  const [isPanelOpen, setIsPanelOpen] = React.useState(false);
+
   const colors = [
     { bg: 'bg-white', name: 'white', hex: '#FFFFFF' },
     { bg: 'bg-neutral-50', name: 'neutral-50', hex: '#FAFAFA' },
@@ -69,6 +73,50 @@ export default function DanteUI() {
             <p className="text-lg text-neutral-600">
               Paleta de cores oficial do sistema Dante AI
             </p>
+          </div>
+
+          {/* User Profile Panel Demo */}
+          <div className="mb-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-neutral-900 mb-4">
+                Componentes de Perfil do Usuário
+              </h2>
+              <p className="text-lg text-neutral-600 mb-6">
+                Demonstração do ícone de perfil e painel de configurações
+              </p>
+              
+              <div className="flex items-center justify-center gap-8 mb-6">
+                <div className="text-center">
+                  <p className="text-sm text-neutral-600 mb-3">Ícone de Perfil (Pequeno)</p>
+                  <UserProfileIcon size="sm" />
+                </div>
+                
+                <div className="text-center">
+                  <p className="text-sm text-neutral-600 mb-3">Ícone de Perfil (Médio)</p>
+                  <UserProfileIcon size="md" />
+                </div>
+                
+                <div className="text-center">
+                  <p className="text-sm text-neutral-600 mb-3">Ícone de Perfil (Grande)</p>
+                  <UserProfileIcon size="lg" />
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <button
+                  onClick={() => setIsPanelOpen(true)}
+                  className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                >
+                  Abrir Painel Diretamente
+                </button>
+              </div>
+              
+              <div className="mt-4 p-4 bg-neutral-50 rounded-lg">
+                <p className="text-sm text-neutral-600">
+                  <strong>Como usar:</strong> Clique no ícone de perfil acima para ver o dropdown menu com as opções "Painel do Usuário" e "Sair".
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
@@ -140,6 +188,11 @@ export default function DanteUI() {
           </div>
         </div>
       </div>
+
+      <UserProfilePanel 
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
+      />
     </div>
   );
 }
