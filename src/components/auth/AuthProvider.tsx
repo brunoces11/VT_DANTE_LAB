@@ -59,22 +59,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
       });
       
-      // Se login foi bem-sucedido, criar nova sessão de chat
-      if (!error) {
-        try {
-          console.log('Login bem-sucedido, criando nova sessão de chat...');
-          const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
-          
-          if (sessionResult.success) {
-            console.log('Nova sessão de chat criada:', sessionResult.session);
-          } else {
-            console.error('Erro ao criar sessão de chat:', sessionResult.error);
-          }
-        } catch (sessionError) {
-          console.error('Erro inesperado ao criar sessão de chat:', sessionError);
-          // Não interrompe o login mesmo se a criação da sessão falhar
-        }
-      }
+      // Comentado temporariamente para evitar erros de Edge Function
+      // if (!error) {
+      //   try {
+      //     console.log('Login bem-sucedido, criando nova sessão de chat...');
+      //     const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
+      //     
+      //     if (sessionResult.success) {
+      //       console.log('Nova sessão de chat criada:', sessionResult.session);
+      //     } else {
+      //       console.error('Erro ao criar sessão de chat:', sessionResult.error);
+      //     }
+      //   } catch (sessionError) {
+      //     console.error('Erro inesperado ao criar sessão de chat:', sessionError);
+      //   }
+      // }
       
       return { error };
     } catch (err) {
@@ -102,22 +101,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       });
       
-      // Se registro foi bem-sucedido, criar nova sessão de chat
-      if (!error) {
-        try {
-          console.log('Registro bem-sucedido, criando nova sessão de chat...');
-          const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
-          
-          if (sessionResult.success) {
-            console.log('Nova sessão de chat criada:', sessionResult.session);
-          } else {
-            console.error('Erro ao criar sessão de chat:', sessionResult.error);
-          }
-        } catch (sessionError) {
-          console.error('Erro inesperado ao criar sessão de chat:', sessionError);
-          // Não interrompe o registro mesmo se a criação da sessão falhar
-        }
-      }
+      // Comentado temporariamente para evitar erros de Edge Function
+      // if (!error) {
+      //   try {
+      //     console.log('Registro bem-sucedido, criando nova sessão de chat...');
+      //     const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
+      //     
+      //     if (sessionResult.success) {
+      //       console.log('Nova sessão de chat criada:', sessionResult.session);
+      //     } else {
+      //       console.error('Erro ao criar sessão de chat:', sessionResult.error);
+      //     }
+      //   } catch (sessionError) {
+      //     console.error('Erro inesperado ao criar sessão de chat:', sessionError);
+      //   }
+      // }
       
       return { error };
     } catch (err) {
