@@ -65,6 +65,7 @@ Deno.serve(async (req) => {
     const { data: sessionData, error: sessionError } = await supabaseAdmin
       .from('tab_chat_session')
       .insert({
+       session_id: crypto.randomUUID(),
         session_title: 'Nova Sessão',
         user_id: user.id,
         session_time: new Date().toISOString()
