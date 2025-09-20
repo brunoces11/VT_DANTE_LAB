@@ -66,7 +66,33 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
         return;
       }
 
-      const { error } = await changePassword(newPassword);
+      const result = await changePassword(newPassword);
+      if (result.error) {
+        setPasswordError(result.error.message || 'Erro ao alterar senha');
+      } else {
+        setPasswordSuccess('Senha alterada com sucesso! Um email de confirmação foi enviado.');
+        resetPasswordForm();
+      }
+    } catch (err: any) {
+      console.error('Erro na mudança de senha:', err);
+      setPasswordError(err.message || 'Ocorreu um erro inesperado');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const resetPasswordForm = () => {
+    setNewPassword('');
+    setConfirmPassword('');
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handlePasswordChange(e as any);
+    }
+  };
       if (error) {
         setPasswordError(error.message);
       } else {

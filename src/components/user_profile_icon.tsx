@@ -65,7 +65,15 @@ export default function UserProfileIcon({
     if (onLogout) {
       onLogout(); // Usa o callback customizado se fornecido
     } else {
-      await logout(); // Usa o logout padrão se não houver callback
+      try {
+        await logout(); // Usa o logout padrão se não houver callback
+        // Força redirecionamento para home após logout
+        window.location.href = '/';
+      } catch (error) {
+        console.error('Erro no logout:', error);
+        // Mesmo com erro, redireciona para garantir que o usuário saia
+        window.location.href = '/';
+      }
     }
   };
 

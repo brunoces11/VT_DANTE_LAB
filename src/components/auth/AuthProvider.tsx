@@ -97,8 +97,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
+      
+      if (!error) {
+        // Supabase automaticamente envia email de confirmação de mudança de senha
+        console.log('Senha alterada com sucesso');
+      }
+      
       return { error };
     } catch (err) {
+      console.error('Erro no changePassword:', err);
       return { 
         error: { 
           message: 'Erro ao alterar senha: Verifique sua conexão e tente novamente.' 
