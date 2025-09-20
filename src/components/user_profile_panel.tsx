@@ -33,7 +33,7 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
     setNewPassword('');
     setConfirmPassword('');
     setPasswordError('');
-    setPasswordSuccess('');
+    // NÃO limpar passwordSuccess aqui para manter a mensagem visível
   };
 
   const resetAvatarMessages = () => {
@@ -71,7 +71,9 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
         setPasswordError(result.error.message || 'Erro ao alterar senha');
       } else {
         setPasswordSuccess('✔️ Senha modificada com sucesso! Um email de confirmação foi enviado para seu endereço.');
-        resetPasswordForm();
+        // Limpar apenas os campos de senha, manter a mensagem de sucesso
+        setNewPassword('');
+        setConfirmPassword('');
       }
     } catch (err: any) {
       console.error('Erro na mudança de senha:', err);
