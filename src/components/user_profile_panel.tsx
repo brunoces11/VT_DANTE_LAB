@@ -288,3 +288,5 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
 
 
 var _c;$RefreshReg$(_c, "UserProfilePanel");
+
+export default UserProfilePanel
