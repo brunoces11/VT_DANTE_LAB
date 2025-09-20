@@ -1,7 +1,10 @@
 import React from 'react';
 import Header from '@/components/header';
+import UserProfilePanel from '@/components/user_profile_panel';
 
 export default function DanteUI() {
+  const [isPanelOpen, setIsPanelOpen] = React.useState(false);
+
   const colors = [
     { bg: 'bg-white', name: 'white', hex: '#FFFFFF' },
     { bg: 'bg-neutral-50', name: 'neutral-50', hex: '#FAFAFA' },
@@ -69,6 +72,24 @@ export default function DanteUI() {
             <p className="text-lg text-neutral-600">
               Paleta de cores oficial do sistema Dante AI
             </p>
+          </div>
+
+          {/* User Profile Panel Demo */}
+          <div className="mb-8">
+            <div className="text-center">
+              <h2 className="text-2xl font-bold text-neutral-900 mb-4">
+                Componente Modal - User Profile Panel
+              </h2>
+              <p className="text-lg text-neutral-600 mb-6">
+                Demonstração do painel de configurações do usuário
+              </p>
+              <button
+                onClick={() => setIsPanelOpen(true)}
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              >
+                Abrir Painel do Usuário
+              </button>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
@@ -140,6 +161,11 @@ export default function DanteUI() {
           </div>
         </div>
       </div>
+
+      <UserProfilePanel 
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
+      />
     </div>
   );
 }
