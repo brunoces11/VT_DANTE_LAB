@@ -18,8 +18,14 @@ export async function FUN_DT_LOGIN_NEW_SESSION() {
       throw new Error('Usuário não está logado ou token não disponível');
     }
 
-    // URL da edge function
-    const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/DT_LOGIN_NEW_SESSION`;
+    // URL da edge function - verificar se as variáveis de ambiente estão definidas
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    
+    if (!supabaseUrl || supabaseUrl.includes('your-project-id')) {
+      throw new Error('VITE_SUPABASE_URL não está configurado corretamente');
+    }
+    
+    const functionUrl = `${supabaseUrl}/functions/v1/DT_LOGIN_NEW_SESSION`;
     
     // Fazer a requisição HTTP para a edge function
     const response = await fetch(functionUrl, {
