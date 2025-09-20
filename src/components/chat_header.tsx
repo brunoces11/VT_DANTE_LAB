@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import { Brain } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import UserProfileIcon from '@/components/user_profile_icon';
