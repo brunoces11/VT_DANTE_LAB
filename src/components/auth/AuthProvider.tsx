@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../../../services/supa_init';
-import { FUN_DT_LOGIN_NEW_SESSION } from '../../../services/supabase';
+// import { FUN_DT_LOGIN_NEW_SESSION } from '../../../services/supabase';
 
 interface AuthContextType { 
   user: User | null;
@@ -33,23 +33,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (mounted) {
+          if (error) {
+            console.error('Error getting session:', error);
+          }
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      if (mounted) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -77,16 +100,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return { error };
     } catch (err) {
+      console.error('Login error:', err);
       return { 
         error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
+          message: 'Erro de conexão. Tente novamente.' 
         } 
       };
     }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const register = async (email: string, password: string, name: string) => {
@@ -119,9 +147,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       return { error };
     } catch (err) {
+      console.error('Register error:', err);
       return { 
         error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
+          message: 'Erro de conexão. Tente novamente.' 
         } 
       };
     }
@@ -146,11 +175,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Erro no changePassword:', err);
       return { 
         error: { 
-          message: 'Erro ao alterar senha: Verifique sua conexão e tente novamente.' 
+          message: 'Erro ao alterar senha. Tente novamente.' 
         } 
       };
     }
   };
+
   const authValue: AuthContextType = {
     user,
     session,
