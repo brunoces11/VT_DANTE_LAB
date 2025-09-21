@@ -1,1 +1,0 @@
-// Este arquivo será usado posteriormente para armazenar lógica do frontend
