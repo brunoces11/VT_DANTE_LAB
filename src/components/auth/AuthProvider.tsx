@@ -1,7 +1,6 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../../../services/supa_init';
-// import { FUN_DT_LOGIN_NEW_SESSION } from '../../../services/supabase';
+import { supabase } from '@/services/supa_init';
 
 interface AuthContextType { 
   user: User | null;
@@ -77,26 +76,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      
-      // Comentado temporariamente para evitar erros de Edge Function
-      // if (!error) {
-      //   try {
-      //     console.log('Login bem-sucedido, criando nova sessão de chat...');
-      //     const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
-      //     
-      //     if (sessionResult.success) {
-      //       console.log('Nova sessão de chat criada:', sessionResult.session);
-      //     } else {
-      //       console.error('Erro ao criar sessão de chat:', sessionResult.error);
-      //     }
-      //   } catch (sessionError) {
-      //     console.error('Erro inesperado ao criar sessão de chat:', sessionError);
-      //   }
-      // }
       
       return { error };
     } catch (err) {
@@ -106,19 +90,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           message: 'Erro de conexão. Tente novamente.' 
         } 
       };
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
     try {
+      setLoading(true);
       await supabase.auth.signOut();
     } catch (error) {
       console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const register = async (email: string, password: string, name: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -129,22 +119,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       });
       
-      // Comentado temporariamente para evitar erros de Edge Function
-      // if (!error) {
-      //   try {
-      //     console.log('Registro bem-sucedido, criando nova sessão de chat...');
-      //     const sessionResult = await FUN_DT_LOGIN_NEW_SESSION();
-      //     
-      //     if (sessionResult.success) {
-      //       console.log('Nova sessão de chat criada:', sessionResult.session);
-      //     } else {
-      //       console.error('Erro ao criar sessão de chat:', sessionResult.error);
-      //     }
-      //   } catch (sessionError) {
-      //     console.error('Erro inesperado ao criar sessão de chat:', sessionError);
-      //   }
-      // }
-      
       return { error };
     } catch (err) {
       console.error('Register error:', err);
@@ -153,21 +127,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           message: 'Erro de conexão. Tente novamente.' 
         } 
       };
+    } finally {
+      setLoading(false);
     }
   };
 
   const changePassword = async (newPassword: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
       
       if (!error) {
-        // Supabase automaticamente envia email de confirmação de mudança de senha
-        console.log('Senha alterada com sucesso - Email de confirmação enviado automaticamente');
-        
-        // Opcional: Enviar email customizado adicional se necessário
-        // Isso pode ser implementado via Edge Function se quiser personalizar o email
+        console.log('Senha alterada com sucesso');
       }
       
       return { error };
@@ -178,6 +151,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           message: 'Erro ao alterar senha. Tente novamente.' 
         } 
       };
+    } finally {
+      setLoading(false);
     }
   };
 
