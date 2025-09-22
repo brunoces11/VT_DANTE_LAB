@@ -1,6 +1,6 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '../../../services/supa_init';
+import { supabase, authService } from '../../lib/supabase';
 
 interface AuthContextType { 
   user: User | null;
@@ -52,19 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      return { error };
-    } catch (err) {
-      return { 
-        error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
-        } 
-      };
-    }
+    return await authService.login(email, password);
   };
 
   const logout = async () => {
@@ -72,49 +60,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const register = async (email: string, password: string, name: string) => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            name: name,
-          },
-        },
-      });
-      return { error };
-    } catch (err) {
-      return { 
-        error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
-        } 
-      };
-    }
+    return await authService.register(email, password, name);
   };
 
   const changePassword = async (newPassword: string) => {
-    try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      });
-      
-      if (!error) {
-        // Supabase automaticamente envia email de confirmação de mudança de senha
-        console.log('Senha alterada com sucesso - Email de confirmação enviado automaticamente');
-        
-        // Opcional: Enviar email customizado adicional se necessário
-        // Isso pode ser implementado via Edge Function se quiser personalizar o email
-      }
-      
-      return { error };
-    } catch (err) {
-      console.error('Erro no changePassword:', err);
-      return { 
-        error: { 
-          message: 'Erro ao alterar senha: Verifique sua conexão e tente novamente.' 
-        } 
-      };
-    }
+    return await authService.updatePassword(newPassword);
   };
   const authValue: AuthContextType = {
     user,

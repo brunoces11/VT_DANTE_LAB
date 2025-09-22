@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, User, Loader2, Camera } from 'lucide-react';
 import { useAuth } from './auth/AuthProvider';
+import { storageService } from '../lib/supabase';
 
 interface UserProfilePanelProps {
   isOpen: boolean;
