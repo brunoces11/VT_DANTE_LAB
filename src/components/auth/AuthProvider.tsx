@@ -32,47 +32,83 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (mounted) {
+          if (error) {
+            console.error('Error getting session:', error);
+          }
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      if (mounted) {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      
       return { error };
     } catch (err) {
+      console.error('Login error:', err);
       return { 
         error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
+          message: 'Erro de conexão. Tente novamente.' 
         } 
       };
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    try {
+      setLoading(true);
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const register = async (email: string, password: string, name: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -82,28 +118,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           },
         },
       });
+      
       return { error };
     } catch (err) {
+      console.error('Register error:', err);
       return { 
         error: { 
-          message: 'Erro de conexão: Verifique se o Supabase está configurado corretamente. Consulte o console para mais detalhes.' 
+          message: 'Erro de conexão. Tente novamente.' 
         } 
       };
+    } finally {
+      setLoading(false);
     }
   };
 
   const changePassword = async (newPassword: string) => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
       
       if (!error) {
-        // Supabase automaticamente envia email de confirmação de mudança de senha
-        console.log('Senha alterada com sucesso - Email de confirmação enviado automaticamente');
-        
-        // Opcional: Enviar email customizado adicional se necessário
-        // Isso pode ser implementado via Edge Function se quiser personalizar o email
+        console.log('Senha alterada com sucesso');
       }
       
       return { error };
@@ -111,11 +148,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('Erro no changePassword:', err);
       return { 
         error: { 
-          message: 'Erro ao alterar senha: Verifique sua conexão e tente novamente.' 
+          message: 'Erro ao alterar senha. Tente novamente.' 
         } 
       };
+    } finally {
+      setLoading(false);
     }
   };
+
   const authValue: AuthContextType = {
     user,
     session,

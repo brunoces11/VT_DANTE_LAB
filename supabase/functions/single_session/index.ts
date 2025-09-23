@@ -18,8 +18,8 @@ serve(async (req) => {
     // Inicializar o cliente Supabase com o token de acesso do usuário
     // Isso garante que a função opere no contexto do usuário logado
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '', // Usamos a anon key, mas o token de acesso define o contexto
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!, // Usamos a anon key, mas o token de acesso define o contexto
       {
         global: {
           headers: { Authorization: \`Bearer ${accessToken}` },

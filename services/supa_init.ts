@@ -1,14 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Configuração do Supabase usando variáveis de ambiente
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
+// Validação das variáveis de ambiente
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables not configured. Some features may not work.')
+  throw new Error('VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY devem estar definidas no arquivo .env')
 }
 
-// Use placeholder values if environment variables are not properly configured
-const finalUrl = supabaseUrl && !supabaseUrl.includes('your-project-id') ? supabaseUrl : 'https://placeholder.supabase.co'
-const finalKey = supabaseAnonKey && !supabaseAnonKey.includes('your-anon-key-here') ? supabaseAnonKey : 'placeholder-key'
-
-export const supabase = createClient(finalUrl, finalKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false
+  }
+})
