@@ -1,5 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.44.0'
 
+// Função para obter timestamp no fuso horário de São Paulo
+function getCurrentTimestampSP(): string {
+  return new Date().toLocaleString('sv-SE', { 
+    timeZone: 'America/Sao_Paulo' 
+  }).replace(' ', 'T') + '-03:00';
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -68,7 +75,7 @@ Deno.serve(async (req) => {
        session_id: crypto.randomUUID(),
         session_title: 'Nova Sessão',
         user_id: user.id,
-        session_time: new Date().toISOString()
+        session_time: getCurrentTimestampSP()
       })
       .select()
       .single()

@@ -4,12 +4,13 @@ import { useRef, useEffect } from 'react';
 import ChatMsgHeader from '@/components/chat_msg_header';
 import ChatMsgList from '@/components/chat_msg_list';
 import ChatInput from '@/components/chat_input';
+import { getCurrentTimestampSP } from '@/utils/timezone';
 
 interface Message {
   id: number;
   content: string;
   sender: 'user' | 'bot';
-  timestamp: Date;
+  timestamp: string;
   isLoading?: boolean;
   loadingText?: string;
 }
@@ -23,7 +24,7 @@ export default function ChatArea() {
       id: 1,
       content: "# Olá! 👋\n\nComo posso ajudá-lo com questões de **Registro de Imóveis** hoje?\n\nEstou aqui para esclarecer dúvidas sobre:\n- Procedimentos registrais\n- Qualificação de títulos\n- Legislação vigente\n- Normas do CNJ",
       sender: 'bot',
-      timestamp: new Date(),
+      timestamp: getCurrentTimestampSP(),
     },
   ]);
 
@@ -47,7 +48,7 @@ export default function ChatArea() {
       id: Date.now(),
       content: inputValue,
       sender: 'user',
-      timestamp: new Date(),
+      timestamp: getCurrentTimestampSP(),
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -61,7 +62,7 @@ export default function ChatArea() {
       id: Date.now() + 1,
       content: '',
       sender: 'bot',
-      timestamp: new Date(),
+      timestamp: getCurrentTimestampSP(),
       isLoading: true,
       loadingText: 'Consultando Base Legal vigente...',
     };
@@ -114,7 +115,7 @@ export default function ChatArea() {
           id: Date.now() + 2,
           content: randomResponse,
           sender: 'bot',
-          timestamp: new Date(),
+          timestamp: getCurrentTimestampSP(),
         }];
       });
       

@@ -3,12 +3,13 @@ import { User, Home, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ChatLoader from './chat_loader';
+import { formatDateTimeBR } from '@/utils/timezone';
 
 interface Message {
   id: number;
   content: string;
   sender: 'user' | 'bot';
-  timestamp: Date;
+  timestamp: string;
   isLoading?: boolean;
   loadingText?: string;
 }
@@ -77,18 +78,7 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                         : 'text-neutral-500'
                     }`}
                   >
-                    {(() => {
-                      const date = message.timestamp;
-                      const day = date.getDate().toString().padStart(2, '0');
-                      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
-                                     'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                      const month = months[date.getMonth()];
-                      const year = date.getFullYear().toString().slice(-2);
-                      const hours = date.getHours().toString().padStart(2, '0');
-                      const minutes = date.getMinutes().toString().padStart(2, '0');
-                      
-                      return `${day}/${month}/${year} - ${hours}:${minutes}`;
-                    })()}
+                    {formatDateTimeBR(message.timestamp)}
                   </span>
                 </div>
               </div>

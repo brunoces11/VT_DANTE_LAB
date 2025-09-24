@@ -1,4 +1,5 @@
 import { supabase } from './supa_init';
+import { getCurrentISOTimestampSP } from '@/utils/timezone';
 
 /**
  * Função para criar uma nova sessão de chat via Edge Function
@@ -26,6 +27,8 @@ export async function FUN_DT_LOGIN_NEW_SESSION() {
     }
     
     const functionUrl = `${supabaseUrl}/functions/v1/DT_LOGIN_NEW_SESSION`
+    
+    console.log('🕐 Timestamp atual (SP):', getCurrentISOTimestampSP());
     
     // Fazer a requisição HTTP para a edge function
     const response = await fetch(functionUrl, {
