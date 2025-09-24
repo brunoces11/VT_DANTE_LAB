@@ -1,31 +1,24 @@
 /**
- * Utilitários para trabalhar com timestamps no fuso horário de São Paulo
+ * Utilitários para trabalhar com timestamps UTC e exibição no fuso horário de São Paulo
+ * 
+ * PADRÃO ADOTADO:
+ * - Armazenamento: UTC puro (timestamptz DEFAULT now())
+ * - Exibição: Convertido para America/Sao_Paulo no frontend
  */
 
 export const SAO_PAULO_TIMEZONE = 'America/Sao_Paulo';
 
 /**
- * Retorna a data/hora atual no fuso horário de São Paulo
+ * Retorna o timestamp atual em UTC no formato ISO 8601
+ * Usado para inserção no banco de dados e representação interna
  */
-export function getCurrentTimestampSP(): string {
-  return new Date().toLocaleString('pt-BR', { 
-    timeZone: SAO_PAULO_TIMEZONE 
-  });
+export function getCurrentTimestampUTC(): string {
+  return new Date().toISOString();
 }
 
 /**
- * Retorna a data/hora atual no formato ISO com fuso horário de São Paulo
- */
-export function getCurrentISOTimestampSP(): string {
-  const now = new Date();
-  // Converte para o fuso horário de São Paulo e formata como ISO
-  return now.toLocaleString('sv-SE', { 
-    timeZone: SAO_PAULO_TIMEZONE 
-  }).replace(' ', 'T') + '-03:00';
-}
-
-/**
- * Formata uma data para exibição no padrão brasileiro com fuso horário de São Paulo
+ * Formata uma data UTC para exibição no padrão brasileiro com fuso horário de São Paulo
+ * @param date - String ISO UTC ou objeto Date
  */
 export function formatDateTimeBR(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -42,6 +35,7 @@ export function formatDateTimeBR(date: string | Date): string {
 
 /**
  * Formata apenas o horário no padrão brasileiro com fuso horário de São Paulo
+ * @param date - String ISO UTC ou objeto Date
  */
 export function formatTimeBR(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -54,7 +48,8 @@ export function formatTimeBR(date: string | Date): string {
 }
 
 /**
- * Converte uma data para o fuso horário de São Paulo
+ * Converte uma data UTC para o fuso horário de São Paulo
+ * @param date - String ISO UTC ou objeto Date
  */
 export function toSaoPauloTimezone(date: string | Date): Date {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -65,4 +60,13 @@ export function toSaoPauloTimezone(date: string | Date): Date {
   }));
   
   return spTime;
+}
+
+/**
+ * Verifica se uma data é válida
+ * @param date - String ISO UTC ou objeto Date
+ */
+export function isValidDate(date: string | Date): boolean {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  return dateObj instanceof Date && !isNaN(dateObj.getTime());
 }

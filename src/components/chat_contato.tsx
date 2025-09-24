@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Bot, User } from 'lucide-react';
-import { getCurrentTimestampSP, formatTimeBR } from '@/utils/timezone';
+import { getCurrentTimestampUTC, formatTimeBR } from '@/utils/timezone';
 
 interface Message {
   id: number;
@@ -17,7 +17,7 @@ export default function ChatContato() {
       id: 1,
       content: "Olá! 👋 Sou o assistente de IA para esclarecer dúvidas sobre o Dante AI. Estou preparado para esclarecer suas questões instantaneamente e, quando necessário, encaminhar sua mensagem diretamente para o departamento responsável. Como posso ajudá-lo hoje?",
       sender: 'bot',
-      timestamp: getCurrentTimestampSP(),
+      timestamp: getCurrentTimestampUTC(),
     },
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -50,7 +50,7 @@ export default function ChatContato() {
       id: Date.now(),
       content: inputValue,
       sender: 'user',
-      timestamp: getCurrentTimestampSP(),
+      timestamp: getCurrentTimestampUTC(),
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -77,7 +77,7 @@ export default function ChatContato() {
         id: Date.now() + 1,
         content: randomResponse,
         sender: 'bot',
-        timestamp: getCurrentTimestampSP(),
+        timestamp: getCurrentTimestampUTC(),
       };
 
       setMessages(prev => [...prev, botMessage]);

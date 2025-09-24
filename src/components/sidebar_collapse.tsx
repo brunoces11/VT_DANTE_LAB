@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollText, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatDateTimeBR } from '@/utils/timezone';
+import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
 
 interface Chat {
   id: string;
@@ -33,17 +33,12 @@ export default function SidebarCollapse() {
   const [editTitle, setEditTitle] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Função para formatar data/hora
-  const formatDateTime = () => {
-    return formatDateTimeBR(new Date());
-  };
-
   const handleNewChat = () => {
     const newChat: Chat = {
       id: Date.now().toString(),
       title: 'Nova conversa',
       lastMessage: '',
-      timestamp: formatDateTime(),
+      timestamp: formatDateTimeBR(getCurrentTimestampUTC()),
       isEmpty: true,
       isActive: false,
     };
