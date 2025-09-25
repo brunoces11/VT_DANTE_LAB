@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import ResetPasswordModal from '@/components/auth/ResetPasswordModal';
+import EmailConfirmationModal from '@/components/auth/EmailConfirmationModal';
+import AuthModal from '@/components/auth/AuthModal';
 import { supabase } from '../services/supa_init';
 import HomePage from '@/pages/HomePage';
 import ChatPage from '@/pages/ChatPage';
@@ -69,6 +71,8 @@ function LoadingFallback() {
 function App() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [isEmailConfirmationModalOpen, setIsEmailConfirmationModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   React.useEffect(() => {
     // Simulate loading time and ensure all components are ready
@@ -81,20 +85,17 @@ function App() {
 
   // Detectar se o usuário acessou via link de recuperação de senha
   useEffect(() => {
-    const handlePasswordRecovery = async () => {
+    const handleAuthRedirects = async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const hash = window.location.hash;
       const hashParams = new URLSearchParams(hash.substring(1)); // Remove o #
       
-      console.log('🔍 URL completa:', window.location.href);
-      console.log('🔍 Hash:', hash);
-      console.log('🔍 Query params:', urlParams.toString());
+      console.log('🔍 Verificando redirects de autenticação...');
       console.log('🔍 Hash params:', hashParams.toString());
       
       // Verificar se há erro de link expirado
       const error = hashParams.get('error');
       const errorCode = hashParams.get('error_code');
-      const errorDescription = hashParams.get('error_description');
       
       if (error === 'access_denied' && errorCode === 'otp_expired') {
         console.log('❌ Link de recuperação expirado');
@@ -117,9 +118,32 @@ function App() {
         type = urlParams.get('type');
       }
       
-      console.log('🔍 Tokens encontrados:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
+      console.log('🔍 Tokens encontrados:', { 
+        accessToken: !!accessToken, 
+        refreshToken: !!refreshToken, 
+        type 
+      });
       
-      if (type === 'recovery' && accessToken && refreshToken) {
+      // Verificar se é confirmação de email
+      if (type === 'signup' && accessToken && refreshToken) {
+        console.log('✅ Detectado link de confirmação de email');
+        
+        try {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('❌ Erro ao confirmar email:', error);
+          } else {
+            console.log('✅ Email confirmado com sucesso');
+            setIsEmailConfirmationModalOpen(true);
+          }
+        } catch (error) {
+          console.error('❌ Erro ao processar confirmação de email:', error);
+        }
+      } else if (type === 'recovery' && accessToken && refreshToken) {
         console.log('✅ Detectado link de recuperação de senha');
         
         try {
@@ -162,7 +186,7 @@ function App() {
     };
     
     // Aguardar um pouco antes de processar para garantir que o Supabase foi inicializado
-    const timer = setTimeout(handlePasswordRecovery, 100);
+    const timer = setTimeout(handleAuthRedirects, 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -191,6 +215,23 @@ function App() {
             onSuccess={() => {
               // Opcional: redirecionar para login ou mostrar mensagem adicional
               console.log('Senha redefinida com sucesso');
+            }}
+          />
+          
+          <EmailConfirmationModal 
+            isOpen={isEmailConfirmationModalOpen}
+            onClose={() => setIsEmailConfirmationModalOpen(false)}
+            onOpenLogin={() => {
+              setIsEmailConfirmationModalOpen(false);
+              setIsAuthModalOpen(true);
+            }}
+          />
+          
+          <AuthModal 
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onSuccess={() => {
+              console.log('Login realizado após confirmação de email');
             }}
           />
         </Router>
