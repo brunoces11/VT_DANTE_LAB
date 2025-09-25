@@ -63,6 +63,8 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
     setSuccess('');
     setLoading(true);
 
+    console.log('🔄 Iniciando alteração de senha...');
+
     try {
       if (newPassword !== confirmPassword) {
         setError('As senhas não coincidem');
@@ -76,17 +78,41 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
         return;
       }
 
-      // Usar diretamente o cliente Supabase para alterar a senha
-      const { error: updateError } = await supabase.auth.updateUser({
+      // Verificar se há uma sessão ativa antes de tentar alterar a senha
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      console.log('🔍 Sessão atual:', sessionData);
+      console.log('🔍 Erro de sessão:', sessionError);
+      
+      if (sessionError) {
+        console.error('❌ Erro ao verificar sessão:', sessionError);
+        setError('Erro de sessão. Tente acessar o link do email novamente.');
+        setLoading(false);
+        return;
+      }
+      
+      if (!sessionData.session) {
+        console.error('❌ Nenhuma sessão encontrada');
+        setError('Sessão expirada. Solicite um novo link de recuperação de senha.');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('✅ Sessão válida encontrada, alterando senha...');
+      
+      // Tentar alterar a senha
+      const { data: updateData, error: updateError } = await supabase.auth.updateUser({
         password: newPassword
       });
       
+      console.log('🔍 Resultado da alteração:', { data: updateData, error: updateError });
+      
       if (updateError) {
-        console.error('Erro ao alterar senha:', updateError);
-        setError(updateError.message || 'Erro ao alterar senha');
+        console.error('❌ Erro ao alterar senha:', updateError);
+        setError(`Erro ao alterar senha: ${updateError.message}`);
       } else {
+        console.log('✅ Senha alterada com sucesso!');
         setSuccess('✅ Senha alterada com sucesso! Você já pode fazer login com sua nova senha.');
-        // NÃO limpar o formulário nem fechar o modal - mensagem deve persistir
         setNewPassword('');
         setConfirmPassword('');
         onSuccess?.();
