@@ -43,6 +43,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   const handleClose = () => {
     resetForm();
+    setIsLogin(true); // Reset to login mode when closing
     setIsResetPassword(false);
     onClose();
   };
