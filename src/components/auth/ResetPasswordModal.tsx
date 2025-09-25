@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from '../../../services/supa_init';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +9,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Brain, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { useAuth } from './AuthProvider';
 
 interface ResetPasswordModalProps {
   isOpen: boolean;
@@ -25,7 +25,24 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { changePassword } = useAuth();
+  // Verificar se há uma sessão de recuperação de senha ativa
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Erro ao verificar sessão:', error);
+        }
+        console.log('Sessão atual:', session);
+      } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+      }
+    };
+
+    if (isOpen) {
+      checkSession();
+    }
+  }, [isOpen]);
 
   const resetForm = () => {
     setNewPassword('');
@@ -59,9 +76,14 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
         return;
       }
 
-      const result = await changePassword(newPassword);
-      if (result.error) {
-        setError(result.error.message || 'Erro ao alterar senha');
+      // Usar diretamente o cliente Supabase para alterar a senha
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+      
+      if (updateError) {
+        console.error('Erro ao alterar senha:', updateError);
+        setError(updateError.message || 'Erro ao alterar senha');
       } else {
         setSuccess('✅ Senha alterada com sucesso! Você já pode fazer login com sua nova senha.');
         // NÃO limpar o formulário nem fechar o modal - mensagem deve persistir

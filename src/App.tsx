@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import ResetPasswordModal from '@/components/auth/ResetPasswordModal';
+import { supabase } from '../services/supa_init';
 import HomePage from '@/pages/HomePage';
 import ChatPage from '@/pages/ChatPage';
 import DanteUI from '@/pages/DanteUI';
@@ -80,15 +81,47 @@ function App() {
 
   // Detectar se o usuário acessou via link de recuperação de senha
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const isResetPassword = urlParams.get('reset-password');
+    const handleAuthStateChange = async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isResetPassword = urlParams.get('reset-password');
+      
+      // Verificar se há tokens de recuperação de senha na URL
+      const accessToken = urlParams.get('access_token');
+      const refreshToken = urlParams.get('refresh_token');
+      const type = urlParams.get('type');
+      
+      if (type === 'recovery' && accessToken && refreshToken) {
+        console.log('Detectado link de recuperação de senha');
+        
+        try {
+          // Definir a sessão com os tokens da URL
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('Erro ao definir sessão:', error);
+          } else {
+            console.log('Sessão de recuperação definida com sucesso');
+            setIsResetPasswordModalOpen(true);
+          }
+        } catch (error) {
+          console.error('Erro ao processar tokens de recuperação:', error);
+        }
+        
+        // Limpar todos os parâmetros da URL
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      } else if (isResetPassword === 'true') {
+        setIsResetPasswordModalOpen(true);
+        // Limpar o parâmetro da URL sem recarregar a página
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    };
     
-    if (isResetPassword === 'true') {
-      setIsResetPasswordModalOpen(true);
-      // Limpar o parâmetro da URL sem recarregar a página
-      const newUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, newUrl);
-    }
+    handleAuthStateChange();
   }, []);
 
   if (isLoading) {
