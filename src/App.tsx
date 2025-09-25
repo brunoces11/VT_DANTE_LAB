@@ -68,6 +68,7 @@ function LoadingFallback() {
 function App() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
 
   React.useEffect(() => {
     // Simulate loading time and ensure all components are ready
@@ -76,6 +77,19 @@ function App() {
     }, 1000);
 
     return () => clearTimeout(timer);
+  }, []);
+
+  // Detectar se o usuário acessou via link de recuperação de senha
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isResetPassword = urlParams.get('reset-password');
+    
+    if (isResetPassword === 'true') {
+      setIsResetPasswordModalOpen(true);
+      // Limpar o parâmetro da URL sem recarregar a página
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
   }, []);
 
   // Detectar se o usuário acessou via link de recuperação de senha
@@ -108,6 +122,15 @@ function App() {
             <Route path="/contato" element={<Contato />} />
             <Route path="/teste" element={<TestePage />} />
           </Routes>
+          
+          <ResetPasswordModal 
+            isOpen={isResetPasswordModalOpen}
+            onClose={() => setIsResetPasswordModalOpen(false)}
+            onSuccess={() => {
+              // Opcional: redirecionar para login ou mostrar mensagem adicional
+              console.log('Senha redefinida com sucesso');
+            }}
+          />
           
           <ResetPasswordModal 
             isOpen={isResetPasswordModalOpen}

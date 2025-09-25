@@ -33,7 +33,7 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
     setNewPassword('');
     setConfirmPassword('');
     setPasswordError('');
-    // NÃO limpar passwordSuccess aqui para manter a mensagem visível
+    setPasswordSuccess('');
   };
 
   const resetAvatarMessages = () => {
@@ -70,7 +70,7 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
       if (result.error) {
         setPasswordError(result.error.message || 'Erro ao alterar senha');
       } else {
-        setPasswordSuccess('✔️ Senha modificada com sucesso!');
+        setPasswordSuccess('✅ Senha alterada com sucesso!');
         // Limpar apenas os campos de senha, manter a mensagem de sucesso
         setNewPassword('');
         setConfirmPassword('');
