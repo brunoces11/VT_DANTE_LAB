@@ -19,6 +19,7 @@ interface AuthModalProps {
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [isResetPassword, setIsResetPassword] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -44,6 +45,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const handleClose = () => {
     resetForm();
     setIsResetPassword(false);
+    setIsResetPassword(false);
     onClose();
   };
 
@@ -63,6 +65,14 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           // NÃO limpar o formulário nem fechar o modal - mensagem deve persistir
         }
       } else if (isLogin) {
+      if (isResetPassword) {
+        const { error } = await resetPassword(email);
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccess('E-mail de recuperação enviado! Verifique sua caixa de entrada e clique no link para redefinir sua senha.');
+          // NÃO limpar o formulário nem fechar o modal - mensagem deve persistir
+        }
         const { error } = await login(email, password);
         if (error) {
           setError(error.message);
@@ -108,9 +118,31 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     } else {
       setIsLogin(!isLogin);
     }
+    if (isResetPassword) {
+      setIsResetPassword(false);
+      setIsLogin(true);
+    } else {
+      setIsLogin(!isLogin);
+    }
     resetForm();
   };
 
+  const handleResetPasswordClick = () => {
+    setIsResetPassword(true);
+    setIsLogin(false);
+    resetForm();
+  };
+
+  const getTitle = () => {
+    if (isResetPassword) return 'Recuperar Senha';
+    return isLogin ? 'Entrar no Dante AI' : 'Criar conta no Dante AI';
+  };
+
+  const getDescription = () => {
+    if (isResetPassword) return 'Digite seu e-mail para receber o link de recuperação';
+      ? 'Entre com seu email e senha para acessar o chat'
+      : 'Crie sua conta para começar a usar o Dante AI';
+  };
   const handleResetPasswordClick = () => {
     setIsResetPassword(true);
     setIsLogin(false);
@@ -128,6 +160,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
       ? 'Entre com seu email e senha para acessar o chat'
       : 'Crie sua conta para começar a usar o Dante AI';
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
@@ -136,15 +169,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             <div className="p-3 bg-orange-500 rounded-xl">
               <Brain className="h-8 w-8 text-white" />
             </div>
-          </div>
+            </div>
+          )}
           <DialogTitle className="text-2xl font-bold text-neutral-900">
             {getTitle()}
           </DialogTitle>
           <p className="text-sm text-neutral-600 mt-2">
             {getDescription()}
-          </p>
-        </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4 mt-6">
           {!isLogin && !isResetPassword && (
             <div>
@@ -163,7 +194,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             </div>
           )}
 
-          <div>
+          {!isResetPassword && (
+            <div>
             <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1">
               Email
             </label>
@@ -268,6 +300,27 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               </button>
             ) : (
               <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={toggleMode}
+                  className="text-sm text-orange-600 hover:text-orange-700 font-medium block w-full"
+                >
+                  {isLogin 
+                    ? 'Não tem uma conta? Cadastre-se' 
+                    : 'Já tem uma conta? Entrar'
+                  }
+                </button>
+                {isLogin && (
+                  <button
+                    type="button"
+                    onClick={handleResetPasswordClick}
+                    className="text-sm text-neutral-600 hover:text-neutral-700 font-medium"
+                  >
+                    Esqueci minha senha
+                  </button>
+                )}
+              </div>
+            )}
                 <button
                   type="button"
                   onClick={toggleMode}
