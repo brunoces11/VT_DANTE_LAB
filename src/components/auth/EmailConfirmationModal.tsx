@@ -15,7 +15,10 @@ interface EmailConfirmationModalProps {
 }
 
 export default function EmailConfirmationModal({ isOpen, onClose, onOpenLogin }: EmailConfirmationModalProps) {
+  console.log('📧 EmailConfirmationModal renderizado - isOpen:', isOpen);
+  
   const handleLoginClick = () => {
+    console.log('🔄 Usuário clicou em "Fazer Login Agora"');
     onClose();
     onOpenLogin();
   };
@@ -33,7 +36,7 @@ export default function EmailConfirmationModal({ isOpen, onClose, onOpenLogin }:
             ✅ Email Verificado!
           </DialogTitle>
           <p className="text-sm text-neutral-600 mt-2">
-            Sua conta foi ativada com sucesso
+            Sua conta foi ativada com sucesso!
           </p>
         </DialogHeader>
 
@@ -43,8 +46,8 @@ export default function EmailConfirmationModal({ isOpen, onClose, onOpenLogin }:
               🎉 Seja bem-vindo ao Dante AI!
             </p>
             <p className="text-green-700 text-sm">
-              Sua conta foi ativada com sucesso. Agora você pode fazer login 
-              usando suas credenciais para acessar o Dante AI.
+              Sua conta foi ativada com sucesso. Agora faça login usando suas 
+              credenciais para acessar o Dante AI.
             </p>
           </div>
 

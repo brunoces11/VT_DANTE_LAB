@@ -74,6 +74,15 @@ function App() {
   const [isEmailConfirmationModalOpen, setIsEmailConfirmationModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  // Debug: Log mudanças de estado dos modais
+  useEffect(() => {
+    console.log('🔄 Estado dos modais:', {
+      isResetPasswordModalOpen,
+      isEmailConfirmationModalOpen,
+      isAuthModalOpen
+    });
+  }, [isResetPasswordModalOpen, isEmailConfirmationModalOpen, isAuthModalOpen]);
+
   React.useEffect(() => {
     // Simulate loading time and ensure all components are ready
     const timer = setTimeout(() => {
@@ -86,16 +95,23 @@ function App() {
   // Detectar se o usuário acessou via link de recuperação de senha
   useEffect(() => {
     const handleAuthRedirects = async () => {
+      console.log('🔍 Iniciando verificação de redirects de autenticação...');
+      console.log('🔍 URL atual:', window.location.href);
+      console.log('🔍 Hash:', window.location.hash);
+      console.log('🔍 Search:', window.location.search);
+      
       const urlParams = new URLSearchParams(window.location.search);
       const hash = window.location.hash;
       const hashParams = new URLSearchParams(hash.substring(1)); // Remove o #
       
-      console.log('🔍 Verificando redirects de autenticação...');
+      console.log('🔍 URL params:', urlParams.toString());
       console.log('🔍 Hash params:', hashParams.toString());
       
       // Verificar se há erro de link expirado
       const error = hashParams.get('error');
       const errorCode = hashParams.get('error_code');
+      
+      console.log('🔍 Error:', error, 'Error code:', errorCode);
       
       if (error === 'access_denied' && errorCode === 'otp_expired') {
         console.log('❌ Link de recuperação expirado');
@@ -129,6 +145,7 @@ function App() {
         console.log('✅ Detectado link de confirmação de email');
         
         try {
+          console.log('🔄 Definindo sessão para confirmação de email...');
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
@@ -138,6 +155,16 @@ function App() {
             console.error('❌ Erro ao confirmar email:', error);
           } else {
             console.log('✅ Email confirmado com sucesso');
+            
+            // Limpar URL ANTES de mostrar o modal
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Aguardar um pouco para garantir que a URL foi limpa
+            setTimeout(() => {
+              console.log('🎉 Abrindo modal de confirmação de email');
+              setIsEmailConfirmationModalOpen(true);
+            }, 100);
             setIsEmailConfirmationModalOpen(true);
           }
         } catch (error) {
@@ -222,6 +249,7 @@ function App() {
             isOpen={isEmailConfirmationModalOpen}
             onClose={() => setIsEmailConfirmationModalOpen(false)}
             onOpenLogin={() => {
+              console.log('🔄 EmailConfirmationModal: abrindo modal de login');
               setIsEmailConfirmationModalOpen(false);
               setIsAuthModalOpen(true);
             }}
@@ -234,6 +262,24 @@ function App() {
               console.log('Login realizado após confirmação de email');
             }}
           />
+          
+          {/* Debug: Mostrar estado atual dos modais */}
+          {process.env.NODE_ENV === 'development' && (
+            <div style={{ 
+              position: 'fixed', 
+              top: '10px', 
+              right: '10px', 
+              background: 'black', 
+              color: 'white', 
+              padding: '10px', 
+              fontSize: '12px',
+              zIndex: 10000
+            }}>
+              Reset: {isResetPasswordModalOpen ? '✅' : '❌'}<br/>
+              Email: {isEmailConfirmationModalOpen ? '✅' : '❌'}<br/>
+              Auth: {isAuthModalOpen ? '✅' : '❌'}
+            </div>
+          )}
         </Router>
       </AuthProvider>
     </ErrorBoundary>
