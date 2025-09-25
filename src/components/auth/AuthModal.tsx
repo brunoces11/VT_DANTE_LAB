@@ -18,6 +18,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true);
+  const [isResetPassword, setIsResetPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,7 +29,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { login, register } = useAuth();
+  const { login, register, resetPassword } = useAuth();
 
   const resetForm = () => {
     setEmail('');
@@ -42,6 +43,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   const handleClose = () => {
     resetForm();
+    setIsResetPassword(false);
     onClose();
   };
 
@@ -52,7 +54,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
     setLoading(true);
 
     try {
-      if (isLogin) {
+      if (isResetPassword) {
+        const { error } = await resetPassword(email);
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccess('E-mail de recuperação enviado! Verifique sua caixa de entrada e clique no link para redefinir sua senha.');
+          // NÃO limpar o formulário nem fechar o modal - mensagem deve persistir
+        }
+      } else if (isLogin) {
         const { error } = await login(email, password);
         if (error) {
           setError(error.message);
@@ -80,11 +90,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         if (error) {
           setError(error.message);
         } else {
-          setSuccess('Cadastro realizado! Verifique seu email para confirmar a conta.');
-          setTimeout(() => {
-            setIsLogin(true);
-            resetForm();
-          }, 2000);
+          setSuccess('✅ Cadastro realizado com sucesso! Verifique sua caixa de entrada e clique no link de confirmação para ativar sua conta.');
+          // NÃO usar setTimeout - mensagem deve persistir até o usuário fechar o modal
         }
       }
     } catch (err) {
@@ -95,10 +102,32 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   };
 
   const toggleMode = () => {
-    setIsLogin(!isLogin);
+    if (isResetPassword) {
+      setIsResetPassword(false);
+      setIsLogin(true);
+    } else {
+      setIsLogin(!isLogin);
+    }
     resetForm();
   };
 
+  const handleResetPasswordClick = () => {
+    setIsResetPassword(true);
+    setIsLogin(false);
+    resetForm();
+  };
+
+  const getTitle = () => {
+    if (isResetPassword) return 'Recuperar Senha';
+    return isLogin ? 'Entrar no Dante AI' : 'Criar conta no Dante AI';
+  };
+
+  const getDescription = () => {
+    if (isResetPassword) return 'Digite seu e-mail para receber o link de recuperação';
+    return isLogin 
+      ? 'Entre com seu email e senha para acessar o chat'
+      : 'Crie sua conta para começar a usar o Dante AI';
+  };
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
@@ -109,18 +138,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold text-neutral-900">
-            {isLogin ? 'Entrar no Dante AI' : 'Criar conta no Dante AI'}
+            {getTitle()}
           </DialogTitle>
           <p className="text-sm text-neutral-600 mt-2">
-            {isLogin 
-              ? 'Entre com seu email e senha para acessar o chat'
-              : 'Crie sua conta para começar a usar o Dante AI'
-            }
+            {getDescription()}
           </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-          {!isLogin && (
+          {!isLogin && !isResetPassword && (
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-neutral-700 mb-1">
                 Nome completo
@@ -131,7 +157,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 placeholder="Seu nome completo"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                required={!isLogin}
+                required={!isLogin && !isResetPassword}
                 className="w-full"
               />
             </div>
@@ -152,7 +178,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             />
           </div>
 
-          <div>
+          {!isResetPassword && (
+            <div>
             <label htmlFor="password" className="block text-sm font-medium text-neutral-700 mb-1">
               Senha
             </label>
@@ -174,9 +201,10 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-          </div>
+            </div>
+          )}
 
-          {!isLogin && (
+          {!isLogin && !isResetPassword && (
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 mb-1">
                 Confirmar senha
@@ -188,7 +216,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   placeholder="Confirme sua senha"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  required={!isLogin}
+                  required={!isLogin && !isResetPassword}
                   className="w-full pr-10"
                 />
                 <button
@@ -222,24 +250,45 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {isLogin ? 'Entrando...' : 'Criando conta...'}
+                {isResetPassword ? 'Enviando...' : isLogin ? 'Entrando...' : 'Criando conta...'}
               </>
             ) : (
-              isLogin ? 'Entrar' : 'Criar conta'
+              isResetPassword ? 'Enviar e-mail' : isLogin ? 'Entrar' : 'Criar conta'
             )}
           </Button>
 
           <div className="text-center">
-            <button
-              type="button"
-              onClick={toggleMode}
-              className="text-sm text-orange-600 hover:text-orange-700 font-medium"
-            >
-              {isLogin 
-                ? 'Não tem uma conta? Cadastre-se' 
-                : 'Já tem uma conta? Entrar'
-              }
-            </button>
+            {isResetPassword ? (
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+              >
+                Voltar para o login
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={toggleMode}
+                  className="text-sm text-orange-600 hover:text-orange-700 font-medium block w-full"
+                >
+                  {isLogin 
+                    ? 'Não tem uma conta? Cadastre-se' 
+                    : 'Já tem uma conta? Entrar'
+                  }
+                </button>
+                {isLogin && (
+                  <button
+                    type="button"
+                    onClick={handleResetPasswordClick}
+                    className="text-sm text-neutral-600 hover:text-neutral-700 font-medium"
+                  >
+                    Esqueci minha senha
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </form>
       </DialogContent>

@@ -1,6 +1,8 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import ResetPasswordModal from '@/components/auth/ResetPasswordModal';
 import HomePage from '@/pages/HomePage';
 import ChatPage from '@/pages/ChatPage';
 import DanteUI from '@/pages/DanteUI';
@@ -65,6 +67,7 @@ function LoadingFallback() {
 
 function App() {
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
 
   React.useEffect(() => {
     // Simulate loading time and ensure all components are ready
@@ -75,6 +78,18 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Detectar se o usuário acessou via link de recuperação de senha
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isResetPassword = urlParams.get('reset-password');
+    
+    if (isResetPassword === 'true') {
+      setIsResetPasswordModalOpen(true);
+      // Limpar o parâmetro da URL sem recarregar a página
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
+    }
+  }, []);
   if (isLoading) {
     return <LoadingFallback />;
   }
@@ -93,6 +108,15 @@ function App() {
             <Route path="/contato" element={<Contato />} />
             <Route path="/teste" element={<TestePage />} />
           </Routes>
+          
+          <ResetPasswordModal 
+            isOpen={isResetPasswordModalOpen}
+            onClose={() => setIsResetPasswordModalOpen(false)}
+            onSuccess={() => {
+              // Opcional: redirecionar para login ou mostrar mensagem adicional
+              console.log('Senha redefinida com sucesso');
+            }}
+          />
         </Router>
       </AuthProvider>
     </ErrorBoundary>
