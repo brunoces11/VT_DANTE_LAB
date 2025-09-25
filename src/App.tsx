@@ -81,47 +81,73 @@ function App() {
 
   // Detectar se o usuário acessou via link de recuperação de senha
   useEffect(() => {
-    const handleAuthStateChange = async () => {
+    const handlePasswordRecovery = async () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const isResetPassword = urlParams.get('reset-password');
+      const hash = window.location.hash;
+      const hashParams = new URLSearchParams(hash.substring(1)); // Remove o #
       
-      // Verificar se há tokens de recuperação de senha na URL
-      const accessToken = urlParams.get('access_token');
-      const refreshToken = urlParams.get('refresh_token');
-      const type = urlParams.get('type');
+      console.log('🔍 URL completa:', window.location.href);
+      console.log('🔍 Hash:', hash);
+      console.log('🔍 Query params:', urlParams.toString());
+      console.log('🔍 Hash params:', hashParams.toString());
+      
+      // Verificar tokens no hash (formato padrão do Supabase)
+      let accessToken = hashParams.get('access_token');
+      let refreshToken = hashParams.get('refresh_token');
+      let type = hashParams.get('type');
+      
+      // Fallback: verificar nos query params
+      if (!accessToken) {
+        accessToken = urlParams.get('access_token');
+        refreshToken = urlParams.get('refresh_token');
+        type = urlParams.get('type');
+      }
+      
+      console.log('🔍 Tokens encontrados:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
       
       if (type === 'recovery' && accessToken && refreshToken) {
-        console.log('Detectado link de recuperação de senha');
+        console.log('✅ Detectado link de recuperação de senha');
         
         try {
-          // Definir a sessão com os tokens da URL
-          const { error } = await supabase.auth.setSession({
+          console.log('🔄 Estabelecendo sessão de recuperação...');
+          
+          const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
           });
           
           if (error) {
-            console.error('Erro ao definir sessão:', error);
+            console.error('❌ Erro ao definir sessão:', error);
           } else {
-            console.log('Sessão de recuperação definida com sucesso');
+            console.log('✅ Sessão de recuperação definida:', data);
+            
+            // Aguardar um pouco para garantir que a sessão foi estabelecida
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Verificar se a sessão está realmente ativa
+            const { data: sessionCheck } = await supabase.auth.getSession();
+            console.log('🔍 Verificação da sessão:', sessionCheck);
+            
             setIsResetPasswordModalOpen(true);
           }
         } catch (error) {
-          console.error('Erro ao processar tokens de recuperação:', error);
+          console.error('❌ Erro ao processar tokens de recuperação:', error);
         }
         
-        // Limpar todos os parâmetros da URL
-        const newUrl = window.location.pathname;
+        // Limpar hash e query params da URL
+        const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
-      } else if (isResetPassword === 'true') {
+      } else if (urlParams.get('reset-password') === 'true') {
+        console.log('🔍 Parâmetro reset-password detectado');
         setIsResetPasswordModalOpen(true);
-        // Limpar o parâmetro da URL sem recarregar a página
-        const newUrl = window.location.pathname;
+        const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       }
     };
     
-    handleAuthStateChange();
+    // Aguardar um pouco antes de processar para garantir que o Supabase foi inicializado
+    const timer = setTimeout(handlePasswordRecovery, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
