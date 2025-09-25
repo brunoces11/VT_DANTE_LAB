@@ -91,6 +91,20 @@ function App() {
       console.log('🔍 Query params:', urlParams.toString());
       console.log('🔍 Hash params:', hashParams.toString());
       
+      // Verificar se há erro de link expirado
+      const error = hashParams.get('error');
+      const errorCode = hashParams.get('error_code');
+      const errorDescription = hashParams.get('error_description');
+      
+      if (error === 'access_denied' && errorCode === 'otp_expired') {
+        console.log('❌ Link de recuperação expirado');
+        setIsResetPasswordModalOpen(true);
+        // Limpar hash e query params da URL
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+        return;
+      }
+      
       // Verificar tokens no hash (formato padrão do Supabase)
       let accessToken = hashParams.get('access_token');
       let refreshToken = hashParams.get('refresh_token');
@@ -118,6 +132,7 @@ function App() {
           
           if (error) {
             console.error('❌ Erro ao definir sessão:', error);
+            setIsResetPasswordModalOpen(true);
           } else {
             console.log('✅ Sessão de recuperação definida:', data);
             
@@ -132,6 +147,7 @@ function App() {
           }
         } catch (error) {
           console.error('❌ Erro ao processar tokens de recuperação:', error);
+          setIsResetPasswordModalOpen(true);
         }
         
         // Limpar hash e query params da URL

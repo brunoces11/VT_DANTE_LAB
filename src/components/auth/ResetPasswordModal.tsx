@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../../services/supa_init';
+import { useAuth } from './AuthProvider';
 import {
   Dialog,
   DialogContent,
@@ -17,11 +18,15 @@ interface ResetPasswordModalProps {
 }
 
 export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: ResetPasswordModalProps) {
+  const { resetPassword } = useAuth();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isExpiredLink, setIsExpiredLink] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
@@ -34,8 +39,16 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
           console.error('Erro ao verificar sessão:', error);
         }
         console.log('Sessão atual:', session);
+        
+        // Se não há sessão e o modal está aberto, provavelmente o link expirou
+        if (!session && isOpen) {
+          setIsExpiredLink(true);
+          setShowEmailForm(true);
+        }
       } catch (error) {
         console.error('Erro ao verificar sessão:', error);
+        setIsExpiredLink(true);
+        setShowEmailForm(true);
       }
     };
 
@@ -47,9 +60,12 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
   const resetForm = () => {
     setNewPassword('');
     setConfirmPassword('');
+    setResetEmail('');
     setError('');
     setSuccess('');
     setLoading(false);
+    setIsExpiredLink(false);
+    setShowEmailForm(false);
   };
 
   const handleClose = () => {
@@ -57,6 +73,26 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
     onClose();
   };
 
+  const handleRequestNewLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const { error } = await resetPassword(resetEmail);
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess('✅ Novo link de recuperação enviado! Verifique sua caixa de entrada e clique no novo link.');
+        setResetEmail('');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Erro ao enviar novo link');
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -86,14 +122,18 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
       
       if (sessionError) {
         console.error('❌ Erro ao verificar sessão:', sessionError);
-        setError('Erro de sessão. Tente acessar o link do email novamente.');
+        setError('Erro de sessão. O link pode ter expirado.');
+        setIsExpiredLink(true);
+        setShowEmailForm(true);
         setLoading(false);
         return;
       }
       
       if (!sessionData.session) {
         console.error('❌ Nenhuma sessão encontrada');
-        setError('Sessão expirada. Solicite um novo link de recuperação de senha.');
+        setError('Link de recuperação expirado. Solicite um novo link abaixo.');
+        setIsExpiredLink(true);
+        setShowEmailForm(true);
         setLoading(false);
         return;
       }
@@ -109,7 +149,13 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
       
       if (updateError) {
         console.error('❌ Erro ao alterar senha:', updateError);
-        setError(`Erro ao alterar senha: ${updateError.message}`);
+        if (updateError.message.includes('session') || updateError.message.includes('expired')) {
+          setError('Link de recuperação expirado. Solicite um novo link abaixo.');
+          setIsExpiredLink(true);
+          setShowEmailForm(true);
+        } else {
+          setError(`Erro ao alterar senha: ${updateError.message}`);
+        }
       } else {
         console.log('✅ Senha alterada com sucesso!');
         setSuccess('✅ Senha alterada com sucesso! Você já pode fazer login com sua nova senha.');
@@ -119,7 +165,13 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
       }
     } catch (err: any) {
       console.error('Erro na redefinição de senha:', err);
-      setError(err.message || 'Ocorreu um erro inesperado');
+      if (err.message && (err.message.includes('session') || err.message.includes('expired'))) {
+        setError('Link de recuperação expirado. Solicite um novo link abaixo.');
+        setIsExpiredLink(true);
+        setShowEmailForm(true);
+      } else {
+        setError(err.message || 'Ocorreu um erro inesperado');
+      }
     } finally {
       setLoading(false);
     }
@@ -135,14 +187,62 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
             </div>
           </div>
           <DialogTitle className="text-2xl font-bold text-neutral-900">
-            Redefinir Senha
+            {showEmailForm ? 'Solicitar Novo Link' : 'Redefinir Senha'}
           </DialogTitle>
           <p className="text-sm text-neutral-600 mt-2">
-            Digite sua nova senha para concluir a recuperação
+            {showEmailForm 
+              ? 'O link de recuperação expirou. Digite seu email para receber um novo link.'
+              : 'Digite sua nova senha para concluir a recuperação'
+            }
           </p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
+        {showEmailForm ? (
+          <form onSubmit={handleRequestNewLink} className="space-y-4 mt-6">
+            <div>
+              <label htmlFor="resetEmail" className="block text-sm font-medium text-neutral-700 mb-1">
+                Email
+              </label>
+              <Input
+                id="resetEmail"
+                type="email"
+                placeholder="seu@email.com"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+                className="w-full"
+              />
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-600">{success}</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={loading || !resetEmail}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enviando novo link...
+                </>
+              ) : (
+                'Enviar Novo Link'
+              )}
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 mt-6">
           <div>
             <label htmlFor="newPassword" className="block text-sm font-medium text-neutral-700 mb-1">
               Nova senha
@@ -194,6 +294,15 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{error}</p>
+              {isExpiredLink && (
+                <button
+                  type="button"
+                  onClick={() => setShowEmailForm(true)}
+                  className="mt-2 text-sm text-orange-600 hover:text-orange-700 font-medium underline"
+                >
+                  Solicitar novo link de recuperação
+                </button>
+              )}
             </div>
           )}
 
@@ -218,6 +327,7 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
             )}
           </Button>
         </form>
+        )}
       </DialogContent>
     </Dialog>
   );
