@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScrollText, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
 
 interface Chat {
   id: string;
@@ -32,26 +33,12 @@ export default function SidebarCollapse() {
   const [editTitle, setEditTitle] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Função para formatar data/hora
-  const formatDateTime = () => {
-    const now = new Date();
-    const day = now.getDate().toString().padStart(2, '0');
-    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
-                   'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const month = months[now.getMonth()];
-    const year = now.getFullYear().toString().slice(-2);
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    
-    return `${day}/${month}/${year} - ${hours}:${minutes}`;
-  };
-
   const handleNewChat = () => {
     const newChat: Chat = {
       id: Date.now().toString(),
       title: 'Nova conversa',
       lastMessage: '',
-      timestamp: formatDateTime(),
+      timestamp: formatDateTimeBR(getCurrentTimestampUTC()),
       isEmpty: true,
       isActive: false,
     };

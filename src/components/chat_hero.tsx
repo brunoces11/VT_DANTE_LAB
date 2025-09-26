@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Bot, User } from 'lucide-react';
+import { getCurrentTimestampUTC, formatTimeBR } from '@/utils/timezone';
 
 interface ChatHeroProps {
   isOpen: boolean;
@@ -19,7 +20,7 @@ interface Message {
   id: number;
   text: string;
   isUser: boolean;
-  timestamp: Date;
+  timestamp: string;
 }
 
 export default function ChatHero({ isOpen, onClose, initialMessage }: ChatHeroProps) {
@@ -41,7 +42,7 @@ export default function ChatHero({ isOpen, onClose, initialMessage }: ChatHeroPr
       id: Date.now(),
       text: message,
       isUser: true,
-      timestamp: new Date(),
+      timestamp: getCurrentTimestampUTC(),
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -54,7 +55,7 @@ export default function ChatHero({ isOpen, onClose, initialMessage }: ChatHeroPr
         id: Date.now() + 1,
         text: `Esta é uma resposta simulada sobre "${message}". O Dante AI forneceria uma resposta especializada em Registro de Imóveis baseada na legislação vigente.`,
         isUser: false,
-        timestamp: new Date(),
+        timestamp: getCurrentTimestampUTC(),
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -101,10 +102,7 @@ export default function ChatHero({ isOpen, onClose, initialMessage }: ChatHeroPr
               >
                 <p className="text-sm">{message.text}</p>
                 <p className="text-xs opacity-70 mt-1">
-                  {message.timestamp.toLocaleTimeString('pt-BR', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
+                  {formatTimeBR(message.timestamp)}
                 </p>
               </div>
 

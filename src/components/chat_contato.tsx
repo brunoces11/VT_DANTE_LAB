@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Bot, User } from 'lucide-react';
+import { getCurrentTimestampUTC, formatTimeBR } from '@/utils/timezone';
 
 interface Message {
   id: number;
   content: string;
   sender: 'user' | 'bot';
-  timestamp: Date;
+  timestamp: string;
 }
 
 export default function ChatContato() {
@@ -16,7 +17,7 @@ export default function ChatContato() {
       id: 1,
       content: "Olá! 👋 Sou o assistente de IA para esclarecer dúvidas sobre o Dante AI. Estou preparado para esclarecer suas questões instantaneamente e, quando necessário, encaminhar sua mensagem diretamente para o departamento responsável. Como posso ajudá-lo hoje?",
       sender: 'bot',
-      timestamp: new Date(),
+      timestamp: getCurrentTimestampUTC(),
     },
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -49,7 +50,7 @@ export default function ChatContato() {
       id: Date.now(),
       content: inputValue,
       sender: 'user',
-      timestamp: new Date(),
+      timestamp: getCurrentTimestampUTC(),
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -76,7 +77,7 @@ export default function ChatContato() {
         id: Date.now() + 1,
         content: randomResponse,
         sender: 'bot',
-        timestamp: new Date(),
+        timestamp: getCurrentTimestampUTC(),
       };
 
       setMessages(prev => [...prev, botMessage]);
@@ -119,10 +120,7 @@ export default function ChatContato() {
               <p className={`text-xs mt-2 ${
                 message.sender === 'user' ? 'text-neutral-300' : 'text-neutral-500'
               }`}>
-                {message.timestamp.toLocaleTimeString('pt-BR', { 
-                  hour: '2-digit', 
-                  minute: '2-digit' 
-                })}
+                {formatTimeBR(message.timestamp)}
               </p>
             </div>
 

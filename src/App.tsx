@@ -1,6 +1,11 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import ResetPasswordModal from '@/components/auth/ResetPasswordModal';
+import EmailConfirmationModal from '@/components/auth/EmailConfirmationModal';
+import AuthModal from '@/components/auth/AuthModal';
+import { supabase } from '../services/supa_init';
 import HomePage from '@/pages/HomePage';
 import ChatPage from '@/pages/ChatPage';
 import DanteUI from '@/pages/DanteUI';
@@ -65,6 +70,18 @@ function LoadingFallback() {
 
 function App() {
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [isEmailConfirmationModalOpen, setIsEmailConfirmationModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Debug: Log mudanças de estado dos modais
+  useEffect(() => {
+    console.log('🔄 Estado dos modais:', {
+      isResetPasswordModalOpen,
+      isEmailConfirmationModalOpen,
+      isAuthModalOpen
+    });
+  }, [isResetPasswordModalOpen, isEmailConfirmationModalOpen, isAuthModalOpen]);
 
   React.useEffect(() => {
     // Simulate loading time and ensure all components are ready
@@ -72,6 +89,131 @@ function App() {
       setIsLoading(false);
     }, 1000);
 
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Detectar se o usuário acessou via link de recuperação de senha
+  useEffect(() => {
+    const handleAuthRedirects = async () => {
+      console.log('🔍 Iniciando verificação de redirects de autenticação...');
+      console.log('🔍 URL atual:', window.location.href);
+      console.log('🔍 Hash:', window.location.hash);
+      console.log('🔍 Search:', window.location.search);
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+      const hashParams = new URLSearchParams(hash.substring(1)); // Remove o #
+      
+      console.log('🔍 URL params:', urlParams.toString());
+      console.log('🔍 Hash params:', hashParams.toString());
+      
+      // Verificar se há erro de link expirado
+      const error = hashParams.get('error');
+      const errorCode = hashParams.get('error_code');
+      
+      console.log('🔍 Error:', error, 'Error code:', errorCode);
+      
+      if (error === 'access_denied' && errorCode === 'otp_expired') {
+        console.log('❌ Link de recuperação expirado');
+        setIsResetPasswordModalOpen(true);
+        // Limpar hash e query params da URL
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+        return;
+      }
+      
+      // Verificar tokens no hash (formato padrão do Supabase)
+      let accessToken = hashParams.get('access_token');
+      let refreshToken = hashParams.get('refresh_token');
+      let type = hashParams.get('type');
+      
+      // Fallback: verificar nos query params
+      if (!accessToken) {
+        accessToken = urlParams.get('access_token');
+        refreshToken = urlParams.get('refresh_token');
+        type = urlParams.get('type');
+      }
+      
+      console.log('🔍 Tokens encontrados:', { 
+        accessToken: !!accessToken, 
+        refreshToken: !!refreshToken, 
+        type 
+      });
+      
+      // Verificar se é confirmação de email
+      if (type === 'signup' && accessToken && refreshToken) {
+        console.log('✅ Detectado link de confirmação de email');
+        
+        try {
+          console.log('🔄 Definindo sessão para confirmação de email...');
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('❌ Erro ao confirmar email:', error);
+          } else {
+            console.log('✅ Email confirmado com sucesso');
+            
+            // Limpar URL ANTES de mostrar o modal
+            const newUrl = window.location.origin + window.location.pathname;
+            window.history.replaceState({}, document.title, newUrl);
+            
+            // Aguardar um pouco para garantir que a URL foi limpa
+            setTimeout(() => {
+              console.log('🎉 Abrindo modal de confirmação de email');
+              setIsEmailConfirmationModalOpen(true);
+            }, 100);
+            setIsEmailConfirmationModalOpen(true);
+          }
+        } catch (error) {
+          console.error('❌ Erro ao processar confirmação de email:', error);
+        }
+      } else if (type === 'recovery' && accessToken && refreshToken) {
+        console.log('✅ Detectado link de recuperação de senha');
+        
+        try {
+          console.log('🔄 Estabelecendo sessão de recuperação...');
+          
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (error) {
+            console.error('❌ Erro ao definir sessão:', error);
+            setIsResetPasswordModalOpen(true);
+          } else {
+            console.log('✅ Sessão de recuperação definida:', data);
+            
+            // Aguardar um pouco para garantir que a sessão foi estabelecida
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // Verificar se a sessão está realmente ativa
+            const { data: sessionCheck } = await supabase.auth.getSession();
+            console.log('🔍 Verificação da sessão:', sessionCheck);
+            
+            setIsResetPasswordModalOpen(true);
+          }
+        } catch (error) {
+          console.error('❌ Erro ao processar tokens de recuperação:', error);
+          setIsResetPasswordModalOpen(true);
+        }
+        
+        // Limpar hash e query params da URL
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      } else if (urlParams.get('reset-password') === 'true') {
+        console.log('🔍 Parâmetro reset-password detectado');
+        setIsResetPasswordModalOpen(true);
+        const newUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    };
+    
+    // Aguardar um pouco antes de processar para garantir que o Supabase foi inicializado
+    const timer = setTimeout(handleAuthRedirects, 100);
     return () => clearTimeout(timer);
   }, []);
 
@@ -93,6 +235,51 @@ function App() {
             <Route path="/contato" element={<Contato />} />
             <Route path="/teste" element={<TestePage />} />
           </Routes>
+          
+          <ResetPasswordModal 
+            isOpen={isResetPasswordModalOpen}
+            onClose={() => setIsResetPasswordModalOpen(false)}
+            onSuccess={() => {
+              // Opcional: redirecionar para login ou mostrar mensagem adicional
+              console.log('Senha redefinida com sucesso');
+            }}
+          />
+          
+          <EmailConfirmationModal 
+            isOpen={isEmailConfirmationModalOpen}
+            onClose={() => setIsEmailConfirmationModalOpen(false)}
+            onOpenLogin={() => {
+              console.log('🔄 EmailConfirmationModal: abrindo modal de login');
+              setIsEmailConfirmationModalOpen(false);
+              setIsAuthModalOpen(true);
+            }}
+          />
+          
+          <AuthModal 
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onSuccess={() => {
+              console.log('Login realizado após confirmação de email');
+            }}
+          />
+          
+          {/* Debug: Mostrar estado atual dos modais */}
+          {process.env.NODE_ENV === 'development' && (
+            <div style={{ 
+              position: 'fixed', 
+              top: '10px', 
+              right: '10px', 
+              background: 'black', 
+              color: 'white', 
+              padding: '10px', 
+              fontSize: '12px',
+              zIndex: 10000
+            }}>
+              Reset: {isResetPasswordModalOpen ? '✅' : '❌'}<br/>
+              Email: {isEmailConfirmationModalOpen ? '✅' : '❌'}<br/>
+              Auth: {isAuthModalOpen ? '✅' : '❌'}
+            </div>
+          )}
         </Router>
       </AuthProvider>
     </ErrorBoundary>
