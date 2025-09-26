@@ -137,6 +137,15 @@ export default function Header() {
                       >
                         Dante UI
                       </button>
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          navigate('/payload-test');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                      >
+                        Payload Test
+                      </button>
                     </div>
                   )}
                 </div>
@@ -260,6 +269,16 @@ export default function Header() {
                         className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
                       >
                         Dante UI
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsLabDropdownOpen(false);
+                          setIsMenuOpen(false);
+                          navigate('/payload-test');
+                        }}
+                        className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                      >
+                        Payload Test
                       </button>
                     </div>
                   )}

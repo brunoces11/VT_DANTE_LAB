@@ -14,6 +14,7 @@ import ComoFunciona from '@/pages/ComoFunciona';
 import Planos from '@/pages/Planos';
 import Contato from '@/pages/Contato';
 import TestePage from '@/pages/TestePage';
+import PayloadTest from '@/pages/PayloadTest';
 
 // Simple error boundary component
 class ErrorBoundary extends React.Component<
@@ -234,6 +235,7 @@ function App() {
             <Route path="/planos" element={<Planos />} />
             <Route path="/contato" element={<Contato />} />
             <Route path="/teste" element={<TestePage />} />
+            <Route path="/payload-test" element={<PayloadTest />} />
           </Routes>
           
           <ResetPasswordModal 
