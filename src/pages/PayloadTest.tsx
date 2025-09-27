@@ -7,38 +7,40 @@ import { Send, Loader2 } from 'lucide-react';
 export default function PayloadTest() {
   const [inputMessage, setInputMessage] = useState('');
   const [endpointUrl, setEndpointUrl] = useState('');
-  const [apiKey, setApiKey] = useState('');
+  const [flowId, setFlowId] = useState('');
   const [payloadMessage, setPayloadMessage] = useState('');
   const [payloadResponse, setPayloadResponse] = useState('');
   const [treatedResponse, setTreatedResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
-    if (!inputMessage.trim() || !endpointUrl.trim() || !apiKey.trim()) {
+    if (!inputMessage.trim() || !endpointUrl.trim() || !flowId.trim()) {
       alert('Por favor, preencha todos os campos obrigatórios');
       return;
     }
 
     setIsLoading(true);
     
-    // Criar o payload que será enviado
+    // Criar o payload específico para Langflow
     const payload = {
-      message: inputMessage,
-      timestamp: new Date().toISOString(),
-      user_id: 'test_user'
+      "input_value": inputMessage,
+      "output_type": "chat",
+      "input_type": "chat",
+      "session_id": "user_1"
     };
 
     // Mostrar o payload no campo correspondente
     setPayloadMessage(JSON.stringify(payload, null, 2));
 
     try {
-      // Fazer a requisição HTTP
-      const response = await fetch(endpointUrl, {
+      // Construir a URL completa com o Flow ID
+      const fullUrl = endpointUrl.endsWith('/') ? `${endpointUrl}${flowId}` : `${endpointUrl}/${flowId}`;
+      
+      // Fazer a requisição HTTP para Langflow
+      const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/json'
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify(payload)
       });
@@ -49,18 +51,25 @@ export default function PayloadTest() {
       // Mostrar o payload de resposta bruto
       setPayloadResponse(JSON.stringify(responseData, null, 2));
 
-      // Tratar a resposta para mostrar apenas o conteúdo relevante
+      // Tratar a resposta específica do Langflow
       let treated = '';
-      if (responseData.message) {
+      
+      // Langflow geralmente retorna a resposta em outputs > 0 > outputs > message > message > text
+      if (responseData.outputs && responseData.outputs[0] && responseData.outputs[0].outputs) {
+        const outputs = responseData.outputs[0].outputs;
+        if (outputs.message && outputs.message.message && outputs.message.message.text) {
+          treated = outputs.message.message.text;
+        } else if (outputs.text) {
+          treated = outputs.text;
+        } else {
+          treated = 'Resposta do Langflow recebida, mas estrutura não reconhecida para extração automática.';
+        }
+      } else if (responseData.result) {
+        treated = responseData.result;
+      } else if (responseData.message) {
         treated = responseData.message;
-      } else if (responseData.response) {
-        treated = responseData.response;
-      } else if (responseData.content) {
-        treated = responseData.content;
-      } else if (responseData.data) {
-        treated = typeof responseData.data === 'string' ? responseData.data : JSON.stringify(responseData.data);
       } else {
-        treated = 'Resposta recebida, mas formato não reconhecido para tratamento automático.';
+        treated = 'Resposta do Langflow recebida, mas formato não reconhecido para tratamento automático.';
       }
       
       setTreatedResponse(treated);
@@ -89,7 +98,7 @@ export default function PayloadTest() {
           {/* Título */}
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-neutral-900 mb-4">
-              Payload Test
+              Langflow | Payload Test
             </h1>
           </div>
 
@@ -112,7 +121,7 @@ export default function PayloadTest() {
                 />
                 <Button
                   onClick={handleSend}
-                  disabled={isLoading || !inputMessage.trim() || !endpointUrl.trim() || !apiKey.trim()}
+                  disabled={isLoading || !inputMessage.trim() || !endpointUrl.trim() || !flowId.trim()}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-6"
                 >
                   {isLoading ? (
@@ -138,24 +147,24 @@ export default function PayloadTest() {
               <Input
                 id="endpointUrl"
                 type="url"
-                placeholder="https://api.exemplo.com/endpoint"
+                placeholder="https://lf142.prompt-master.org/api/v1/run/"
                 value={endpointUrl}
                 onChange={(e) => setEndpointUrl(e.target.value)}
                 className="w-full"
               />
             </div>
 
-            {/* API Key */}
+            {/* Flow ID */}
             <div>
-              <label htmlFor="apiKey" className="block text-sm font-medium text-neutral-700 mb-2">
-                API Key
+              <label htmlFor="flowId" className="block text-sm font-medium text-neutral-700 mb-2">
+                Flow ID
               </label>
               <Input
-                id="apiKey"
-                type="password"
-                placeholder="Sua API Key aqui..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
+                id="flowId"
+                type="text"
+                placeholder="1060b727-10e5-4597-aa26-4662f5bccd46"
+                value={flowId}
+                onChange={(e) => setFlowId(e.target.value)}
                 className="w-full"
               />
             </div>
