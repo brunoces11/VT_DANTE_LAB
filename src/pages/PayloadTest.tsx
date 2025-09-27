@@ -34,7 +34,7 @@ export default function PayloadTest() {
 
     try {
       // Construir a URL completa com o Flow ID
-      const fullUrl = endpointUrl.endsWith('/') ? `${endpointUrl}${flowId}` : `${endpointUrl}/${flowId}`;
+      const fullUrl = endpointUrl.endsWith('/') ? `${endpointUrl}api/v1/run/${flowId}` : `${endpointUrl}/api/v1/run/${flowId}`;
       
       // Fazer a requisição HTTP para Langflow
       const response = await fetch(fullUrl, {
@@ -147,7 +147,7 @@ export default function PayloadTest() {
               <Input
                 id="endpointUrl"
                 type="url"
-                placeholder="https://lf142.prompt-master.org/api/v1/run/"
+                placeholder="https://lf142.prompt-master.org"
                 value={endpointUrl}
                 onChange={(e) => setEndpointUrl(e.target.value)}
                 className="w-full"
