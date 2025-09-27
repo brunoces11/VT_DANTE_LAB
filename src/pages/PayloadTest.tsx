@@ -54,14 +54,27 @@ export default function PayloadTest() {
       // Tratar a resposta específica do Langflow
       let treated = '';
       
-      // Langflow geralmente retorna a resposta em outputs > 0 > outputs > message > message > text
-      if (responseData.outputs && responseData.outputs[0] && responseData.outputs[0].outputs) {
-        const outputs = responseData.outputs[0].outputs;
-        if (outputs.message && outputs.message.message && outputs.message.message.text) {
-          treated = outputs.message.message.text;
-        } else if (outputs.text) {
-          treated = outputs.text;
-        } else {
+      // Baseado na estrutura real do Langflow mostrada pelo usuário
+      if (responseData.outputs && responseData.outputs[0] && responseData.outputs[0].outputs && responseData.outputs[0].outputs[0]) {
+        const output = responseData.outputs[0].outputs[0];
+        
+        // Tentar extrair de outputs.message.message
+        if (output.outputs && output.outputs.message && output.outputs.message.message) {
+          treated = output.outputs.message.message;
+        }
+        // Fallback: tentar extrair de artifacts.message
+        else if (output.artifacts && output.artifacts.message) {
+          treated = output.artifacts.message;
+        }
+        // Fallback: tentar extrair de results.message.text
+        else if (output.results && output.results.message && output.results.message.text) {
+          treated = output.results.message.text;
+        }
+        // Fallback: tentar extrair de messages[0].message
+        else if (output.messages && output.messages[0] && output.messages[0].message) {
+          treated = output.messages[0].message;
+        }
+        else {
           treated = 'Resposta do Langflow recebida, mas estrutura não reconhecida para extração automática.';
         }
       } else if (responseData.result) {
@@ -192,7 +205,7 @@ export default function PayloadTest() {
                 id="payloadResponse"
                 value={payloadResponse}
                 readOnly
-                className="w-full h-32 p-3 border border-neutral-300 rounded-md bg-neutral-50 font-mono text-sm resize-none"
+                className="w-full h-32 p-3 border border-neutral-300 rounded-md bg-neutral-50 font-mono text-sm resize-y min-h-32"
                 placeholder="A resposta bruta aparecerá aqui..."
               />
             </div>
