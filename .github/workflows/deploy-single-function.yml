@@ -1,0 +1,36 @@
+name: Deploy Single Supabase Function (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      function:
+        description: 'Nome da pasta da funcao em supabase/functions'
+        required: true
+
+jobs:
+  deploy-single:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Supabase CLI
+        run: npm install -g supabase
+
+      - name: Supabase login
+        run: supabase login --token "${{ secrets.SUPA_ACCESS_TOKEN_DANTE_LAB }}"
+
+      - name: Link project
+        run: supabase link --project-ref "${{ secrets.SUPA_PROJECT_REF_DANTE_LAB }}"
+
+      - name: Deploy chosen function
+        run: |
+          FUNC="${{ github.event.inputs.function }}"
+          echo "Deploying function: $FUNC"
+          supabase functions deploy "$FUNC"
