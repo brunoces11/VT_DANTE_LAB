@@ -35,7 +35,7 @@ export default function Header() {
 
   const handleChatClick = () => {
     if (user) {
-      navigate('/chat-page');
+      navigate('/chat-page', { state: { startWelcome: true } });
     } else {
       setIsAuthModalOpen(true);
     }
@@ -47,7 +47,7 @@ export default function Header() {
 
   const handleAuthSuccess = () => {
     setIsAuthModalOpen(false);
-    navigate('/chat-page');
+    navigate('/chat-page', { state: { startWelcome: true } });
   };
 
   return (

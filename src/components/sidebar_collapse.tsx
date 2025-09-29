@@ -17,10 +17,11 @@ interface SidebarCollapseProps {
   chats: Chat[];
   setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
   onChatClick: (sessionId: string) => void;
+  onNewChat: () => void;
   currentSessionId: string | null;
 }
 
-export default function SidebarCollapse({ chats, setChats, onChatClick, currentSessionId }: SidebarCollapseProps) {
+export default function SidebarCollapse({ chats, setChats, onChatClick, onNewChat, currentSessionId }: SidebarCollapseProps) {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [editingChat, setEditingChat] = useState<string | null>(null);
@@ -28,20 +29,8 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, currentS
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleNewChat = () => {
-    const newChat: Chat = {
-      id: Date.now().toString(),
-      title: 'Nova conversa',
-      lastMessage: '',
-      timestamp: formatDateTimeBR(getCurrentTimestampUTC()),
-      isEmpty: true,
-      isActive: false,
-    };
-
-    // Desativa todos os chats e ativa o novo
-    setChats(prev => [
-      newChat,
-      ...prev.map(chat => ({ ...chat, isActive: false }))
-    ]);
+    console.log('🆕 Sidebar: Iniciando novo chat');
+    onNewChat(); // Chamar função do pai para ativar modo welcome
   };
 
   const handleChatClick = (chatId: string) => {

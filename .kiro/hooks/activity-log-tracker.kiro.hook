@@ -1,0 +1,31 @@
+{
+  "enabled": true,
+  "name": "Activity Log Tracker",
+  "description": "Monitors all file changes in the project and automatically updates log_atividades.md with detailed reports of modifications, creations, and updates made to code and configuration files",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*",
+      "services/**/*",
+      "supabase/**/*",
+      "*.ts",
+      "*.tsx",
+      "*.js",
+      "*.jsx",
+      "*.json",
+      "*.md",
+      "*.css",
+      "*.html",
+      "vite.config.ts",
+      "tailwind.config.js",
+      "eslint.config.js",
+      "tsconfig.json",
+      "package.json"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file has been modified in the project. Generate a detailed and concise report about this modification and update the log_atividades.md file with:\n\n1. What files were modified/created/updated\n2. What specific changes were made\n3. The final status of each modification\n4. Date and time of the changes\n\nImportant: Only log actual code/file modifications, not conversation history. Only update log_atividades.md when there are effective changes to the project structure, code, or configuration files.\n\nFormat the log entry as:\n## [Date/Time] - [Type of Change]\n- **Files Modified**: [list of files]\n- **Changes Made**: [detailed description]\n- **Status**: [final status]\n- **Impact**: [brief impact description]"
+  }
+}
