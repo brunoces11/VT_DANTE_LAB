@@ -16,9 +16,11 @@ interface Chat {
 interface SidebarCollapseProps {
   chats: Chat[];
   setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
+  onChatClick: (sessionId: string) => void;
+  currentSessionId: string | null;
 }
 
-export default function SidebarCollapse({ chats, setChats }: SidebarCollapseProps) {
+export default function SidebarCollapse({ chats, setChats, onChatClick, currentSessionId }: SidebarCollapseProps) {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [editingChat, setEditingChat] = useState<string | null>(null);
@@ -48,6 +50,7 @@ export default function SidebarCollapse({ chats, setChats }: SidebarCollapseProp
       isActive: chat.id === chatId
     })));
     setActiveDropdown(null);
+    onChatClick(chatId); // Chamar função para carregar mensagens
   };
 
   const handleDropdownToggle = (chatId: string, e: React.MouseEvent) => {

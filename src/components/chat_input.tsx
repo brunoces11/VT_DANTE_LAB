@@ -7,7 +7,7 @@ interface Message {
   id: number;
   content: string;
   sender: 'user' | 'bot';
-  timestamp: Date;
+  timestamp: string;
   isLoading?: boolean;
   loadingText?: string;
 }

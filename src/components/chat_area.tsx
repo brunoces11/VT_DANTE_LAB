@@ -16,19 +16,13 @@ interface Message {
 }
 
 interface ChatAreaProps {
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function ChatArea() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      content: "# Olá! 👋\n\nComo posso ajudá-lo com questões de **Registro de Imóveis** hoje?\n\nEstou aqui para esclarecer dúvidas sobre:\n- Procedimentos registrais\n- Qualificação de títulos\n- Legislação vigente\n- Normas do CNJ",
-      sender: 'bot',
-      timestamp: getCurrentTimestampUTC(),
-    },
-  ]);
-
-  const [isLoading, setIsLoading] = useState(false);
+export default function ChatArea({ messages, setMessages, isLoading, setIsLoading }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll automático para o final quando novas mensagens são adicionadas
