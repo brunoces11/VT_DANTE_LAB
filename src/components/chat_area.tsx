@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { useRef, useEffect } from 'react';
 import ChatMsgHeader from '@/components/chat_msg_header';
 import ChatMsgList from '@/components/chat_msg_list';
-import ChatInput from '@/components/chat_input';
+import ChatMsgInput from '@/components/chat_msg_input';
+import ChatNeoMsg from '@/components/chat_neo_msg';
 import { getCurrentTimestampUTC } from '@/utils/timezone';
 
 interface Message {
@@ -16,19 +17,15 @@ interface Message {
 }
 
 interface ChatAreaProps {
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  isWelcomeMode: boolean;
+  onFirstMessage: (message: string) => void;
 }
 
-export default function ChatArea() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      content: "# Olá! 👋\n\nComo posso ajudá-lo com questões de **Registro de Imóveis** hoje?\n\nEstou aqui para esclarecer dúvidas sobre:\n- Procedimentos registrais\n- Qualificação de títulos\n- Legislação vigente\n- Normas do CNJ",
-      sender: 'bot',
-      timestamp: getCurrentTimestampUTC(),
-    },
-  ]);
-
-  const [isLoading, setIsLoading] = useState(false);
+export default function ChatArea({ messages, setMessages, isLoading, setIsLoading, isWelcomeMode, onFirstMessage }: ChatAreaProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll automático para o final quando novas mensagens são adicionadas
@@ -131,12 +128,22 @@ export default function ChatArea() {
     <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 60px)' }}>
       {/* Header do Chat */}
       <ChatMsgHeader />
+      
+      {/* Renderização Condicional: Welcome Mode ou Chat Mode */}
+      {isWelcomeMode ? (
+        <ChatNeoMsg 
+          onFirstMessage={onFirstMessage}
+          isLoading={isLoading}
+        />
+      ) : (
+        <>
+          {/* Messages */}
+          <ChatMsgList messages={messages} messagesEndRef={messagesEndRef} />
 
-      {/* Messages */}
-      <ChatMsgList messages={messages} messagesEndRef={messagesEndRef} />
-
-      {/* Input */}
-      <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          {/* Input */}
+          <ChatMsgInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+        </>
+      )}
     </div>
   );
 }

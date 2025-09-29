@@ -35,7 +35,7 @@ export default function Header() {
 
   const handleChatClick = () => {
     if (user) {
-      navigate('/chat-page');
+      navigate('/chat-page', { state: { startWelcome: true } });
     } else {
       setIsAuthModalOpen(true);
     }
@@ -47,7 +47,7 @@ export default function Header() {
 
   const handleAuthSuccess = () => {
     setIsAuthModalOpen(false);
-    navigate('/chat-page');
+    navigate('/chat-page', { state: { startWelcome: true } });
   };
 
   return (
@@ -91,6 +91,17 @@ export default function Header() {
                   }`}
                 >
                   Base Legal
+                </button>
+                <span className="text-amber-900">|</span>
+                <button
+                  onClick={() => navigate('/planos')}
+                  className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
+                    location.pathname === '/planos' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
+                >
+                  Planos
                 </button>
                 <span className="text-amber-900">|</span>
                 <button
@@ -221,6 +232,19 @@ export default function Header() {
                   }`}
                 >
                   Base Legal
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    navigate('/planos');
+                  }}
+                  className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
+                    location.pathname === '/planos' 
+                      ? 'text-orange-700' 
+                      : 'text-neutral-700 hover:text-neutral-900'
+                  }`}
+                >
+                  Planos
                 </button>
                 <button
                   onClick={() => {
