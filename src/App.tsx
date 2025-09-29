@@ -237,16 +237,13 @@ function App() {
             <Route path="/teste" element={<TestePage />} />
             <Route path="/payload-test" element={<PayloadTest />} />
           </Routes>
-          
           <ResetPasswordModal 
             isOpen={isResetPasswordModalOpen}
             onClose={() => setIsResetPasswordModalOpen(false)}
             onSuccess={() => {
-              // Opcional: redirecionar para login ou mostrar mensagem adicional
               console.log('Senha redefinida com sucesso');
             }}
           />
-          
           <EmailConfirmationModal 
             isOpen={isEmailConfirmationModalOpen}
             onClose={() => setIsEmailConfirmationModalOpen(false)}
@@ -256,7 +253,6 @@ function App() {
               setIsAuthModalOpen(true);
             }}
           />
-          
           <AuthModal 
             isOpen={isAuthModalOpen}
             onClose={() => setIsAuthModalOpen(false)}
@@ -264,8 +260,10 @@ function App() {
               console.log('Login realizado após confirmação de email');
             }}
           />
-          
-          {/* Debug: Mostrar estado atual dos modais */}
+          {/**
+           * Comentado: overlay de debug dos modais
+           */}
+          {/*
           {process.env.NODE_ENV === 'development' && (
             <div style={{ 
               position: 'fixed', 
@@ -282,6 +280,7 @@ function App() {
               Auth: {isAuthModalOpen ? '✅' : '❌'}
             </div>
           )}
+          */}
         </Router>
       </AuthProvider>
     </ErrorBoundary>

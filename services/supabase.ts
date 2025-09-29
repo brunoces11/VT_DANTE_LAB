@@ -2,11 +2,10 @@ import { supabase } from './supa_init';
 import { getCurrentTimestampUTC } from '@/utils/timezone';
 
 /**
- * Função para criar uma nova sessão de chat via Edge Function
- * Chama a edge function DT_LOGIN_NEW_SESSION que cria automaticamente
- * uma nova entrada na tabela tab_chat_session
+ * Função para carregar dados completos do usuário após login
+ * Chama a edge function load_user_data que retorna sessões de chat e mensagens
  */
-export async function FUN_DT_LOGIN_NEW_SESSION() {
+export async function fun_load_user_data() {
   try {
     // Obter a sessão atual do usuário
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -26,9 +25,9 @@ export async function FUN_DT_LOGIN_NEW_SESSION() {
       throw new Error('VITE_SUPABASE_URL não está definida no arquivo .env')
     }
     
-    const functionUrl = `${supabaseUrl}/functions/v1/DT_LOGIN_NEW_SESSION`
+    const functionUrl = `${supabaseUrl}/functions/v1/load_user_data`
     
-    console.log('🕐 Timestamp atual (UTC):', getCurrentTimestampUTC());
+    console.log('📊 Carregando dados do usuário...');
     
     // Fazer a requisição HTTP para a edge function
     const response = await fetch(functionUrl, {
@@ -46,23 +45,25 @@ export async function FUN_DT_LOGIN_NEW_SESSION() {
 
     const data = await response.json();
     
-    if (!data.success) {
-      throw new Error(`Erro retornado pela função: ${JSON.stringify(data)}`);
+    // Verificar se há erro na resposta
+    if (data.error) {
+      throw new Error(`Erro retornado pela função: ${data.error}`);
     }
 
     return {
       success: true,
-      session: data.session,
+      data: data,
       error: null
     };
 
   } catch (error) {
-    console.error('Erro em FUN_DT_LOGIN_NEW_SESSION:', error);
+    console.error('Erro em fun_load_user_data:', error);
     
     return {
       success: false,
-      session: null,
+      data: null,
       error: error instanceof Error ? error.message : 'Erro desconhecido'
     };
   }
 }
+
