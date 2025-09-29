@@ -95,14 +95,20 @@ export async function fun_single_session() {
     
     console.log('🔒 Invalidando outras sessões do usuário...');
     
-    // Fazer a requisição HTTP para a edge function
+    // Fazer a requisição HTTP para a edge function com timeout e error handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -124,6 +130,16 @@ export async function fun_single_session() {
 
   } catch (error) {
     console.error('Erro em fun_single_session:', error);
+    
+    // Se for erro de rede/timeout, não é crítico - apenas log
+    if (error.name === 'AbortError' || error.message === 'Failed to fetch') {
+      console.warn('⚠️ Timeout ou erro de rede na invalidação de sessões - continuando normalmente');
+      return {
+        success: false,
+        message: 'Timeout na invalidação de outras sessões',
+        error: 'Network timeout - não crítico'
+      };
+    }
     
     return {
       success: false,

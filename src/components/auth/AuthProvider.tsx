@@ -210,10 +210,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               if (result.success) {
                 console.log('✅ Outras sessões invalidadas:', result.message);
               } else {
-                console.warn('⚠️ Erro ao invalidar sessões:', result.error);
+                console.warn('⚠️ Erro ao invalidar sessões (não crítico):', result.error);
               }
             } else {
-              console.error('❌ Erro ao invalidar sessões:', singleSessionResult.reason);
+              console.warn('⚠️ Erro ao invalidar sessões (não crítico):', singleSessionResult.reason);
             }
           }
         }
@@ -258,10 +258,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (result.success) {
               console.log('✅ Outras sessões invalidadas:', result.message);
             } else {
-              console.warn('⚠️ Erro ao invalidar sessões:', result.error);
+              console.warn('⚠️ Erro ao invalidar sessões (não crítico):', result.error);
             }
           } else {
-            console.error('❌ Erro ao invalidar sessões:', singleSessionResult.reason);
+            console.warn('⚠️ Erro ao invalidar sessões (não crítico):', singleSessionResult.reason);
           }
         }
         
