@@ -14,19 +14,11 @@ interface Chat {
 }
 
 interface SidebarCollapseProps {
+  chats: Chat[];
+  setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
 }
 
-export default function SidebarCollapse() {
-  const [chats, setChats] = useState<Chat[]>([
-    {
-      id: '1',
-      title: 'Registro de Matrícula',
-      lastMessage: '',
-      timestamp: '19/Jan/25 - 14:30',
-      isEmpty: false,
-      isActive: true,
-    },
-  ]);
+export default function SidebarCollapse({ chats, setChats }: SidebarCollapseProps) {
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [editingChat, setEditingChat] = useState<string | null>(null);
