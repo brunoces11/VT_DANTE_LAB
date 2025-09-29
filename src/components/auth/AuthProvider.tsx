@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../../../services/supa_init';
-import { fun_load_user_data } from '../../../services/supabase';
+import { fun_load_user_data, fun_single_session } from '../../../services/supabase';
 
 // Interfaces para dados do chat
 interface ChatMessage {
@@ -188,10 +188,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(session?.user ?? null);
           setLoading(false);
           
-          // Se já há sessão válida, carregar dados do usuário
+          // Se já há sessão válida, carregar dados do usuário e invalidar outras sessões
           if (session?.user) {
-            console.log('🔄 Sessão existente encontrada, carregando dados...');
-            await loadUserDataWithFallback();
+            console.log('🔄 Sessão existente encontrada, executando ações automáticas...');
+            
+            // Executar ambas funções simultaneamente
+            const [userDataResult, singleSessionResult] = await Promise.allSettled([
+              loadUserDataWithFallback(),
+              fun_single_session()
+            ]);
+            
+            // Log dos resultados
+            if (userDataResult.status === 'fulfilled') {
+              console.log('✅ Dados do usuário processados');
+            } else {
+              console.error('❌ Erro ao carregar dados:', userDataResult.reason);
+            }
+            
+            if (singleSessionResult.status === 'fulfilled') {
+              const result = singleSessionResult.value;
+              if (result.success) {
+                console.log('✅ Outras sessões invalidadas:', result.message);
+              } else {
+                console.warn('⚠️ Erro ao invalidar sessões:', result.error);
+              }
+            } else {
+              console.error('❌ Erro ao invalidar sessões:', singleSessionResult.reason);
+            }
           }
         }
       } catch (error) {
@@ -213,10 +236,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Carregar dados do usuário automaticamente após login
+        // Carregar dados do usuário e invalidar outras sessões automaticamente após login
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('🔄 Usuário logado, carregando dados...');
-          await loadUserDataWithFallback();
+          console.log('🔄 Usuário logado, executando ações automáticas...');
+          
+          // Executar ambas funções simultaneamente
+          const [userDataResult, singleSessionResult] = await Promise.allSettled([
+            loadUserDataWithFallback(),
+            fun_single_session()
+          ]);
+          
+          // Log dos resultados
+          if (userDataResult.status === 'fulfilled') {
+            console.log('✅ Dados do usuário processados');
+          } else {
+            console.error('❌ Erro ao carregar dados:', userDataResult.reason);
+          }
+          
+          if (singleSessionResult.status === 'fulfilled') {
+            const result = singleSessionResult.value;
+            if (result.success) {
+              console.log('✅ Outras sessões invalidadas:', result.message);
+            } else {
+              console.warn('⚠️ Erro ao invalidar sessões:', result.error);
+            }
+          } else {
+            console.error('❌ Erro ao invalidar sessões:', singleSessionResult.reason);
+          }
         }
         
         // Limpar dados quando usuário faz logout
