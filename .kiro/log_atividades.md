@@ -146,3 +146,39 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Impact**: Botão "Iniciar Chat" do header agora sempre exibe a tela de welcome (ChatNeoMsg) independente de ter sessões existentes, comportamento idêntico ao ChatGPT
 
 **Última atualização:** 29/09/2025 - 16:15
+#
+## **📝 DOCUMENTAÇÃO (Item 18)**
+
+18. **Criação ComponentList** - Criado arquivo `componentlist.md` na raiz do projeto para documentação detalhada de componentes mediante solicitação, incluindo template padronizado e registros dos componentes `ChatNeoMsg` e `ChatMsgInput`.
+
+---
+
+## 30/09/2025 - 09:15 - Criação de Sistema de Documentação de Componentes
+- **Files Modified**: `componentlist.md` (novo arquivo)
+- **Changes Made**: Criado arquivo de documentação na raiz do projeto com:
+  - Template estruturado para registro de componentes
+  - Instruções claras sobre formato de documentação (nome, funções, localização, uso, variáveis de ambiente)
+  - Primeiro registro documentado: componente `ChatNeoMsg`
+  - Detalhamento completo das funcionalidades do ChatNeoMsg (interface welcome, 4 cards de sugestões, botão "Iniciar Conversa", validação de input)
+  - Especificação de localização (arquivo isolado) e integração (ChatArea com renderização condicional)
+- **Status**: ✅ Arquivo criado com sucesso e estrutura de documentação estabelecida
+- **Impact**: Sistema de documentação implementado para facilitar manutenção e compreensão dos componentes do projeto, começando com o componente de welcome screen
+
+**Última atualização:** 30/09/2025 - 09:15
+### **
+🔧 INTEGRAÇÃO LANGFLOW (Item 19)**
+
+19. **Configuração Langflow** - Adicionadas variáveis de ambiente `VITE_LANGFLOW_FLOW_ID` e `VITE_LANGFLOW_URL` no `.env`, criado arquivo `services/langflow.ts` (estrutura inicial), modificado `PayloadTest.tsx` com campos pré-preenchidos para teste imediato sem necessidade de input manual.
+
+---
+
+## 30/09/2025 - 09:30 - Criação de Arquivo de Integração Langflow
+- **Files Modified**: `services/langflow.ts` (novo arquivo)
+- **Changes Made**: Criado arquivo dedicado para integração com Langflow API contendo:
+  - Comentário inicial identificando o propósito do arquivo
+  - Estrutura preparada para agrupar todas as funções de chamadas API para o agente de IA (Langflow)
+  - Arquivo vazio pronto para implementação das funções de integração
+- **Status**: ✅ Arquivo criado com sucesso - estrutura inicial estabelecida
+- **Impact**: Organização do código seguindo padrão do projeto - arquivo específico para concentrar todas as funções relacionadas ao Langflow, similar ao `services/supabase.ts` para Edge Functions
+
+**Última atualização:** 30/09/2025 - 09:30
