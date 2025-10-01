@@ -108,13 +108,13 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Files Modified**: 
   - `src/pages/ChatPage.tsx` - Adicionado estado `isWelcomeMode`, função `fun_create_chat_session()`, função `handleFirstMessage()`, integração com header via location.state, modificação de props para componentes filhos
   - `src/components/sidebar_collapse.tsx` - Adicionada prop `onNewChat`, modificação da função `handleNewChat()` para comunicar com ChatPage
-  - `src/components/chat_area.tsx` - Adicionadas props `isWelcomeMode` e `onFirstMessage`, implementada renderização condicional entre `ChatNeoMsg` e `ChatMsgList`+`ChatMsgInput`
+  - `src/components/chat_area.tsx` - Adicionadas props `isWelcomeMode` e `onFirstMessage`, implementada renderização condicional entre `ChatNeoMsg` e `ChatMsgList`+`ChatInputMsg`
   - `src/components/header.tsx` - Modificadas funções `handleChatClick()` e `handleAuthSuccess()` para passar `startWelcome: true` via navigation state
 - **Files Created**:
   - `src/components/chat_neo_msg.tsx` - Componente de welcome screen com título, sugestões interativas e input centralizado
-  - `src/components/chat_msg_input.tsx` - Renomeação do chat_input.tsx para melhor organização e nomenclatura
+  - `src/components/chat_input_msg.tsx` - Renomeação do chat_input.tsx para melhor organização e nomenclatura
 - **Files Deleted**:
-  - `src/components/chat_input.tsx` - Removido após renomeação para chat_msg_input.tsx
+  - `src/components/chat_input.tsx` - Removido após renomeação para chat_input_msg.tsx
 - **Changes Made**: 
   - Sistema completo de modo welcome implementado seguindo padrão ChatGPT
   - Fluxo: Novo Chat (sidebar) → Welcome Screen → Primeira mensagem → Conversa normal
@@ -124,7 +124,7 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
   - Comunicação entre componentes via props e callbacks
   - Integração com localStorage para persistência de sessões
   - Transição suave entre modos welcome e conversa
-  - Nomenclatura diferenciada: `ChatMsgInput` (conversas existentes) vs `ChatNeoMsg` (nova sessão)
+  - Nomenclatura diferenciada: `ChatInputMsg` (conversas existentes) vs `ChatNeoMsg` (nova sessão)
 - **Status**: ✅ Implementação 100% completa e funcional
 - **Impact**: Sistema agora replica exatamente o comportamento do ChatGPT - tela welcome para novos chats, interface de conversa para chats existentes, transição automática após primeira mensagem, integração completa com sidebar e header
 
@@ -149,7 +149,7 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 #
 ## **📝 DOCUMENTAÇÃO (Item 18)**
 
-18. **Criação ComponentList** - Criado arquivo `componentlist.md` na raiz do projeto para documentação detalhada de componentes mediante solicitação, incluindo template padronizado e registros dos componentes `ChatNeoMsg` e `ChatMsgInput`.
+18. **Criação ComponentList** - Criado arquivo `componentlist.md` na raiz do projeto para documentação detalhada de componentes mediante solicitação, incluindo template padronizado e registros dos componentes `ChatNeoMsg` e `ChatInputMsg`.
 
 ---
 
@@ -253,6 +253,36 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Impact**: Melhoria significativa na confiabilidade do fluxo "Iniciar Chat" do header, garantindo que sempre force modo welcome independente do estado atual, eliminando condições conflitantes e simplificando a lógica de inicialização
 
 **Última atualização:** 01/10/2025 - 18:30
+
+## 01/10/2025 - 18:45 - Reformatação de Código da Edge Function ef_renomear_chat
+- **Files Modified**: `supabase/functions/ef_renomear_chat/index.ts`
+- **Changes Made**: Reformatação completa da indentação do código da Edge Function de renomeação de chat:
+  - **Padronização de Indentação**: Alterada indentação de 2 espaços para 4 espaços em todo o arquivo (183 linhas)
+  - **Consistência de Formatação**: Aplicada formatação uniforme em todas as estruturas (interfaces, funções, condicionais, try/catch)
+  - **Melhoria de Legibilidade**: Código mais legível e consistente com padrões de formatação TypeScript
+  - **Sem Alteração Funcional**: Nenhuma mudança na lógica, apenas formatação visual
+  - **Estruturas Reformatadas**: Interface `ChatRenameRequest`, função principal `Deno.serve()`, headers CORS, validações, operações SQL, error handling
+- **Status**: ✅ Reformatação aplicada com sucesso - código mais legível e padronizado
+- **Impact**: Melhoria na manutenibilidade do código da Edge Function sem alteração funcional, seguindo melhores práticas de formatação TypeScript/Deno
+
+## 01/10/2025 - 19:00 - Recriação do Componente ChatInputMsg
+- **Files Modified**: `src/components/chat_input_msg.tsx` (arquivo recriado)
+- **Changes Made**: Recriação completa do componente ChatInputMsg (69 linhas) com implementação atualizada:
+  - **Interface Message**: Tipagem completa para mensagens com propriedades `id`, `content`, `sender`, `timestamp`, `isLoading`, `loadingText`
+  - **Interface ChatInputMsgProps**: Props tipadas com `onSendMessage` callback e `isLoading` boolean
+  - **Estado Local**: Controle do valor do input com `useState`
+  - **Função handleSendMessage**: Validação de input, chamada do callback e limpeza do campo
+  - **Função handleKeyPress**: Tratamento de tecla Enter para envio (sem Shift)
+  - **Layout Responsivo**: Container centralizado com largura máxima de 950px
+  - **Input Estilizado**: Campo com placeholder específico, bordas neutras e foco laranja
+  - **Botão Enviar**: Posicionamento absoluto, estados de loading com spinner, ícone Send
+  - **Estados Visuais**: Desabilitação durante loading, spinner animado, texto dinâmico
+  - **Disclaimer**: Aviso sobre verificação de informações da IA
+  - **Styling Completo**: Classes Tailwind para layout, cores, espaçamentos e responsividade
+- **Status**: ✅ Componente recriado com sucesso - implementação completa e funcional
+- **Impact**: Restauração do componente de input para conversas existentes com todas as funcionalidades necessárias (validação, loading states, eventos de teclado, styling responsivo), garantindo continuidade do sistema de chat
+
+**Última atualização:** 01/10/2025 - 19:00
 
 ## 01/10/2025 - 18:30 - Sincronização de Títulos Renomeados com localStorage
 - **Files Modified**: `src/components/sidebar_collapse.tsx`

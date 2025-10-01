@@ -21,8 +21,8 @@ Este arquivo registra componentes do projeto mediante solicitação específica.
 **Variáveis de ambiente:** Nenhuma  
 **Componentes internos:** `Button` (ui/button), `Input` (ui/input), ícones `Send` e `Loader2` (lucide-react)
 
-### ChatMsgInput
-**Arquivo:** `src/components/chat_msg_input.tsx`  
+### ChatInputMsg
+**Arquivo:** `src/components/chat_input_msg.tsx`  
 **Funções:** Input de mensagens para conversas existentes, botão "Enviar" com ícone Send, validação de input, eventos (Enter/click), loading state com spinner, disclaimer sobre IA  
 **Localização:** Arquivo isolado  
 **Usado em:** `ChatArea` (renderização condicional quando `isWelcomeMode=false`)  

@@ -2,7 +2,7 @@ import React from 'react';
 import { useRef, useEffect } from 'react';
 import ChatMsgHeader from '@/components/chat_msg_header';
 import ChatMsgList from '@/components/chat_msg_list';
-import ChatMsgInput from '@/components/chat_msg_input';
+import ChatInputMsg from '@/components/chat_input_msg';
 import ChatNeoMsg from '@/components/chat_neo_msg';
 import { getCurrentTimestampUTC } from '@/utils/timezone';
 import { fun_save_chat_data } from '../../services/supabase';
@@ -273,7 +273,7 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
           <ChatMsgList messages={messages} messagesEndRef={messagesEndRef} />
 
           {/* Input */}
-          <ChatMsgInput onSendMessage={handleSendMessage} isLoading={isLoading} />
+          <ChatInputMsg onSendMessage={handleSendMessage} isLoading={isLoading} />
         </>
       )}
     </div>
