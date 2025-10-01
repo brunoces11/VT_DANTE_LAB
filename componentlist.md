@@ -21,13 +21,21 @@ Este arquivo registra componentes do projeto mediante solicitação específica.
 **Variáveis de ambiente:** Nenhuma  
 **Componentes internos:** `Button` (ui/button), `Input` (ui/input), ícones `Send` e `Loader2` (lucide-react)
 
-### ChatMsgInput
-**Arquivo:** `src/components/chat_msg_input.tsx`  
+### ChatInputMsg
+**Arquivo:** `src/components/chat_input_msg.tsx`  
 **Funções:** Input de mensagens para conversas existentes, botão "Enviar" com ícone Send, validação de input, eventos (Enter/click), loading state com spinner, disclaimer sobre IA  
 **Localização:** Arquivo isolado  
 **Usado em:** `ChatArea` (renderização condicional quando `isWelcomeMode=false`)  
 **Variáveis de ambiente:** Nenhuma  
 **Componentes internos:** `Button` (ui/button), `Input` (ui/input), ícones `Send` e `Loader2` (lucide-react)
+
+### Chat Session Card
+**Arquivo:** Embutido em `src/components/sidebar_collapse.tsx` (linhas 120-200 aproximadamente)  
+**Funções:** Exibe card de sessão de chat com título, timestamp, indicador de ativo, menu dropdown (renomear/excluir), click handler para navegação entre sessões  
+**Localização:** Componente embutido (não isolado)  
+**Usado em:** `SidebarCollapse` (mapeado via `chats.map()`)  
+**Variáveis de ambiente:** Nenhuma  
+**Componentes internos:** `Button` (ui/button), `DropdownMenu` (ui/dropdown-menu), ícones `MoreVertical`, `Edit2`, `Trash2` (lucide-react)
 
 ---
 

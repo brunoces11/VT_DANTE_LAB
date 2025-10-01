@@ -3,6 +3,8 @@ import { ScrollText, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } 
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
+import { fun_renomear_chat } from '../../services/supabase';
+import { useAuth } from './auth/AuthProvider';
 
 interface Chat {
   id: string;
@@ -22,11 +24,36 @@ interface SidebarCollapseProps {
 }
 
 export default function SidebarCollapse({ chats, setChats, onChatClick, onNewChat, currentSessionId }: SidebarCollapseProps) {
-
+  const { user } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [editingChat, setEditingChat] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+
+  // Função para atualizar título no user_chat_data (localStorage)
+  const updateUserChatDataTitle = (sessionId: string, newTitle: string) => {
+    try {
+      const userChatData = localStorage.getItem('user_chat_data');
+      if (!userChatData) return;
+      
+      const parsedData = JSON.parse(userChatData);
+      if (!parsedData.chat_sessions || !Array.isArray(parsedData.chat_sessions)) return;
+      
+      // Encontrar e atualizar a sessão específica
+      const sessionIndex = parsedData.chat_sessions.findIndex(
+        (session: any) => session.chat_session_id === sessionId
+      );
+      
+      if (sessionIndex !== -1) {
+        parsedData.chat_sessions[sessionIndex].chat_session_title = newTitle;
+        localStorage.setItem('user_chat_data', JSON.stringify(parsedData));
+        console.log(`💾 user_chat_data atualizado: ${sessionId.slice(0, 6)} → "${newTitle}"`);
+      }
+    } catch (error) {
+      console.warn('⚠️ Erro ao atualizar user_chat_data:', error);
+    }
+  };
 
   const handleNewChat = () => {
     console.log('🆕 Sidebar: Iniciando novo chat');
@@ -53,16 +80,47 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
     setActiveDropdown(null);
   };
 
-  const handleSaveRename = (chatId: string) => {
-    if (editTitle.trim()) {
-      setChats(prev => prev.map(chat => 
-        chat.id === chatId 
-          ? { ...chat, title: editTitle.trim() }
-          : chat
-      ));
+  const handleSaveRename = async (chatId: string) => {
+    if (!editTitle.trim() || !user?.id) {
+      setEditingChat(null);
+      setEditTitle('');
+      return;
     }
-    setEditingChat(null);
-    setEditTitle('');
+
+    setIsRenaming(true);
+    
+    try {
+      // Chamar API para renomear no banco
+      const result = await fun_renomear_chat({
+        chat_session_id: chatId,
+        new_title: editTitle.trim(),
+        user_id: user.id
+      });
+
+      if (result.success) {
+        // Atualizar estado local apenas se API foi bem-sucedida
+        setChats(prev => prev.map(chat => 
+          chat.id === chatId 
+            ? { ...chat, title: editTitle.trim() }
+            : chat
+        ));
+        
+        // 🚀 SINCRONIZAR COM user_chat_data (localStorage)
+        updateUserChatDataTitle(chatId, editTitle.trim());
+        
+        console.log(`✅ Chat ${chatId.slice(0, 6)} renomeado para: "${editTitle.trim()}"`);
+      } else {
+        console.warn('⚠️ Falha ao renomear:', result.error);
+        // Manter título original em caso de erro
+      }
+    } catch (error) {
+      console.error('❌ Erro ao renomear chat:', error);
+      // Manter título original em caso de erro
+    } finally {
+      setIsRenaming(false);
+      setEditingChat(null);
+      setEditTitle('');
+    }
   };
 
   const handleCancelRename = () => {
@@ -193,9 +251,15 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                             onChange={(e) => setEditTitle(e.target.value)}
                             onBlur={() => handleSaveRename(chat.id)}
                             onKeyPress={(e) => handleKeyPress(e, chat.id)}
-                            className="w-full text-sm font-medium bg-white border border-orange-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                            className={`w-full text-sm font-medium border rounded px-2 py-1 focus:outline-none focus:ring-2 ${
+                              isRenaming 
+                                ? 'bg-gray-100 border-gray-300 cursor-wait' 
+                                : 'bg-white border-orange-300 focus:ring-orange-500'
+                            }`}
+                            disabled={isRenaming}
                             autoFocus
                             onClick={(e) => e.stopPropagation()}
+                            placeholder={isRenaming ? 'Salvando...' : ''}
                           />
                         ) : (
                           <p className={`text-sm font-medium truncate ${

@@ -190,7 +190,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           
           // Se já há sessão válida, carregar dados do usuário e invalidar outras sessões
           if (session?.user) {
-            console.log('🔄 Sessão existente encontrada, executando ações automáticas...');
+            // Sessão existente - executando ações automáticas
             
             // Executar ambas funções simultaneamente
             const [userDataResult, singleSessionResult] = await Promise.allSettled([
@@ -238,7 +238,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Carregar dados do usuário e invalidar outras sessões automaticamente após login
         if (event === 'SIGNED_IN' && session?.user) {
-          console.log('🔄 Usuário logado, executando ações automáticas...');
+          // Usuário logado - executando ações automáticas
           
           // Executar ambas funções simultaneamente
           const [userDataResult, singleSessionResult] = await Promise.allSettled([
@@ -267,9 +267,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Limpar dados quando usuário faz logout
         if (event === 'SIGNED_OUT') {
-          console.log('👋 Usuário deslogado, limpando dados...');
+          console.log('👋 Listener: Usuário deslogado, limpando dados...');
           setChatData(null);
           invalidateUserDataCache();
+          setLoading(false); // Garantir que loading seja false após logout
+          console.log('✅ Listener: Limpeza concluída');
         }
       }
     });
@@ -303,15 +305,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
-      setLoading(true);
+      console.log('🚪 AuthProvider: Iniciando logout...');
       // Limpar dados antes do logout
       setChatData(null);
       invalidateUserDataCache();
+      console.log('🧹 AuthProvider: Dados limpos, chamando signOut...');
       await supabase.auth.signOut();
+      console.log('✅ AuthProvider: SignOut concluído');
+      // Não definir loading como false aqui - deixar o auth listener cuidar disso
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setLoading(false);
+      console.error('❌ AuthProvider: Logout error:', error);
+      setLoading(false); // Só definir false em caso de erro
     }
   };
 

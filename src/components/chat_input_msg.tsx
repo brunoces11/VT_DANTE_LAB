@@ -12,12 +12,12 @@ interface Message {
   loadingText?: string;
 }
 
-interface ChatMsgInputProps {
+interface ChatInputMsgProps {
   onSendMessage: (message: string) => void;
   isLoading: boolean;
 }
 
-export default function ChatMsgInput({ onSendMessage, isLoading }: ChatMsgInputProps) {
+export default function ChatInputMsg({ onSendMessage, isLoading }: ChatInputMsgProps) {
   const [inputValue, setInputValue] = useState('');
 
   const handleSendMessage = () => {
