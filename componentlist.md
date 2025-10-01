@@ -32,8 +32,7 @@ Este arquivo registra componentes do projeto mediante solicitação específica.
 ### Chat Session Card
 **Arquivo:** Embutido em `src/components/sidebar_collapse.tsx` (linhas 120-200 aproximadamente)  
 **Funções:** Exibe card de sessão de chat com título, timestamp, indicador de ativo, menu dropdown (renomear/excluir), click handler para navegação entre sessões  
-**Localização:** Componente embut
-ido (não isolado)  
+**Localização:** Componente embutido (não isolado)  
 **Usado em:** `SidebarCollapse` (mapeado via `chats.map()`)  
 **Variáveis de ambiente:** Nenhuma  
 **Componentes internos:** `Button` (ui/button), `DropdownMenu` (ui/dropdown-menu), ícones `MoreVertical`, `Edit2`, `Trash2` (lucide-react)

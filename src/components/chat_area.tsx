@@ -1,11 +1,48 @@
 import React from 'react';
-import { useState } from 'react';
 import { useRef, useEffect } from 'react';
 import ChatMsgHeader from '@/components/chat_msg_header';
 import ChatMsgList from '@/components/chat_msg_list';
 import ChatMsgInput from '@/components/chat_msg_input';
 import ChatNeoMsg from '@/components/chat_neo_msg';
 import { getCurrentTimestampUTC } from '@/utils/timezone';
+import { fun_save_chat_data } from '../../services/supabase';
+import { useAuth } from '@/components/auth/AuthProvider';
+
+// 🚀 FUNÇÃO PARA SALVAMENTO EM BACKGROUND (NON-BLOCKING)
+const saveInBackground = (data: any) => {
+  Promise.resolve().then(async () => {
+    try {
+      if (data.backup) {
+        console.log('🧹 Cache limpo');
+        const { clearSessionCache } = await import('../../services/supabase');
+        clearSessionCache();
+      }
+      
+      console.log(`💾 Salvando msg: ${data.msg_input.slice(0, 20)}...`);
+      const result = await fun_save_chat_data(data);
+      
+      if (result.success) {
+        console.log('✅ Msg salva');
+      } else {
+        console.warn('⚠️ Falha msg:', result.error);
+        
+        if (!data.retry) {
+          console.log('🔄 Retry...');
+          const { clearSessionCache } = await import('../../services/supabase');
+          clearSessionCache();
+          setTimeout(() => saveInBackground({...data, retry: true}), 1000);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Erro msg:', error.message);
+      
+      if (!data.lastTry) {
+        console.log('🆘 Última tentativa...');
+        setTimeout(() => saveInBackground({...data, lastTry: true}), 3000);
+      }
+    }
+  });
+};
 
 interface Message {
   id: number;
@@ -23,9 +60,31 @@ interface ChatAreaProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   isWelcomeMode: boolean;
   onFirstMessage: (message: string) => void;
+  currentSessionId: string | null;
 }
 
-export default function ChatArea({ messages, setMessages, isLoading, setIsLoading, isWelcomeMode, onFirstMessage }: ChatAreaProps) {
+// 🚀 FUNÇÃO PARA PERSISTIR NO LOCALSTORAGE
+const persistChatData = (sessionId: string, messages: Message[]) => {
+  try {
+    const STORAGE_KEY = 'dante_chat_data';
+    const existingData = localStorage.getItem(STORAGE_KEY);
+    
+    if (existingData) {
+      const parsedData = JSON.parse(existingData);
+      parsedData.messages = messages;
+      parsedData.currentSessionId = sessionId;
+      parsedData.timestamp = Date.now();
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
+      console.log('💾 Mensagens persistidas no localStorage (ChatArea)');
+    }
+  } catch (error) {
+    console.warn('⚠️ Erro ao persistir no localStorage (ChatArea):', error);
+  }
+};
+
+export default function ChatArea({ messages, setMessages, isLoading, setIsLoading, isWelcomeMode, onFirstMessage, currentSessionId }: ChatAreaProps) {
+  const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll automático para o final quando novas mensagens são adicionadas
@@ -38,7 +97,7 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
   }, [messages]);
 
   const handleSendMessage = async (inputValue: string) => {
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || isLoading || !currentSessionId || !user?.id) return;
 
     // Adicionar mensagem do usuário
     const userMessage: Message = {
@@ -48,79 +107,148 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
       timestamp: getCurrentTimestampUTC(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => {
+      const newMessages = [...prev, userMessage];
+      
+      // Persistência automática via ChatPage
+      
+      return newMessages;
+    });
     setIsLoading(true);
     
     // Scroll imediato após enviar mensagem do usuário
     setTimeout(scrollToBottom, 100);
 
-    // Iniciar sequência de loading
+    // Iniciar loading simples
     const loadingMessage: Message = {
       id: Date.now() + 1,
       content: '',
       sender: 'bot',
       timestamp: getCurrentTimestampUTC(),
       isLoading: true,
-      loadingText: 'Consultando Base Legal vigente...',
+      loadingText: 'O Dante está processando sua resposta...',
     };
 
     setMessages(prev => [...prev, loadingMessage]);
-
-    // Scroll para mostrar mensagem de loading
     setTimeout(scrollToBottom, 200);
 
-    // Sequência de loading com tempos específicos
-    const loadingSequence = [
-      { text: 'Consultando Base Legal vigente...', delay: 1500 },
-      { text: 'Acessando Leis Federais...', delay: 1000 },
-      { text: 'Acessando Leis Estaduais...', delay: 700 },
-      { text: 'Acessando Documentos normativos:', delay: 800 },
-      { text: 'Provimentos, Codigo de Normas...', delay: 500 },
-      { text: 'Consolidando fundamentos jurídicos...', delay: 600 },
-      { text: 'O Dante está processando sua resposta, por favor aguarde...', delay: 0 }
-    ];
+    // Processar com Langflow real (sem simulação)
+    try {
+      console.log('🚀 Enviando mensagem para Langflow (chat existente)...');
 
-    let currentDelay = 0;
-    loadingSequence.forEach((step, index) => {
-      currentDelay += step.delay;
-      setTimeout(() => {
-        setMessages(prev => prev.map(msg => 
-          msg.isLoading ? { ...msg, loadingText: step.text } : msg
-        ));
-      }, currentDelay);
-    });
+      // Obter variáveis de ambiente
+      const langflowUrl = import.meta.env.VITE_LANGFLOW_URL;
+      const langflowFlowId = import.meta.env.VITE_LANGFLOW_FLOW_ID;
 
-    // Simular resposta da IA após a sequência completa + tempo adicional
-    const totalLoadingTime = loadingSequence.reduce((sum, step) => sum + step.delay, 0);
-    setTimeout(() => {
-      const responses = [
-        "## Análise Legal - Lei 6.015/73\n\nCom base na **legislação vigente**, especificamente na **Lei 6.015/73** (Lei de Registros Públicos), posso orientá-lo sobre esse procedimento.\n\n### Para essa situação específica, é necessário verificar:\n\n#### 📋 Documentação Exigida\n- Título hábil para registro\n- Certidões atualizadas\n- Comprovantes fiscais\n\n#### ⏰ Prazos Legais\n- Prazo de apresentação\n- Validade das certidões\n- Prazos processuais\n\n#### 💰 Tributos Incidentes\n- ITBI quitado\n- Emolumentos devidos\n- Taxas cartoriais\n\n#### ✅ Qualificação Registral\n- Análise da cadeia dominial\n- Verificação de vícios\n- Conformidade legal\n\n> **Pergunta**: Poderia fornecer mais detalhes sobre o caso específico?",
-        
-        "# Procedimento Registral - Art. 167 da Lei 6.015/73\n\nSegundo o **artigo 167** da Lei 6.015/73 e as **normas do CNJ**, esse procedimento requer atenção especial aos seguintes aspectos:\n\n## 🔍 Aspectos Fundamentais\n\n### 1. Análise da Cadeia Dominial\n- Verificação de **continuidade registral**\n- Conferência de **titularidade**\n- Análise de **vícios anteriores**\n\n### 2. Verificação de Ônus e Gravames\n- **Hipotecas** existentes\n- **Penhoras** judiciais\n- **Usufrutos** e servidões\n\n### 3. Conferência da Documentação\n- **Autenticidade** dos documentos\n- **Validade** das certidões\n- **Completude** da instrução\n\n### 4. Cálculo de Emolumentos\n- Tabela oficial vigente\n- Valores corretos\n- Recolhimentos devidos\n\n> ⚖️ **Importante**: A qualificação registral deve ser **rigorosa** para garantir a **segurança jurídica** do ato.",
-        
-        "## 📚 Legislação de Registro de Imóveis\n\nDe acordo com a **legislação de Registro de Imóveis**, essa questão envolve procedimentos específicos que devem ser observados:\n\n### 📖 Fontes Normativas\n\n#### Base Legal Principal\n- **Lei 6.015/73** - Lei de Registros Públicos\n- **Código Civil** - Arts. 1.245 a 1.247\n- **Lei 8.935/94** - Lei dos Cartórios\n\n#### Normas Complementares\n- **CNJ** - Provimentos e Resoluções\n- **Corregedorias Estaduais**\n- **ANOREG** - Orientações técnicas\n\n#### Jurisprudência Consolidada\n- **STJ** - Superior Tribunal de Justiça\n- **Tribunais Estaduais**\n- **Enunciados** do CJF\n\n---\n\n### 🎯 Análise Individualizada\n\n> Cada caso possui **particularidades** que devem ser analisadas individualmente.\n\n**Precisa de orientação sobre algum aspecto específico?**\n\n*Estou aqui para ajudar com questões detalhadas sobre seu caso.*",
-        
-        "# ⚖️ Princípios do Registro de Imóveis\n\nPara essa questão registral, é **fundamental** observar os princípios do Registro de Imóveis:\n\n## 🏛️ Princípios Fundamentais\n\n### 1. 📋 Princípio da Legalidade\n- Todos os atos devem estar em **conformidade com a lei**\n- Observância rigorosa da legislação\n- Vedação a atos contrários ao ordenamento\n\n### 2. 🔗 Princípio da Continuidade\n- **Manutenção da cadeia dominial**\n- Sequência lógica de transmissões\n- Impossibilidade de \"saltos\" registrais\n\n### 3. 🎯 Princípio da Especialidade\n- **Identificação precisa do imóvel**\n- Descrição detalhada e inequívoca\n- Confrontações e características\n\n### 4. 🛡️ Princípio da Publicidade\n- **Acesso público** aos registros\n- Transparência dos atos\n- Oponibilidade erga omnes\n\n### 5. ✅ Princípio da Presunção de Veracidade\n- **Fé pública** registral\n- Presunção juris tantum\n- Proteção ao terceiro de boa-fé\n\n---\n\n> ⚠️ **Atenção**: A análise deve ser **criteriosa** para evitar vícios que possam comprometer o registro.\n\n*A segurança jurídica depende da observância rigorosa destes princípios.*"
-      ];
+      if (!langflowUrl || !langflowFlowId) {
+        throw new Error('Variáveis de ambiente do Langflow não configuradas');
+      }
 
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      // Criar payload para Langflow
+      const payload = {
+        "input_value": inputValue,
+        "output_type": "chat",
+        "input_type": "chat",
+        "session_id": currentSessionId
+      };
+
+      // Construir URL completa
+      const fullUrl = langflowUrl.endsWith('/') 
+        ? `${langflowUrl}api/v1/run/${langflowFlowId}` 
+        : `${langflowUrl}/api/v1/run/${langflowFlowId}`;
+
+      console.log('📡 Fazendo requisição para Langflow:', fullUrl);
+
+      // Fazer requisição para Langflow
+      const response = await fetch(fullUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro na requisição Langflow: ${response.status} - ${response.statusText}`);
+      }
+
+      // Obter resposta do Langflow
+      const responseData = await response.json();
+      console.log('📥 Resposta bruta do Langflow:', responseData);
+
+      // Tratar resposta do Langflow
+      let treatedResponse = '';
       
-      // Remover mensagem de loading e adicionar resposta real
+      if (responseData.outputs && responseData.outputs[0] && responseData.outputs[0].outputs && responseData.outputs[0].outputs[0]) {
+        const output = responseData.outputs[0].outputs[0];
+        
+        if (output.outputs && output.outputs.message && output.outputs.message.message) {
+          treatedResponse = output.outputs.message.message;
+        } else if (output.artifacts && output.artifacts.message) {
+          treatedResponse = output.artifacts.message;
+        } else if (output.results && output.results.message && output.results.message.text) {
+          treatedResponse = output.results.message.text;
+        } else if (output.messages && output.messages[0] && output.messages[0].message) {
+          treatedResponse = output.messages[0].message;
+        } else {
+          treatedResponse = 'Resposta do Langflow recebida, mas estrutura não reconhecida.';
+        }
+      } else if (responseData.result) {
+        treatedResponse = responseData.result;
+      } else if (responseData.message) {
+        treatedResponse = responseData.message;
+      } else {
+        treatedResponse = 'Resposta do Langflow recebida, mas formato não reconhecido.';
+      }
+
+      console.log('✅ Resposta tratada do Langflow:', treatedResponse);
+
+      // Remover loading e adicionar resposta real do Langflow
+      setMessages(prev => {
+        const withoutLoading = prev.filter(msg => !msg.isLoading);
+        const newMessages = [...withoutLoading, {
+          id: Date.now() + 2,
+          content: treatedResponse,
+          sender: 'bot',
+          timestamp: getCurrentTimestampUTC(),
+        }];
+        
+        // Persistência automática via ChatPage
+        
+        return newMessages;
+      });
+
+      // 🚀 SALVAMENTO NON-BLOCKING (BACKGROUND)
+      const saveData = {
+        chat_session_id: currentSessionId,
+        chat_session_title: 'Conversa existente',
+        msg_input: inputValue,
+        msg_output: treatedResponse,
+        user_id: user.id
+      };
+      
+      saveInBackground(saveData);
+      
+      // Backup após 2s
+      setTimeout(() => saveInBackground({...saveData, backup: true}), 2000);
+
+    } catch (error) {
+      console.error('❌ Erro no Langflow:', error);
+      
+      // Fallback: usar resposta de erro amigável
       setMessages(prev => {
         const withoutLoading = prev.filter(msg => !msg.isLoading);
         return [...withoutLoading, {
           id: Date.now() + 2,
-          content: randomResponse,
+          content: '## ⚠️ Erro Temporário\n\nDesculpe, ocorreu um erro ao processar sua mensagem. Nosso sistema está temporariamente indisponível.\n\n**Tente novamente em alguns instantes.**\n\nSe o problema persistir, entre em contato com o suporte.',
           sender: 'bot',
           timestamp: getCurrentTimestampUTC(),
         }];
       });
-      
+    } finally {
       setIsLoading(false);
-      
-      // Scroll para mostrar a resposta completa
       setTimeout(scrollToBottom, 300);
-    }, totalLoadingTime + Math.random() * 1000 + 1500); // Tempo da sequência + 1.5-2.5s adicional
+    }
   };
 
 

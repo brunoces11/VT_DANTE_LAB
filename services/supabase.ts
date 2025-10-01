@@ -153,6 +153,18 @@ export async function fun_single_session() {
  * Função para salvar dados de chat (sessão + mensagem) no banco de dados
  * Chama a edge function ef_save_chat que executa SQL única com CTE + ON CONFLICT
  */
+// Cache de sessão para evitar múltiplas chamadas
+let cachedSession: any = null;
+let sessionCacheTime = 0;
+const SESSION_CACHE_DURATION = 30000; // 30 segundos
+
+// Função para limpar cache de sessão
+export function clearSessionCache() {
+  console.log('🧹 Cache de sessão limpo');
+  cachedSession = null;
+  sessionCacheTime = 0;
+}
+
 export async function fun_save_chat_data(params: {
   chat_session_id: string;
   chat_session_title: string;
@@ -160,34 +172,61 @@ export async function fun_save_chat_data(params: {
   msg_output: string;
   user_id: string;
 }) {
+  const sessionId = params.chat_session_id.slice(-8);
+  console.log(`🚀 Salvando ${sessionId}...`);
+  
   try {
-    // Obter a sessão atual do usuário
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    let session = null;
+    let sessionError = null;
+    
+    const now = Date.now();
+    if (cachedSession && (now - sessionCacheTime) < SESSION_CACHE_DURATION) {
+      session = cachedSession;
+    } else {
+      const sessionPromise = supabase.auth.getSession();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout sessão')), 3000)
+      );
+      
+      try {
+        const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        session = result.data?.session;
+        sessionError = result.error;
+        
+        if (session) {
+          cachedSession = session;
+          sessionCacheTime = now;
+        }
+      } catch (timeoutError) {
+        if (cachedSession) {
+          session = cachedSession;
+        } else {
+          throw timeoutError;
+        }
+      }
+    }
     
     if (sessionError) {
-      throw new Error(`Erro ao obter sessão: ${sessionError.message}`);
+      throw new Error(`Erro sessão: ${sessionError.message}`);
     }
     
     if (!session?.access_token) {
-      throw new Error('Usuário não está logado ou token não disponível');
+      throw new Error('Token indisponível');
     }
 
-    // URL da edge function - verificar se as variáveis de ambiente estão definidas
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    
     if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL não está definida no arquivo .env');
+      throw new Error('VITE_SUPABASE_URL não definida');
     }
     
     const functionUrl = `${supabaseUrl}/functions/v1/ef_save_chat`;
     
-    console.log('💾 Salvando dados do chat...', {
-      session_id: params.chat_session_id,
-      title: params.chat_session_title,
-      user_id: params.user_id
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.log('⏰ Timeout 10s');
+      controller.abort();
+    }, 10000);
     
-    // Fazer a requisição HTTP para a edge function
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
@@ -201,21 +240,23 @@ export async function fun_save_chat_data(params: {
         msg_output: params.msg_output,
         user_id: params.user_id
       }),
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Erro na requisição: ${response.status} - ${errorText}`);
+      throw new Error(`${response.status}: ${errorText}`);
     }
 
     const data = await response.json();
     
-    // Verificar se há erro na resposta
     if (data.error) {
-      throw new Error(`Erro retornado pela função: ${data.error}`);
+      throw new Error(data.error);
     }
 
-    console.log('✅ Dados do chat salvos com sucesso:', data);
+    console.log(`✅ ${sessionId} salvo`);
 
     return {
       success: true,
@@ -225,6 +266,16 @@ export async function fun_save_chat_data(params: {
 
   } catch (error) {
     console.error('❌ Erro em fun_save_chat_data:', error);
+    
+    // Se for erro de timeout, não é crítico - apenas log
+    if (error.name === 'AbortError') {
+      console.warn('⚠️ Timeout ao salvar chat - continuando normalmente');
+      return {
+        success: false,
+        data: null,
+        error: 'Timeout - não crítico'
+      };
+    }
     
     return {
       success: false,

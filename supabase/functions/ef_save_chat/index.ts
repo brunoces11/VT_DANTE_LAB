@@ -27,9 +27,9 @@ Deno.serve(async (req: Request) => {
     if (req.method !== 'POST') {
       return new Response(
         JSON.stringify({ error: 'Método não permitido. Use POST.' }),
-        { 
-          status: 405, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 405,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -39,9 +39,9 @@ Deno.serve(async (req: Request) => {
     if (!authHeader) {
       return new Response(
         JSON.stringify({ error: 'Token de autorização não fornecido' }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -59,33 +59,33 @@ Deno.serve(async (req: Request) => {
 
     // Verificar autenticação do usuário
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    
+
     if (authError || !user) {
       console.error('Erro de autenticação:', authError);
       return new Response(
         JSON.stringify({ error: 'Usuário não autenticado' }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
     // Parse do body da requisição
     const requestData: ChatSaveRequest = await req.json();
-    
+
     // Validar dados obrigatórios
     const { chat_session_id, chat_session_title, msg_input, msg_output, user_id } = requestData;
-    
+
     if (!chat_session_id || !chat_session_title || !msg_input || !msg_output || !user_id) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Dados obrigatórios faltando',
           required: ['chat_session_id', 'chat_session_title', 'msg_input', 'msg_output', 'user_id']
         }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -94,51 +94,51 @@ Deno.serve(async (req: Request) => {
     if (user_id !== user.id) {
       return new Response(
         JSON.stringify({ error: 'user_id não corresponde ao usuário autenticado' }),
-        { 
-          status: 403, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
-    console.log('💾 Salvando chat data:', {
-      session_id: chat_session_id,
-      title: chat_session_title,
-      user_id: user_id,
-      input_length: msg_input.length,
-      output_length: msg_output.length
-    });
+    console.log(`💾 Salvando: ${chat_session_id.slice(-8)} | ${msg_input.slice(0, 20)}...`);
 
-    // Primeiro: Inserir sessão se não existir (ON CONFLICT DO NOTHING)
-    const { error: sessionError } = await supabaseClient
+    // Primeiro: Verificar se sessão existe, se não, criar
+    const { data: existingSession } = await supabaseClient
       .from('tab_chat_session')
-      .insert({
-        chat_session_id: chat_session_id,
-        chat_session_title: chat_session_title,
-        user_id: user_id
-      })
-      .select()
+      .select('chat_session_id')
+      .eq('chat_session_id', chat_session_id)
       .single();
 
-    // Ignorar erro de conflito (sessão já existe)
-    if (sessionError && !sessionError.message.includes('duplicate key')) {
-      console.error('❌ Erro ao inserir sessão:', sessionError);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Erro ao criar sessão de chat',
-          details: sessionError.message 
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    if (!existingSession) {
+      const { error: sessionError } = await supabaseClient
+        .from('tab_chat_session')
+        .insert({
+          chat_session_id: chat_session_id,
+          chat_session_title: chat_session_title,
+          user_id: user_id
+        });
+
+      if (sessionError) {
+        console.error('❌ Erro ao inserir sessão:', sessionError);
+        return new Response(
+          JSON.stringify({
+            error: 'Erro ao criar sessão de chat',
+            details: sessionError.message
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
     }
 
-    // Segundo: Inserir mensagem (sempre)
+    // Segundo: Inserir mensagem (sempre) - com UUID gerado
     const { data: messageResult, error: messageError } = await supabaseClient
       .from('tab_chat_msg')
       .insert({
+        chat_msg_id: crypto.randomUUID(), // Gerar UUID para chat_msg_id
         chat_session_id: chat_session_id,
         user_id: user_id,
         msg_input: msg_input,
@@ -150,18 +150,18 @@ Deno.serve(async (req: Request) => {
     if (messageError) {
       console.error('❌ Erro ao inserir mensagem:', messageError);
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Erro ao salvar mensagem no banco',
-          details: messageError.message 
+          details: messageError.message
         }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
-    console.log('✅ Chat data salvo com sucesso');
+    console.log('✅ Salvo');
 
     // Retornar sucesso
     return new Response(
@@ -174,23 +174,23 @@ Deno.serve(async (req: Request) => {
           timestamp: new Date().toISOString()
         }
       }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
 
   } catch (error) {
     console.error('❌ Erro geral na edge function:', error);
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Erro interno do servidor',
         details: error instanceof Error ? error.message : 'Erro desconhecido'
       }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
