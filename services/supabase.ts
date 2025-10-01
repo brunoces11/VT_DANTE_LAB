@@ -172,8 +172,7 @@ export async function fun_save_chat_data(params: {
   msg_output: string;
   user_id: string;
 }) {
-  const sessionId = params.chat_session_id.slice(-8);
-  console.log(`🚀 Salvando ${sessionId}...`);
+  // Log removido para evitar duplicação - já logado no frontend
   
   try {
     let session = null;
@@ -256,7 +255,7 @@ export async function fun_save_chat_data(params: {
       throw new Error(data.error);
     }
 
-    console.log(`✅ ${sessionId} salvo`);
+    // Log removido para evitar duplicação - já logado no frontend
 
     return {
       success: true,

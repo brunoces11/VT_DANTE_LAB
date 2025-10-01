@@ -8,38 +8,45 @@ import { getCurrentTimestampUTC } from '@/utils/timezone';
 import { fun_save_chat_data } from '../../services/supabase';
 import { useAuth } from '@/components/auth/AuthProvider';
 
+// Controle de duplicação
+const savingMessages = new Set();
+
 // 🚀 FUNÇÃO PARA SALVAMENTO EM BACKGROUND (NON-BLOCKING)
 const saveInBackground = (data: any) => {
+  const messageKey = `${data.chat_session_id}-${data.msg_input.slice(0, 50)}`;
+  
+  // Evitar duplicação
+  if (savingMessages.has(messageKey)) {
+    return; // Silencioso - sem log de duplicata
+  }
+  
+  savingMessages.add(messageKey);
+  
+  // Usar primeiros 6 chars do UUID da sessão
+  const sessionId = data.chat_session_id.slice(0, 6);
+  
   Promise.resolve().then(async () => {
     try {
-      if (data.backup) {
-        console.log('🧹 Cache limpo');
-        const { clearSessionCache } = await import('../../services/supabase');
-        clearSessionCache();
-      }
-      
-      console.log(`💾 Salvando msg: ${data.msg_input.slice(0, 20)}...`);
+      console.log(`💾 ${sessionId}: ${data.msg_input.slice(0, 20)}...`);
       const result = await fun_save_chat_data(data);
       
       if (result.success) {
-        console.log('✅ Msg salva');
+        console.log(`✅ ${sessionId} salva`);
       } else {
-        console.warn('⚠️ Falha msg:', result.error);
+        console.warn(`⚠️ ${sessionId} falha:`, result.error);
         
+        // Retry apenas uma vez
         if (!data.retry) {
-          console.log('🔄 Retry...');
           const { clearSessionCache } = await import('../../services/supabase');
           clearSessionCache();
           setTimeout(() => saveInBackground({...data, retry: true}), 1000);
         }
       }
     } catch (error) {
-      console.error('❌ Erro msg:', error.message);
-      
-      if (!data.lastTry) {
-        console.log('🆘 Última tentativa...');
-        setTimeout(() => saveInBackground({...data, lastTry: true}), 3000);
-      }
+      console.error(`❌ ${sessionId} erro:`, error.message);
+    } finally {
+      // Remover da lista após 5 segundos
+      setTimeout(() => savingMessages.delete(messageKey), 5000);
     }
   });
 };
@@ -228,9 +235,6 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
       };
       
       saveInBackground(saveData);
-      
-      // Backup após 2s
-      setTimeout(() => saveInBackground({...saveData, backup: true}), 2000);
 
     } catch (error) {
       console.error('❌ Erro no Langflow:', error);

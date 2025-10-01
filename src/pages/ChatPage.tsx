@@ -9,18 +9,21 @@ import { fun_save_chat_data } from '../../services/supabase';
 
 // 🚀 FUNÇÃO PARA SALVAMENTO EM BACKGROUND (NON-BLOCKING)
 const saveInBackground = (data: any) => {
+  // Usar primeiros 6 chars do UUID da sessão
+  const sessionId = data.chat_session_id.slice(0, 6);
+  
   Promise.resolve().then(async () => {
     try {
-      console.log(`💾 Salvando: ${data.chat_session_id.slice(-8)}...`);
+      console.log(`💾 ${sessionId}: ${data.msg_input.slice(0, 20)}...`);
       const result = await fun_save_chat_data(data);
       
       if (result.success) {
-        console.log('✅ Salvo');
+        console.log(`✅ ${sessionId} salva`);
       } else {
-        console.warn('⚠️ Falha:', result.error);
+        console.warn(`⚠️ ${sessionId} falha:`, result.error);
       }
     } catch (error) {
-      console.error('❌ Erro crítico:', error.message);
+      console.error(`❌ ${sessionId} erro:`, error.message);
     }
   });
 };
@@ -77,8 +80,6 @@ export default function ChatPage() {
       if (chatData.currentSessionId && chatData.messages.length > 0) {
         updateUserChatData(chatData.currentSessionId, chatData.messages);
       }
-      
-      console.log('💾 Estado salvo no localStorage (ambos sistemas)');
     } catch (error) {
       console.warn('⚠️ Erro ao salvar no localStorage:', error);
     }
@@ -118,7 +119,6 @@ export default function ChatPage() {
       }
       
       localStorage.setItem('user_chat_data', JSON.stringify(userData));
-      console.log('💾 user_chat_data atualizado para compatibilidade');
     } catch (error) {
       console.warn('⚠️ Erro ao atualizar user_chat_data:', error);
     }
@@ -149,6 +149,7 @@ export default function ChatPage() {
 
   // 🚀 AUTO-SAVE: Salvar automaticamente quando estados mudarem (apenas como cache)
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isWelcomeForced, setIsWelcomeForced] = useState(false);
   
   useEffect(() => {
     if (user?.id && isInitialized && (chats.length > 0 || messages.length > 0)) {
@@ -301,14 +302,14 @@ export default function ChatPage() {
 
     setMessages(prev => [...prev, loadingMessage]);
 
-    // Sequência de loading (+50% tempo)
+    // Sequência de loading (+100% tempo - mais lenta)
     const loadingSequence = [
-      { text: 'Consultando Base Legal vigente...', delay: 2250 }, // 1500 * 1.5
-      { text: 'Acessando Leis Federais...', delay: 1500 }, // 1000 * 1.5
-      { text: 'Acessando Leis Estaduais...', delay: 1050 }, // 700 * 1.5
-      { text: 'Acessando Documentos normativos:', delay: 1200 }, // 800 * 1.5
-      { text: 'Provimentos, Codigo de Normas...', delay: 750 }, // 500 * 1.5
-      { text: 'Consolidando fundamentos jurídicos...', delay: 900 }, // 600 * 1.5
+      { text: 'Consultando Base Legal vigente...', delay: 3000 }, // 1500 * 2.0
+      { text: 'Acessando Leis Federais...', delay: 2000 }, // 1000 * 2.0
+      { text: 'Acessando Leis Estaduais...', delay: 1400 }, // 700 * 2.0
+      { text: 'Acessando Documentos normativos:', delay: 1600 }, // 800 * 2.0
+      { text: 'Provimentos, Codigo de Normas...', delay: 1000 }, // 500 * 2.0
+      { text: 'Consolidando fundamentos jurídicos...', delay: 1200 }, // 600 * 2.0
       { text: 'O Dante está processando sua resposta, por favor aguarde...', delay: 0 }
     ];
 
@@ -521,16 +522,14 @@ export default function ChatPage() {
       console.log(`✅ ${loadedChats.length} sessões carregadas no sidebar`);
       setChats(loadedChats);
       
-      // Carregar primeira sessão automaticamente se existir
-      if (loadedChats.length > 0) {
+      // Carregar primeira sessão automaticamente APENAS se não for welcome forçado
+      if (loadedChats.length > 0 && !isWelcomeForced) {
         fun_load_chat_session(loadedChats[0].id);
       } else {
-        // Se não há sessões, ativar modo welcome
+        // Se não há sessões OU welcome foi forçado, ativar modo welcome
         setMessages([]);
         setCurrentSessionId(null);
         setIsWelcomeMode(true);
-        
-        // Auto-save já cuida da persistência
       }
       
     } catch (error) {
@@ -543,77 +542,71 @@ export default function ChatPage() {
     }
   };
 
-  // Redireciona para home se usuário não estiver logado
+  // Redireciona para home se usuário não estiver logado + limpeza
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/');
+      console.log('🧹 Limpando dados e redirecionando (logout)');
+      localStorage.removeItem(STORAGE_KEY);
+      navigate('/', { replace: true });
     }
   }, [user, loading, navigate]);
-
-  // 🚀 LIMPEZA: Remover dados de outros usuários ao fazer logout
-  useEffect(() => {
-    if (!loading && !user) {
-      console.log('🧹 Limpando dados do localStorage (logout)');
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, [user, loading]);
 
   // 🚀 CARREGAR DADOS: PRIORIDADE PARA HISTÓRICO, FALLBACK PARA LOCALSTORAGE
   useEffect(() => {
     if (user && !loading) {
-      console.log('🔄 Inicializando ChatPage, carregando dados...');
+      // Inicializando ChatPage
+      
+      // 🎯 PRIORIDADE MÁXIMA: Verificar se veio do header (SEMPRE WELCOME)
+      const state = location.state as { startWelcome?: boolean } | null;
+      if (state?.startWelcome) {
+        console.log('🎯 FORÇANDO modo welcome via header');
+        
+        // Carregar sidebar mas SEM ativar nenhuma sessão
+        const userChatData = localStorage.getItem('user_chat_data');
+        if (userChatData) {
+          fun_load_sidebar_only(); // Esta função NÃO carrega sessão automaticamente
+        } else {
+          setChats([]);
+        }
+        
+        // FORÇAR welcome mode e BLOQUEAR carregamento automático
+        setMessages([]);
+        setCurrentSessionId(null);
+        setIsWelcomeMode(true);
+        setIsWelcomeForced(true); // Flag para bloquear interferências
+        
+        navigate(location.pathname, { replace: true });
+        setTimeout(() => setIsInitialized(true), 1000);
+        return;
+      }
       
       // PRIORIDADE 1: Verificar se há dados históricos no user_chat_data
       const userChatData = localStorage.getItem('user_chat_data');
       
       if (userChatData) {
         console.log('📚 Dados históricos encontrados, carregando do user_chat_data');
-        
-        // Verificar se veio do header com intenção de iniciar novo chat
-        const state = location.state as { startWelcome?: boolean } | null;
-        if (state?.startWelcome) {
-          console.log('🎯 Iniciando modo welcome via header');
-          fun_load_sidebar_only();
-          fun_create_chat_session();
-          navigate(location.pathname, { replace: true });
-        } else {
-          fun_load_sidebar(); // Carrega dados históricos
-        }
-        
-        // Marcar como inicializado após carregamento
-        setTimeout(() => setIsInitialized(true), 1000);
+        fun_load_sidebar(); // Carrega dados históricos
       } else {
         // PRIORIDADE 2: Tentar carregar do localStorage (cache temporário)
         const savedData = loadFromLocalStorage();
         
         if (savedData) {
-          console.log('📂 Restaurando estado do localStorage (cache)');
+          // Restaurando estado do cache
           setChats(savedData.chats || []);
           setCurrentSessionId(savedData.currentSessionId);
           setMessages(savedData.messages || []);
           setIsWelcomeMode(savedData.isWelcomeMode ?? true);
         } else {
           console.log('📭 Nenhum dado encontrado, inicializando estado padrão');
-          
-          // Verificar se veio do header com intenção de iniciar novo chat
-          const state = location.state as { startWelcome?: boolean } | null;
-          if (state?.startWelcome) {
-            console.log('🎯 Iniciando modo welcome via header');
-            fun_load_sidebar_only();
-            fun_create_chat_session();
-            navigate(location.pathname, { replace: true });
-          } else {
-            // Inicializar modo welcome se não há dados
-            setChats([]);
-            setMessages([]);
-            setCurrentSessionId(null);
-            setIsWelcomeMode(true);
-          }
+          setChats([]);
+          setMessages([]);
+          setCurrentSessionId(null);
+          setIsWelcomeMode(true);
         }
-        
-        // Marcar como inicializado após carregamento
-        setTimeout(() => setIsInitialized(true), 1000);
       }
+      
+      // Marcar como inicializado após carregamento
+      setTimeout(() => setIsInitialized(true), 1000);
     }
   }, [user, loading, location.state]);
 
