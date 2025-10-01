@@ -5,6 +5,7 @@ import SidebarCollapse from '@/components/sidebar_collapse';
 import ChatArea from '@/components/chat_area';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
+import { fun_save_chat_data } from '../../services/supabase';
 
 interface Chat {
   id: string;
@@ -203,6 +204,25 @@ export default function ChatPage() {
       });
       
       setIsLoading(false);
+
+      // Salvar dados do chat no banco de dados (processo transparente)
+      if (user?.id) {
+        fun_save_chat_data({
+          chat_session_id: newSessionId,
+          chat_session_title: inputValue.length > 50 ? inputValue.substring(0, 50) + '...' : inputValue,
+          msg_input: inputValue,
+          msg_output: randomResponse,
+          user_id: user.id
+        }).then(result => {
+          if (result.success) {
+            console.log('💾 Chat salvo no banco com sucesso');
+          } else {
+            console.warn('⚠️ Falha ao salvar chat no banco:', result.error);
+          }
+        }).catch(error => {
+          console.error('❌ Erro ao salvar chat no banco:', error);
+        });
+      }
     }, totalLoadingTime + Math.random() * 1000 + 1500);
   };
 

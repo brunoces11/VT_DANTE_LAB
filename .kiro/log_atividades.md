@@ -181,4 +181,39 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Status**: ✅ Arquivo criado com sucesso - estrutura inicial estabelecida
 - **Impact**: Organização do código seguindo padrão do projeto - arquivo específico para concentrar todas as funções relacionadas ao Langflow, similar ao `services/supabase.ts` para Edge Functions
 
-**Última atualização:** 30/09/2025 - 09:30
+## 30/09/2025 - 09:45 - Atualização da Documentação de Componentes
+- **Files Modified**: `componentlist.md`
+- **Changes Made**: Adicionado novo registro de componente na documentação:
+  - **Chat Session Card**: Componente embutido no `sidebar_collapse.tsx` (linhas 120-200)
+  - Documentadas funcionalidades: exibição de card de sessão, título, timestamp, indicador ativo, menu dropdown (renomear/excluir)
+  - Especificada localização como componente embutido (não isolado)
+  - Detalhado uso via mapeamento `chats.map()` no SidebarCollapse
+  - Listados componentes internos: Button, DropdownMenu, ícones MoreVertical/Edit2/Trash2
+- **Status**: ✅ Documentação atualizada com sucesso
+- **Impact**: Registro completo do terceiro componente no sistema de documentação, mantendo histórico detalhado dos elementos de interface do chat
+
+## 30/09/2025 - 10:00 - Implementação de Função para Salvar Dados de Chat
+- **Files Modified**: `services/supabase.ts`
+- **Changes Made**: Adicionada nova função `fun_save_chat_data()` (87 linhas) para salvar dados de chat no banco de dados via Edge Function, incluindo:
+  - Interface de parâmetros tipada com `chat_session_id`, `chat_session_title`, `msg_input`, `msg_output`, `user_id`
+  - Autenticação JWT com verificação de sessão ativa
+  - Validação de variáveis de ambiente (`VITE_SUPABASE_URL`)
+  - Requisição HTTP POST para Edge Function `ef_save_chat`
+  - Logging detalhado com emojis para debug (💾 salvando, ✅ sucesso, ❌ erro)
+  - Error handling robusto com try/catch e retorno padronizado
+  - Estrutura de resposta consistente: `{success, data, error}`
+  - Serialização JSON completa dos parâmetros no body da requisição
+- **Status**: ✅ Função implementada com sucesso e pronta para uso
+- **Impact**: Sistema agora possui capacidade de persistir conversas de chat no banco de dados Supabase, integrando com Edge Function para operações de CRUD em sessões e mensagens
+
+## 30/09/2025 - 10:15 - Atualização de Configuração MCP Supabase
+- **Files Modified**: `~/.kiro/settings/mcp.json`
+- **Changes Made**: Atualizadas credenciais do servidor MCP Supabase:
+  - **Project Reference**: Alterado de `zywolplubwrafrwaprzt` para `oifhsdqivbiyyvfheofx`
+  - **Access Token**: Atualizado de `sbp_a32fb6e2b7787aab05f554e5f5706b479f697f7c` para `sbp_00f482f734ce15cc17f39b17b9dabad1e27af4f5`
+  - **Servidor Removido**: Removido servidor "fetch" que não estava sendo utilizado
+  - Mantidas configurações: comando `npx`, flag `--read-only`, array `autoApprove` vazio
+- **Status**: ✅ Configuração atualizada com sucesso - MCP server conectado ao novo projeto Supabase
+- **Impact**: MCP tools agora apontam para o projeto Supabase correto (oifhsdqivbiyyvfheofx) que corresponde às variáveis de ambiente do .env, garantindo consistência entre configurações
+
+**Última atualização:** 30/09/2025 - 10:15
