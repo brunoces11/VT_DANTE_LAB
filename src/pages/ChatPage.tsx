@@ -77,6 +77,7 @@ export default function ChatPage() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
       
       // 🚀 SALVAR TAMBÉM NO SISTEMA HISTÓRICO (COMPATIBILIDADE)
+      // Só atualizar se há mensagens novas (evitar sobrescrever títulos renomeados)
       if (chatData.currentSessionId && chatData.messages.length > 0) {
         updateUserChatData(chatData.currentSessionId, chatData.messages);
       }
@@ -104,6 +105,16 @@ export default function ChatPage() {
         userData.chat_sessions.push(session);
       }
       
+      // 🚀 PRESERVAR título existente (não sobrescrever se já foi renomeado)
+      // Só atualiza título se for uma nova sessão ou se o título atual for genérico
+      const isGenericTitle = session.chat_session_title === 'Nova conversa' || 
+                            session.chat_session_title === 'Conversa existente' ||
+                            !session.chat_session_title;
+      
+      if (isGenericTitle && messages[0]?.content) {
+        session.chat_session_title = messages[0].content.substring(0, 50);
+      }
+      
       // Converter mensagens para formato histórico
       session.messages = [];
       for (let i = 0; i < messages.length; i += 2) {
@@ -119,6 +130,7 @@ export default function ChatPage() {
       }
       
       localStorage.setItem('user_chat_data', JSON.stringify(userData));
+      console.log(`💾 user_chat_data atualizado (auto-save): ${sessionId.slice(0, 6)} - "${session.chat_session_title}"`);
     } catch (error) {
       console.warn('⚠️ Erro ao atualizar user_chat_data:', error);
     }
@@ -545,9 +557,21 @@ export default function ChatPage() {
   // Redireciona para home se usuário não estiver logado + limpeza
   useEffect(() => {
     if (!loading && !user) {
-      console.log('🧹 Limpando dados e redirecionando (logout)');
+      console.log('🧹 ChatPage: Limpando dados e redirecionando (logout)');
       localStorage.removeItem(STORAGE_KEY);
       navigate('/', { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  // Timeout de segurança para logout - se loading ficar true por muito tempo
+  useEffect(() => {
+    if (!user && loading) {
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ Timeout de segurança: forçando redirecionamento');
+        navigate('/', { replace: true });
+      }, 3000); // 3 segundos
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [user, loading, navigate]);
 

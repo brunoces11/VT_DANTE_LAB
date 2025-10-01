@@ -252,7 +252,39 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Status**: ✅ Refatoração completa implementada - lógica de inicialização otimizada
 - **Impact**: Melhoria significativa na confiabilidade do fluxo "Iniciar Chat" do header, garantindo que sempre force modo welcome independente do estado atual, eliminando condições conflitantes e simplificando a lógica de inicialização
 
-**Última atualização:** 01/10/2025 - 17:45
+**Última atualização:** 01/10/2025 - 18:30
+
+## 01/10/2025 - 18:30 - Sincronização de Títulos Renomeados com localStorage
+- **Files Modified**: `src/components/sidebar_collapse.tsx`
+- **Changes Made**: Adicionada sincronização automática com `user_chat_data` no localStorage após renomeação bem-sucedida de chat:
+  - Adicionada chamada para `updateUserChatDataTitle(chatId, editTitle.trim())` após atualização do estado local
+  - Implementada sincronização bidirecional entre estado React e dados persistidos no localStorage
+  - Garantida consistência entre sidebar e dados históricos após operações de renomeação
+  - Comentário explicativo adicionado: "🚀 SINCRONIZAR COM user_chat_data (localStorage)"
+- **Status**: ✅ Sincronização implementada com sucesso - títulos renomeados agora persistem corretamente
+- **Impact**: Melhoria crítica na consistência de dados - títulos renomeados via API agora são automaticamente sincronizados com o localStorage, garantindo que mudanças sejam refletidas em todas as sessões e recarregamentos da página
+
+## 01/10/2025 - 18:15 - Adição de Import useNavigate no UserProfileIcon
+- **Files Modified**: `src/components/user_profile_icon.tsx`
+- **Changes Made**: Adicionada importação `useNavigate` do React Router DOM na linha 4: `import { useNavigate } from 'react-router-dom';`
+- **Status**: ✅ Import adicionado com sucesso - preparação para funcionalidade de navegação
+- **Impact**: Preparação do componente para implementar navegação programática, possivelmente para redirecionamento após logout ou acesso a páginas de perfil
+
+## 01/10/2025 - 18:00 - Criação da Edge Function ef_renomear_chat
+- **Files Modified**: `supabase/functions/ef_renomear_chat/index.ts` (novo arquivo)
+- **Changes Made**: Criada Edge Function completa para renomear sessões de chat (184 linhas) incluindo:
+  - **Interface ChatRenameRequest**: Tipagem para parâmetros (`chat_session_id`, `new_title`, `user_id`)
+  - **Headers CORS**: Configuração completa para requisições cross-origin com métodos POST e OPTIONS
+  - **Autenticação JWT**: Verificação de token de autorização e validação do usuário autenticado
+  - **Validação de Dados**: Verificação de campos obrigatórios e tamanho máximo do título (100 caracteres)
+  - **Segurança**: Verificação se `user_id` corresponde ao usuário autenticado para prevenir alterações não autorizadas
+  - **Operação SQL**: Update na tabela `tab_chat_session` com filtros por `chat_session_id` e `user_id`
+  - **Error Handling**: Tratamento robusto de erros com códigos HTTP apropriados (400, 401, 403, 404, 500)
+  - **Logging Detalhado**: Console logs com emojis para debug (🏷️ renomeando, ✅ sucesso, ❌ erro)
+  - **Resposta Estruturada**: Retorno JSON padronizado com `success`, `message`, `data` e `timestamp`
+  - **Preflight CORS**: Tratamento adequado de requisições OPTIONS para compatibilidade com browsers
+- **Status**: ✅ Edge Function criada com sucesso e pronta para deploy
+- **Impact**: Sistema agora possui capacidade de renomear sessões de chat via API segura, permitindo que usuários personalizem títulos de suas conversas com validação completa de segurança e integridade de dados
 
 ## 01/10/2025 - 17:45 - Correção do Fluxo de Inicialização Welcome Mode via Header
 - **Files Modified**: `src/pages/ChatPage.tsx`

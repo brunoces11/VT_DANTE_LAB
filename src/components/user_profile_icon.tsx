@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Settings, LogOut } from 'lucide-react';
 import { useAuth } from './auth/AuthProvider';
+import { useNavigate } from 'react-router-dom';
 import UserProfilePanel from './user_profile_panel';
 
 interface UserProfileIconProps {
@@ -17,6 +18,7 @@ export default function UserProfileIcon({
   onLogout
 }: UserProfileIconProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -62,17 +64,20 @@ export default function UserProfileIcon({
 
   const handleLogout = async () => {
     setIsDropdownOpen(false);
+    
     if (onLogout) {
       onLogout(); // Usa o callback customizado se fornecido
     } else {
       try {
+        console.log('🚪 Iniciando logout...');
         await logout(); // Usa o logout padrão se não houver callback
-        // Força redirecionamento para home após logout
-        window.location.href = '/';
+        console.log('✅ Logout concluído, redirecionando...');
+        // Usar React Router em vez de window.location
+        navigate('/', { replace: true });
       } catch (error) {
-        console.error('Erro no logout:', error);
+        console.error('❌ Erro no logout:', error);
         // Mesmo com erro, redireciona para garantir que o usuário saia
-        window.location.href = '/';
+        navigate('/', { replace: true });
       }
     }
   };

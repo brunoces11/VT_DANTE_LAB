@@ -267,9 +267,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Limpar dados quando usuário faz logout
         if (event === 'SIGNED_OUT') {
-          console.log('👋 Usuário deslogado, limpando dados...');
+          console.log('👋 Listener: Usuário deslogado, limpando dados...');
           setChatData(null);
           invalidateUserDataCache();
+          setLoading(false); // Garantir que loading seja false após logout
+          console.log('✅ Listener: Limpeza concluída');
         }
       }
     });
@@ -303,13 +305,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async () => {
     try {
+      console.log('🚪 AuthProvider: Iniciando logout...');
       // Limpar dados antes do logout
       setChatData(null);
       invalidateUserDataCache();
+      console.log('🧹 AuthProvider: Dados limpos, chamando signOut...');
       await supabase.auth.signOut();
+      console.log('✅ AuthProvider: SignOut concluído');
       // Não definir loading como false aqui - deixar o auth listener cuidar disso
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('❌ AuthProvider: Logout error:', error);
       setLoading(false); // Só definir false em caso de erro
     }
   };
