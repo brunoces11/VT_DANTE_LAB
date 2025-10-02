@@ -5,6 +5,28 @@ import SidebarCollapse from '@/components/sidebar_collapse';
 import ChatArea from '@/components/chat_area';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
+import { fun_save_chat_data } from '../../services/supabase';
+
+// 🚀 FUNÇÃO PARA SALVAMENTO EM BACKGROUND (NON-BLOCKING)
+const saveInBackground = (data: any) => {
+  // Usar primeiros 6 chars do UUID da sessão
+  const sessionId = data.chat_session_id.slice(0, 6);
+  
+  Promise.resolve().then(async () => {
+    try {
+      console.log(`💾 ${sessionId}: ${data.msg_input.slice(0, 20)}...`);
+      const result = await fun_save_chat_data(data);
+      
+      if (result.success) {
+        console.log(`✅ ${sessionId} salva`);
+      } else {
+        console.warn(`⚠️ ${sessionId} falha:`, result.error);
+      }
+    } catch (error) {
+      console.error(`❌ ${sessionId} erro:`, error.message);
+    }
+  });
+};
 
 interface Chat {
   id: string;
@@ -34,12 +56,145 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isWelcomeMode, setIsWelcomeMode] = useState<boolean>(false);
 
+  // 🚀 SISTEMA DE PERSISTÊNCIA AUTOMÁTICA NO LOCALSTORAGE
+  const STORAGE_KEY = 'dante_chat_data';
+  
+  // Função para salvar estado completo no localStorage
+  const saveToLocalStorage = (chatData: {
+    chats: Chat[];
+    currentSessionId: string | null;
+    messages: Message[];
+    isWelcomeMode: boolean;
+  }) => {
+    try {
+      const dataToSave = {
+        ...chatData,
+        timestamp: Date.now(),
+        userId: user?.id
+      };
+      
+      // 🚀 SALVAR NO SISTEMA UNIFICADO
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+      
+      // 🚀 SALVAR TAMBÉM NO SISTEMA HISTÓRICO (COMPATIBILIDADE)
+      // Só atualizar se há mensagens novas (evitar sobrescrever títulos renomeados)
+      if (chatData.currentSessionId && chatData.messages.length > 0) {
+        updateUserChatData(chatData.currentSessionId, chatData.messages);
+      }
+    } catch (error) {
+      console.warn('⚠️ Erro ao salvar no localStorage:', error);
+    }
+  };
+
+  // Função para atualizar user_chat_data (compatibilidade)
+  const updateUserChatData = (sessionId: string, messages: Message[]) => {
+    try {
+      const existingData = localStorage.getItem('user_chat_data');
+      let userData = existingData ? JSON.parse(existingData) : { chat_sessions: [] };
+      
+      // Encontrar ou criar sessão
+      let session = userData.chat_sessions?.find((s: any) => s.chat_session_id === sessionId);
+      
+      if (!session) {
+        session = {
+          chat_session_id: sessionId,
+          chat_session_title: messages[0]?.content?.substring(0, 50) || 'Nova conversa',
+          messages: []
+        };
+        userData.chat_sessions = userData.chat_sessions || [];
+        userData.chat_sessions.push(session);
+      }
+      
+      // 🚀 PRESERVAR título existente (não sobrescrever se já foi renomeado)
+      // Só atualiza título se for uma nova sessão ou se o título atual for genérico
+      const isGenericTitle = session.chat_session_title === 'Nova conversa' || 
+                            session.chat_session_title === 'Conversa existente' ||
+                            !session.chat_session_title;
+      
+      if (isGenericTitle && messages[0]?.content) {
+        session.chat_session_title = messages[0].content.substring(0, 50);
+      }
+      
+      // Converter mensagens para formato histórico
+      session.messages = [];
+      for (let i = 0; i < messages.length; i += 2) {
+        const userMsg = messages[i];
+        const botMsg = messages[i + 1];
+        
+        if (userMsg && userMsg.sender === 'user') {
+          session.messages.push({
+            msg_input: userMsg.content,
+            msg_output: botMsg?.content || ''
+          });
+        }
+      }
+      
+      localStorage.setItem('user_chat_data', JSON.stringify(userData));
+      console.log(`💾 user_chat_data atualizado (auto-save): ${sessionId.slice(0, 6)} - "${session.chat_session_title}"`);
+    } catch (error) {
+      console.warn('⚠️ Erro ao atualizar user_chat_data:', error);
+    }
+  };
+
+  // Função para carregar estado completo do localStorage
+  const loadFromLocalStorage = () => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (!savedData) return null;
+      
+      const parsedData = JSON.parse(savedData);
+      
+      // Verificar se os dados são do usuário atual
+      if (parsedData.userId !== user?.id) {
+        console.log('🔄 Dados de outro usuário, limpando localStorage');
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      
+      console.log('📂 Estado carregado do localStorage:', parsedData);
+      return parsedData;
+    } catch (error) {
+      console.warn('⚠️ Erro ao carregar do localStorage:', error);
+      return null;
+    }
+  };
+
+  // 🚀 AUTO-SAVE: Salvar automaticamente quando estados mudarem (apenas como cache)
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isWelcomeForced, setIsWelcomeForced] = useState(false);
+  
+  useEffect(() => {
+    if (user?.id && isInitialized && (chats.length > 0 || messages.length > 0)) {
+      // Só salva se já foi inicializado e há dados
+      const timeoutId = setTimeout(() => {
+        saveToLocalStorage({
+          chats,
+          currentSessionId,
+          messages,
+          isWelcomeMode
+        });
+      }, 500); // Debounce de 500ms
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [chats, currentSessionId, messages, isWelcomeMode, user?.id, isInitialized]);
+
   // Função para carregar mensagens de uma sessão específica
   const fun_load_chat_session = (sessionId: string) => {
     try {
       console.log(`🔄 Carregando mensagens da sessão: ${sessionId}`);
       
-      // Buscar dados do localStorage
+      // 🚀 PRIORIDADE 1: Buscar no sistema unificado (dante_chat_data)
+      const danteData = loadFromLocalStorage();
+      if (danteData && danteData.currentSessionId === sessionId && danteData.messages?.length > 0) {
+        console.log('📂 Carregando mensagens do cache unificado');
+        setMessages(danteData.messages);
+        setCurrentSessionId(sessionId);
+        setIsWelcomeMode(false);
+        return;
+      }
+      
+      // 🚀 PRIORIDADE 2: Buscar dados históricos (user_chat_data)
       const userChatData = localStorage.getItem('user_chat_data');
       
       if (!userChatData) {
@@ -92,6 +247,8 @@ export default function ChatPage() {
       setCurrentSessionId(sessionId);
       setIsWelcomeMode(false); // Desativar modo welcome
       
+      // Auto-save já cuida da persistência
+      
     } catch (error) {
       console.error('❌ Erro ao carregar mensagens da sessão:', error);
       setMessages([]);
@@ -112,8 +269,8 @@ export default function ChatPage() {
 
     console.log('🚀 Processando primeira mensagem:', inputValue);
 
-    // 1. Criar nova sessão
-    const newSessionId = Date.now().toString();
+    // 1. Criar nova sessão (UUID válido)
+    const newSessionId = crypto.randomUUID();
     
     // 2. Criar primeira mensagem do usuário
     const userMessage: Message = {
@@ -157,14 +314,14 @@ export default function ChatPage() {
 
     setMessages(prev => [...prev, loadingMessage]);
 
-    // Sequência de loading
+    // Sequência de loading (+100% tempo - mais lenta)
     const loadingSequence = [
-      { text: 'Consultando Base Legal vigente...', delay: 1500 },
-      { text: 'Acessando Leis Federais...', delay: 1000 },
-      { text: 'Acessando Leis Estaduais...', delay: 700 },
-      { text: 'Acessando Documentos normativos:', delay: 800 },
-      { text: 'Provimentos, Codigo de Normas...', delay: 500 },
-      { text: 'Consolidando fundamentos jurídicos...', delay: 600 },
+      { text: 'Consultando Base Legal vigente...', delay: 3000 }, // 1500 * 2.0
+      { text: 'Acessando Leis Federais...', delay: 2000 }, // 1000 * 2.0
+      { text: 'Acessando Leis Estaduais...', delay: 1400 }, // 700 * 2.0
+      { text: 'Acessando Documentos normativos:', delay: 1600 }, // 800 * 2.0
+      { text: 'Provimentos, Codigo de Normas...', delay: 1000 }, // 500 * 2.0
+      { text: 'Consolidando fundamentos jurídicos...', delay: 1200 }, // 600 * 2.0
       { text: 'O Dante está processando sua resposta, por favor aguarde...', delay: 0 }
     ];
 
@@ -178,32 +335,125 @@ export default function ChatPage() {
       }, currentDelay);
     });
 
-    // Simular resposta da IA
-    const totalLoadingTime = loadingSequence.reduce((sum, step) => sum + step.delay, 0);
-    setTimeout(() => {
-      const responses = [
-        "## Análise Legal - Lei 6.015/73\n\nCom base na **legislação vigente**, especificamente na **Lei 6.015/73** (Lei de Registros Públicos), posso orientá-lo sobre esse procedimento.\n\n### Para essa situação específica, é necessário verificar:\n\n#### 📋 Documentação Exigida\n- Título hábil para registro\n- Certidões atualizadas\n- Comprovantes fiscais\n\n#### ⏰ Prazos Legais\n- Prazo de apresentação\n- Validade das certidões\n- Prazos processuais\n\n#### 💰 Tributos Incidentes\n- ITBI quitado\n- Emolumentos devidos\n- Taxas cartoriais\n\n#### ✅ Qualificação Registral\n- Análise da cadeia dominial\n- Verificação de vícios\n- Conformidade legal\n\n> **Pergunta**: Poderia fornecer mais detalhes sobre o caso específico?",
-        
-        "# Procedimento Registral - Art. 167 da Lei 6.015/73\n\nSegundo o **artigo 167** da Lei 6.015/73 e as **normas do CNJ**, esse procedimento requer atenção especial aos seguintes aspectos:\n\n## 🔍 Aspectos Fundamentais\n\n### 1. Análise da Cadeia Dominial\n- Verificação de **continuidade registral**\n- Conferência de **titularidade**\n- Análise de **vícios anteriores**\n\n### 2. Verificação de Ônus e Gravames\n- **Hipotecas** existentes\n- **Penhoras** judiciais\n- **Usufrutos** e servidões\n\n### 3. Conferência da Documentação\n- **Autenticidade** dos documentos\n- **Validade** das certidões\n- **Completude** da instrução\n\n### 4. Cálculo de Emolumentos\n- Tabela oficial vigente\n- Valores corretos\n- Recolhimentos devidos\n\n> ⚖️ **Importante**: A qualificação registral deve ser **rigorosa** para garantir a **segurança jurídica** do ato.",
-        
-        "## 📚 Legislação de Registro de Imóveis\n\nDe acordo com a **legislação de Registro de Imóveis**, essa questão envolve procedimentos específicos que devem ser observados:\n\n### 📖 Fontes Normativas\n\n#### Base Legal Principal\n- **Lei 6.015/73** - Lei de Registros Públicos\n- **Código Civil** - Arts. 1.245 a 1.247\n- **Lei 8.935/94** - Lei dos Cartórios\n\n#### Normas Complementares\n- **CNJ** - Provimentos e Resoluções\n- **Corregedorias Estaduais**\n- **ANOREG** - Orientações técnicas\n\n#### Jurisprudência Consolidada\n- **STJ** - Superior Tribunal de Justiça\n- **Tribunais Estaduais**\n- **Enunciados** do CJF\n\n---\n\n### 🎯 Análise Individualizada\n\n> Cada caso possui **particularidades** que devem ser analisadas individualmente.\n\n**Precisa de orientação sobre algum aspecto específico?**\n\n*Estou aqui para ajudar com questões detalhadas sobre seu caso.*"
-      ];
+    // Processar com Langflow real (sem simulação de tempo)
+    (async () => {
+      try {
+        if (!user?.id) {
+          throw new Error('Usuário não autenticado');
+        }
 
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-      
-      // Remover mensagem de loading e adicionar resposta real
-      setMessages(prev => {
-        const withoutLoading = prev.filter(msg => !msg.isLoading);
-        return [...withoutLoading, {
-          id: Date.now() + 2,
-          content: randomResponse,
-          sender: 'bot',
-          timestamp: getCurrentTimestampUTC(),
-        }];
-      });
-      
-      setIsLoading(false);
-    }, totalLoadingTime + Math.random() * 1000 + 1500);
+        console.log('🚀 Iniciando comunicação com Langflow...');
+
+        // Chamar apenas Langflow (sem salvamento automático)
+        const langflowUrl = import.meta.env.VITE_LANGFLOW_URL;
+        const langflowFlowId = import.meta.env.VITE_LANGFLOW_FLOW_ID;
+
+        if (!langflowUrl || !langflowFlowId) {
+          throw new Error('Variáveis de ambiente do Langflow não configuradas');
+        }
+
+        // Criar payload para Langflow
+        const payload = {
+          "input_value": inputValue,
+          "output_type": "chat",
+          "input_type": "chat",
+          "session_id": newSessionId
+        };
+        
+        console.log('📋 Payload para Langflow:', payload);
+
+        // Construir URL completa
+        const fullUrl = langflowUrl.endsWith('/') 
+          ? `${langflowUrl}api/v1/run/${langflowFlowId}` 
+          : `${langflowUrl}/api/v1/run/${langflowFlowId}`;
+
+        console.log('📡 Fazendo requisição para Langflow:', fullUrl);
+
+        // Fazer requisição para Langflow
+        const response = await fetch(fullUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro na requisição Langflow: ${response.status} - ${response.statusText}`);
+        }
+
+        // Obter resposta do Langflow
+        const responseData = await response.json();
+        console.log('📥 Resposta bruta do Langflow:', responseData);
+
+        // Tratar resposta do Langflow
+        let treatedResponse = '';
+        
+        if (responseData.outputs && responseData.outputs[0] && responseData.outputs[0].outputs && responseData.outputs[0].outputs[0]) {
+          const output = responseData.outputs[0].outputs[0];
+          
+          if (output.outputs && output.outputs.message && output.outputs.message.message) {
+            treatedResponse = output.outputs.message.message;
+          } else if (output.artifacts && output.artifacts.message) {
+            treatedResponse = output.artifacts.message;
+          } else if (output.results && output.results.message && output.results.message.text) {
+            treatedResponse = output.results.message.text;
+          } else if (output.messages && output.messages[0] && output.messages[0].message) {
+            treatedResponse = output.messages[0].message;
+          } else {
+            treatedResponse = 'Resposta do Langflow recebida, mas estrutura não reconhecida.';
+          }
+        } else if (responseData.result) {
+          treatedResponse = responseData.result;
+        } else if (responseData.message) {
+          treatedResponse = responseData.message;
+        } else {
+          treatedResponse = 'Resposta do Langflow recebida, mas formato não reconhecido.';
+        }
+
+        console.log('✅ Resposta tratada do Langflow:', treatedResponse);
+
+        // Remover loading e adicionar resposta real do Langflow
+        setMessages(prev => {
+          const withoutLoading = prev.filter(msg => !msg.isLoading);
+          const newMessages = [...withoutLoading, {
+            id: Date.now() + 2,
+            content: treatedResponse,
+            sender: 'bot',
+            timestamp: getCurrentTimestampUTC(),
+          }];
+          
+          // Auto-save já cuida da persistência
+          
+          return newMessages;
+        });
+
+        // 🚀 SALVAMENTO NON-BLOCKING (BACKGROUND)
+        saveInBackground({
+          chat_session_id: newSessionId,
+          chat_session_title: inputValue.length > 50 ? inputValue.substring(0, 50) + '...' : inputValue,
+          msg_input: inputValue,
+          msg_output: treatedResponse,
+          user_id: user.id
+        });
+
+      } catch (error) {
+        console.error('❌ Erro no Langflow:', error);
+        
+        // Fallback: usar resposta de erro amigável
+        setMessages(prev => {
+          const withoutLoading = prev.filter(msg => !msg.isLoading);
+          return [...withoutLoading, {
+            id: Date.now() + 2,
+            content: '## ⚠️ Erro Temporário\n\nDesculpe, ocorreu um erro ao processar sua mensagem. Nosso sistema está temporariamente indisponível.\n\n**Tente novamente em alguns instantes.**\n\nSe o problema persistir, entre em contato com o suporte.',
+            sender: 'bot',
+            timestamp: getCurrentTimestampUTC(),
+          }];
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    })();
   };
 
   // Função para carregar apenas o sidebar sem ativar sessão (para modo welcome)
@@ -284,11 +534,11 @@ export default function ChatPage() {
       console.log(`✅ ${loadedChats.length} sessões carregadas no sidebar`);
       setChats(loadedChats);
       
-      // Carregar primeira sessão automaticamente se existir
-      if (loadedChats.length > 0) {
+      // Carregar primeira sessão automaticamente APENAS se não for welcome forçado
+      if (loadedChats.length > 0 && !isWelcomeForced) {
         fun_load_chat_session(loadedChats[0].id);
       } else {
-        // Se não há sessões, ativar modo welcome
+        // Se não há sessões OU welcome foi forçado, ativar modo welcome
         setMessages([]);
         setCurrentSessionId(null);
         setIsWelcomeMode(true);
@@ -304,29 +554,83 @@ export default function ChatPage() {
     }
   };
 
-  // Redireciona para home se usuário não estiver logado
+  // Redireciona para home se usuário não estiver logado + limpeza
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/');
+      console.log('🧹 ChatPage: Limpando dados e redirecionando (logout)');
+      localStorage.removeItem(STORAGE_KEY);
+      navigate('/', { replace: true });
     }
   }, [user, loading, navigate]);
 
-  // Carregar dados do sidebar quando componente monta
+  // Timeout de segurança para logout - se loading ficar true por muito tempo
+  useEffect(() => {
+    if (!user && loading) {
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ Timeout de segurança: forçando redirecionamento');
+        navigate('/', { replace: true });
+      }, 3000); // 3 segundos
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [user, loading, navigate]);
+
+  // 🚀 CARREGAR DADOS: PRIORIDADE PARA HISTÓRICO, FALLBACK PARA LOCALSTORAGE
   useEffect(() => {
     if (user && !loading) {
-      // Verificar se veio do header com intenção de iniciar novo chat
+      // Inicializando ChatPage
+      
+      // 🎯 PRIORIDADE MÁXIMA: Verificar se veio do header (SEMPRE WELCOME)
       const state = location.state as { startWelcome?: boolean } | null;
       if (state?.startWelcome) {
-        console.log('🎯 Iniciando modo welcome via header');
-        // Carregar sidebar mas sem ativar sessão
-        fun_load_sidebar_only();
-        // Ativar modo welcome
-        fun_create_chat_session();
-        // Limpar o state para evitar reativação
+        console.log('🎯 FORÇANDO modo welcome via header');
+        
+        // Carregar sidebar mas SEM ativar nenhuma sessão
+        const userChatData = localStorage.getItem('user_chat_data');
+        if (userChatData) {
+          fun_load_sidebar_only(); // Esta função NÃO carrega sessão automaticamente
+        } else {
+          setChats([]);
+        }
+        
+        // FORÇAR welcome mode e BLOQUEAR carregamento automático
+        setMessages([]);
+        setCurrentSessionId(null);
+        setIsWelcomeMode(true);
+        setIsWelcomeForced(true); // Flag para bloquear interferências
+        
         navigate(location.pathname, { replace: true });
-      } else {
-        fun_load_sidebar();
+        setTimeout(() => setIsInitialized(true), 1000);
+        return;
       }
+      
+      // PRIORIDADE 1: Verificar se há dados históricos no user_chat_data
+      const userChatData = localStorage.getItem('user_chat_data');
+      
+      if (userChatData) {
+        console.log('📚 Dados históricos encontrados, carregando do user_chat_data');
+        fun_load_sidebar(); // Carrega dados históricos
+      } else {
+        // PRIORIDADE 2: Tentar carregar do localStorage (cache temporário)
+        const savedData = loadFromLocalStorage();
+        
+        if (savedData) {
+          // Restaurando estado do cache
+          setChats(savedData.chats || []);
+          setCurrentSessionId(savedData.currentSessionId);
+          setMessages(savedData.messages || []);
+          setIsWelcomeMode(savedData.isWelcomeMode ?? true);
+        } else {
+          console.log('📭 Nenhum dado encontrado, inicializando estado padrão');
+          setChats([]);
+          setMessages([]);
+          setCurrentSessionId(null);
+          setIsWelcomeMode(true);
+        }
+      }
+      
+      // Marcar como inicializado após carregamento
+      setTimeout(() => setIsInitialized(true), 1000);
     }
   }, [user, loading, location.state]);
 
@@ -371,6 +675,7 @@ export default function ChatPage() {
           setIsLoading={setIsLoading}
           isWelcomeMode={isWelcomeMode}
           onFirstMessage={handleFirstMessage}
+          currentSessionId={currentSessionId}
         />
       </div>
     </div>

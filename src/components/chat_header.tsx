@@ -9,11 +9,14 @@ export default function ChatHeader() {
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
+    console.log('🏠 ChatHeader: handleLogout chamado');
     try {
+      console.log('🚪 ChatHeader: Executando logout...');
       await logout();
+      console.log('✅ ChatHeader: Logout concluído, redirecionando...');
       navigate('/'); // Redireciona para a página inicial após logout
     } catch (error) {
-      console.error('Erro no logout:', error);
+      console.error('❌ ChatHeader: Erro no logout:', error);
       // Mesmo com erro, redireciona para garantir que o usuário saia
       navigate('/');
     }

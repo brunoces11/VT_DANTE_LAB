@@ -15,17 +15,10 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading }: ChatNeoMsgProp
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
-      // Reset to minimum height first
-      textarea.style.height = '56px';
-      
-      // Force reflow to get accurate scrollHeight
-      textarea.offsetHeight;
-      
+      textarea.style.height = '56px'; // Reset to standard height
       const scrollHeight = textarea.scrollHeight;
       const maxHeight = 220; // 220px max height
       const minHeight = 56; // Standard height
-      
-      // Only grow if content actually needs more space
       const newHeight = Math.min(Math.max(scrollHeight, minHeight), maxHeight);
       textarea.style.height = `${newHeight}px`;
       
