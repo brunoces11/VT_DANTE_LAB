@@ -252,7 +252,17 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Status**: ✅ Refatoração completa implementada - lógica de inicialização otimizada
 - **Impact**: Melhoria significativa na confiabilidade do fluxo "Iniciar Chat" do header, garantindo que sempre force modo welcome independente do estado atual, eliminando condições conflitantes e simplificando a lógica de inicialização
 
-**Última atualização:** 01/10/2025 - 18:30
+**Última atualização:** 01/10/2025 - 19:15
+
+## 01/10/2025 - 19:15 - Atualização do Modelo de IA do Kiro Agent
+- **Files Modified**: `~/.kiro/settings/mcp.json` → `AppData/Roaming/Kiro/User/settings.json`
+- **Changes Made**: Atualizado modelo de IA do Kiro Agent:
+  - **Modelo Anterior**: `claude-sonnet-4`
+  - **Modelo Novo**: `claude-sonnet-4.5`
+  - Configuração `kiroAgent.agentModelSelection` modificada na linha 14
+  - Demais configurações mantidas inalteradas (autonomia em "Autopilot", git smart commit habilitado, terminal padrão Command Prompt)
+- **Status**: ✅ Configuração atualizada com sucesso - Kiro Agent agora usa Claude Sonnet 4.5
+- **Impact**: Upgrade do modelo de IA para versão mais recente (4.5), potencialmente oferecendo melhor performance, raciocínio aprimorado e capacidades expandidas nas interações com o agente
 
 ## 01/10/2025 - 18:45 - Reformatação de Código da Edge Function ef_renomear_chat
 - **Files Modified**: `supabase/functions/ef_renomear_chat/index.ts`
@@ -282,7 +292,17 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Status**: ✅ Componente recriado com sucesso - implementação completa e funcional
 - **Impact**: Restauração do componente de input para conversas existentes com todas as funcionalidades necessárias (validação, loading states, eventos de teclado, styling responsivo), garantindo continuidade do sistema de chat
 
-**Última atualização:** 01/10/2025 - 19:00
+**Última atualização:** 01/10/2025 - 19:30
+
+## 01/10/2025 - 19:30 - Reversão do Modelo de IA do Kiro Agent
+- **Files Modified**: `AppData/Roaming/Kiro/User/settings.json`
+- **Changes Made**: Revertido modelo de IA do Kiro Agent:
+  - **Modelo Anterior**: `claude-sonnet-4.5`
+  - **Modelo Atual**: `claude-sonnet-4`
+  - Configuração `kiroAgent.agentModelSelection` alterada na linha 14
+  - Demais configurações mantidas inalteradas (autonomia em "Autopilot", git smart commit habilitado, terminal padrão Command Prompt)
+- **Status**: ✅ Configuração revertida com sucesso - Kiro Agent agora usa Claude Sonnet 4
+- **Impact**: Reversão para modelo anterior (4.0), possivelmente por questões de estabilidade ou preferência de performance, mantendo funcionalidades do agente com modelo mais testado
 
 ## 01/10/2025 - 18:30 - Sincronização de Títulos Renomeados com localStorage
 - **Files Modified**: `src/components/sidebar_collapse.tsx`
@@ -598,3 +618,132 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Impact**: Melhoria na performance eliminando operação de backup desnecessária, reduzindo carga no sistema de persistência e evitando salvamentos duplicados no localStorage/banco de dados
 
 **Última atualização:** 01/10/2025 - 16:30
+## 
+01/10/2025 - 19:15 - Refatoração do ChatInputMsg para Textarea Auto-Redimensionável
+- **Files Modified**: `src/components/chat_input_msg.tsx`
+- **Changes Made**: Refatoração completa do componente ChatInputMsg substituindo Input por Textarea com funcionalidades avançadas:
+  - **Remoção de Import**: Removido import `Input` do `@/components/ui/input`
+  - **Novos Imports**: Adicionados `useRef` e `useEffect` do React para controle de referência e efeitos
+  - **Substituição de Componente**: Input simples substituído por textarea com auto-redimensionamento
+  - **Função adjustTextareaHeight**: Implementada lógica para ajustar altura automaticamente baseada no conteúdo
+  - **Altura Dinâmica**: Textarea cresce de min-height 48px até max-height 220px conforme o texto
+  - **Scrollbar Customizada**: Adicionado CSS inline para estilizar scrollbar (webkit-scrollbar)
+  - **useRef Implementation**: Criada referência `textareaRef` para manipulação direta do DOM
+  - **useEffect Hook**: Auto-ajuste de altura executado sempre que `inputValue` muda
+  - **Evento onKeyPress**: Mantido tratamento de Enter (sem Shift) para envio
+  - **Styling Responsivo**: Classes Tailwind atualizadas para textarea com overflow-y-auto
+  - **Placeholder Específico**: Mantido placeholder sobre Registro de Imóveis
+- **Status**: ✅ Refatoração completa implementada - textarea responsiva funcional
+- **Impact**: Melhoria significativa na UX do input de mensagens - usuários podem digitar textos longos com visualização completa, altura ajusta automaticamente, scrollbar customizada quando necessário, mantendo design consistente do sistema
+
+## 01/10/2025 - 19:20 - Correção da Função de Auto-resize do Textarea no ChatNeoMsg
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Corrigida função `adjustTextareaHeight()` para melhor controle de dimensões do textarea:
+  - **Reset de Altura**: Alterado de `textarea.style.height = 'auto'` para `textarea.style.height = '56px'` (altura inicial específica)
+  - **Altura Mínima**: Adicionada constante `minHeight = 56` para garantir altura mínima consistente
+  - **Lógica de Cálculo**: Implementado `Math.max(scrollHeight, minHeight)` para garantir que textarea nunca fique menor que 56px
+  - **Altura Final**: Mantida lógica `Math.min()` para respeitar altura máxima de 220px
+  - **Comentários**: Adicionados comentários explicativos "Reset to initial height" e "Initial height"
+- **Status**: ✅ Correção aplicada com sucesso - função de auto-resize otimizada
+- **Impact**: Melhoria na consistência visual do textarea de boas-vindas, garantindo altura mínima de 56px e prevenindo colapso visual durante redimensionamento automático
+
+## 01/10/2025 - 19:25 - Simplificação da Lógica de Auto-resize do Textarea
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Simplificação da função `adjustTextareaHeight()` no componente ChatNeoMsg para comportamento mais natural:
+  - **Remoção de altura mínima**: Removida constante `minHeight = 56` e lógica de altura mínima forçada
+  - **Reset otimizado**: Alterado de `textarea.style.height = '56px'` para `textarea.style.height = 'auto'`
+  - **Cálculo simplificado**: Mudança de `Math.min(Math.max(scrollHeight, minHeight), maxHeight)` para `Math.min(scrollHeight, maxHeight)`
+  - **Comportamento natural**: Textarea agora se ajusta organicamente ao conteúdo sem restrições de altura mínima
+  - **Remoção de comentários**: Removidos comentários "Reset to initial height" e "Initial height" desnecessários
+- **Status**: ✅ Simplificação aplicada com sucesso - comportamento de resize mais fluido
+- **Impact**: Melhoria na UX do componente de welcome screen, permitindo que o textarea se comporte de forma mais natural e responsiva, ajustando-se dinamicamente ao conteúdo sem imposição de altura mínima artificial
+
+## 01/10/2025 - 19:30 - Correção de Padding no ChatNeoMsg
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Ajustado padding do textarea no componente ChatNeoMsg para melhor alinhamento visual:
+  - **Padding Vertical**: Alterado de `py-4` para `py-3` para consistência com ChatInputMsg
+  - **Padding Right**: Removido `pr-36` da classe CSS e adicionado `paddingRight: '176px'` no style inline
+  - **Comentário Explicativo**: Adicionado comentário "40px a mais que o ChatInputMsg para acomodar botão maior"
+  - **Justificativa**: ChatNeoMsg precisa de mais espaço à direita devido ao botão "Iniciar Conversa" ser maior que o botão "Enviar" do ChatInputMsg
+- **Status**: ✅ Correção aplicada com sucesso - padding otimizado para melhor UX
+- **Impact**: Melhoria visual no componente de welcome screen, garantindo alinhamento consistente entre os dois componentes de input (ChatNeoMsg e ChatInputMsg) e espaçamento adequado para o botão maior
+
+## 01/10/2025 - 19:45 - Correção da Função de Auto-resize do Textarea no ChatNeoMsg
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Corrigida lógica da função `adjustTextareaHeight()` para melhor controle de dimensões do textarea:
+  - **Reset de Altura**: Alterado de `textarea.style.height = 'auto'` para `textarea.style.height = '58px'` (altura padrão)
+  - **Altura Mínima**: Adicionada constante `minHeight = 58` para garantir altura mínima consistente
+  - **Cálculo Otimizado**: Implementado `Math.min(Math.max(scrollHeight, minHeight), maxHeight)` para respeitar limites mínimo (58px) e máximo (220px)
+  - **Comportamento Melhorado**: Textarea agora sempre mantém altura mínima de 58px mesmo com conteúdo vazio, evitando colapso visual
+- **Status**: ✅ Correção aplicada com sucesso - auto-resize mais estável implementado
+- **Impact**: Melhoria na UX do componente de welcome screen, garantindo que o textarea mantenha dimensões consistentes e previsíveis durante digitação e redimensionamento automático
+
+**Última atualização:** 01/10/2025 - 19:45
+
+## 01/10/2025 - 19:45 - Melhoria na Funcionalidade de Auto-resize do Textarea
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Aprimoramento da função `handleInputChange` para melhor controle do textarea:
+  - **Cálculo de Altura Otimizado**: Separação da lógica de cálculo em variável `newHeight` para melhor legibilidade
+  - **Controle de Scroll Condicional**: Implementada lógica para mostrar/ocultar scroll baseada na altura:
+    - `overflowY: 'auto'` quando altura atinge o máximo (220px) - permite scroll
+    - `overflowY: 'hidden'` quando altura está abaixo do máximo - oculta scroll desnecessário
+  - **Comentário Explicativo**: Adicionado "Só mostrar scroll quando necessário" para documentar a lógica
+  - **Melhoria na UX**: Scroll aparece apenas quando realmente necessário, evitando barras de scroll vazias
+  - **Mantida Funcionalidade**: Preservadas todas as funcionalidades existentes (min/max height, auto-resize)
+- **Status**: ✅ Melhoria implementada com sucesso - controle de scroll otimizado
+- **Impact**: Melhoria na experiência do usuário ao digitar mensagens longas no componente de welcome, com scroll aparecendo apenas quando o conteúdo excede a altura máxima, proporcionando interface mais limpa e profissional
+
+**Última atualização:** 01/10/2025 - 19:45
+## 01/10/2
+025 - 19:45 - Adição de Logs de Debug no UserProfileIcon
+- **Files Modified**: `src/components/user_profile_icon.tsx`
+- **Changes Made**: Adicionados logs de debug na função `handleLogout()` para rastreamento do fluxo de logout:
+  - **Log Inicial**: `console.log('🔘 UserProfileIcon: Botão Sair clicado')` - confirma que botão foi clicado
+  - **Log Callback Customizado**: `console.log('🎯 UserProfileIcon: Usando callback customizado')` - indica uso de callback fornecido via props
+  - **Log Logout Padrão**: `console.log('🔄 UserProfileIcon: Usando logout padrão')` - indica uso da função de logout padrão do AuthProvider
+  - **Fechamento de Dropdown**: Mantida chamada `setIsDropdownOpen(false)` antes dos logs para garantir fechamento imediato
+- **Status**: ✅ Logs de debug adicionados com sucesso - rastreamento de fluxo implementado
+- **Impact**: Melhoria na capacidade de debug do sistema de logout, permitindo identificar qual caminho está sendo executado (callback customizado vs logout padrão) e confirmar que o botão está respondendo corretamente aos cliques do usuário
+
+**Última atualização:** 01/10/2025 - 19:45
+## 0
+1/10/2025 - 19:45 - Ajuste de Altura do Textarea no ChatNeoMsg
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Ajustada altura padrão do textarea na função `adjustTextareaHeight()`:
+  - **Altura Inicial**: Alterada de `58px` para `56px` na linha de reset
+  - **Altura Mínima**: Alterada de `58px` para `56px` na constante `minHeight`
+  - **Altura Máxima**: Mantida em `220px` (inalterada)
+  - **Lógica de Cálculo**: Mantida mesma lógica `Math.min(Math.max(scrollHeight, minHeight), maxHeight)`
+- **Status**: ✅ Ajuste aplicado com sucesso - altura do textarea reduzida em 2px
+- **Impact**: Melhoria visual sutil no componente de welcome screen, reduzindo ligeiramente a altura inicial do campo de input para melhor proporção visual e alinhamento com design system
+
+**Última atualização:** 01/10/2025 - 19:45
+## 01/10/2
+025 - 19:45 - Ajustes de Layout no Botão do ChatNeoMsg
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Refinamentos no layout e posicionamento do botão "Iniciar Chat":
+  - **Padding do Textarea**: Ajustado `paddingRight` de `186px` para `176px` para melhor alinhamento com botão
+  - **Posicionamento do Botão**: Alteradas coordenadas de posicionamento:
+    - `right`: de `8px` para `10px`
+    - `top`: de `8px` para `10px` 
+    - `bottom`: de `8px` para `10px`
+  - **Altura do Botão**: Removida classe `h-10` e adicionado `height: '36px'` no style inline para controle preciso
+  - **Tamanho dos Ícones**: Aumentado de `h-4 w-4` para `h-5 w-5` tanto no ícone Send quanto no Loader2
+  - **Texto do Botão**: Alterado de "Iniciar Conversa" para "Iniciar Chat" para consistência com nomenclatura
+- **Status**: ✅ Ajustes aplicados com sucesso - layout do botão otimizado
+- **Impact**: Melhoria visual no componente de welcome screen com melhor alinhamento do botão, ícones mais visíveis e texto mais conciso, proporcionando UX mais polida na interface de início de conversa
+
+**Última atualização:** 01/10/2025 - 19:45
+## 02
+/10/2025 - 10:30 - Melhoria na Função de Auto-resize do Textarea
+- **Files Modified**: `src/components/chat_neo_msg.tsx`
+- **Changes Made**: Aprimorada função `adjustTextareaHeight()` para melhor controle do redimensionamento automático do textarea:
+  - **Reset Otimizado**: Adicionado comentário "Reset to minimum height first" para clarificar primeira etapa
+  - **Force Reflow**: Implementado `textarea.offsetHeight` para forçar reflow e obter `scrollHeight` preciso
+  - **Comentário Explicativo**: Adicionado "Force reflow to get accurate scrollHeight" para documentar técnica
+  - **Lógica de Crescimento**: Adicionado comentário "Only grow if content actually needs more space" para explicar condição
+  - **Estrutura Melhorada**: Reorganização dos comentários para melhor legibilidade do código
+- **Status**: ✅ Melhoria aplicada com sucesso - função de auto-resize mais robusta
+- **Impact**: Aprimoramento na funcionalidade de redimensionamento automático do textarea no componente de welcome, garantindo cálculo mais preciso da altura necessária e melhor experiência do usuário ao digitar mensagens longas
+
+**Última atualização:** 02/10/2025 - 10:30
