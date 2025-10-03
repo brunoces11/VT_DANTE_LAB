@@ -12,9 +12,17 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLabDropdownOpen, setIsLabDropdownOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Debug: Log estado de autenticação
+  useEffect(() => {
+    console.log('🔍 Header - Estado Auth:');
+    console.log('   - user:', !!user, user?.email);
+    console.log('   - profile:', !!profile);
+    console.log('   - Deve mostrar:', user ? 'AVATAR' : 'BOTÃO ENTRAR');
+  }, [user, profile]);
 
   // Fechar modal automaticamente quando usuário for autenticado
   useEffect(() => {
@@ -186,11 +194,11 @@ export default function Header() {
               >
                 💬 Iniciar Chat
               </Button>
-              {loading ? (
-                <div className="w-9 h-9 rounded-full bg-neutral-100 animate-pulse" />
-              ) : user ? (
+              {user ? (
+                // Se tem user, mostra UserProfileIcon
                 <UserProfileIcon size="md" />
               ) : (
+                // Padrão: mostra botão Entrar (visitante)
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -331,9 +339,11 @@ export default function Header() {
                   >
                     💬 Iniciar Chat
                   </Button>
-                  {loading ? (
-                    <div className="w-full h-9 rounded-md bg-neutral-100 animate-pulse" />
-                  ) : !user ? (
+                  {user ? (
+                    <div className="flex justify-center pt-2">
+                      <UserProfileIcon size="md" showTooltip={true} />
+                    </div>
+                  ) : (
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -342,10 +352,6 @@ export default function Header() {
                     >
                       Entrar
                     </Button>
-                  ) : (
-                    <div className="flex justify-center pt-2">
-                      <UserProfileIcon size="md" showTooltip={true} />
-                    </div>
                   )}
                 </div>
               </nav>

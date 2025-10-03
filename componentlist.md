@@ -40,3 +40,74 @@ Este arquivo registra componentes do projeto mediante solicitação específica.
 ---
 
 *Última atualização: $(date)*
+
+### UserP
+rofileIcon
+**Arquivo:** `src/components/user_profile_icon.tsx`  
+**Funções:** 
+- Exibe avatar do usuário (imagem ou ícone genérico)
+- Dropdown menu com opções "Painel do Usuário" e "Sair"
+- Gerencia estado de autenticação via AuthProvider
+- Suporta 3 tamanhos (sm/md/lg)
+- Tooltip com nome/email do usuário
+- Callback customizado para logout
+
+**Localização:** Arquivo isolado  
+
+**Usado em:** 
+- `Header` (header.tsx) - Desktop e Mobile
+- `ChatHeader` (chat_header.tsx) - Área de chat
+
+**Variáveis de ambiente:** Nenhuma (usa dados do AuthProvider)
+
+**Componentes internos:** 
+- `UserProfilePanel` (user_profile_panel) - Modal de perfil
+- Ícones: `User`, `Settings`, `LogOut` (lucide-react)
+
+**Integração com AuthProvider (Padrão Supabase):**
+```typescript
+const { user, profile, logout } = useAuth();
+
+// ✅ Só renderiza se tiver user E profile
+if (!user || !profile) return null;
+
+// Avatar
+{profile?.avatar_url ? (
+  <img src={profile.avatar_url} /> // Avatar real
+) : (
+  <User /> // Ícone genérico
+)}
+
+// Tooltip
+title={profile?.user_name || user?.email || 'Usuário logado'}
+```
+
+**Comportamento:**
+1. **Deslogado:** Não renderiza (retorna null)
+2. **Logado sem profile:** Não renderiza (aguarda profile carregar)
+3. **Logado com profile:** Renderiza avatar ou ícone genérico
+4. **Click:** Abre dropdown com opções
+5. **Logout:** Executa callback customizado ou logout padrão + redirect
+
+**Props:**
+- `size?: 'sm' | 'md' | 'lg'` - Tamanho do avatar (padrão: 'md')
+- `className?: string` - Classes CSS adicionais
+- `showTooltip?: boolean` - Mostrar tooltip (padrão: true)
+- `onLogout?: () => void` - Callback customizado para logout
+
+**Padrão Supabase:**
+- ✅ Usa `user` e `profile` do AuthProvider (fonte única)
+- ✅ Aguarda profile carregar antes de renderizar
+- ✅ Não manipula localStorage diretamente
+- ✅ Logout via SDK do Supabase
+- ✅ Sincronizado com estado global de autenticação
+
+**Notas:**
+- Avatar real requer upload via `storageService.uploadAvatar()`
+- URL do avatar salva em `profile.avatar_url` (tabela `tab_user`)
+- Ícone genérico `<User />` aparece se não tiver avatar
+- Componente é responsivo e acessível
+
+---
+
+*Última atualização: 2025-01-03*

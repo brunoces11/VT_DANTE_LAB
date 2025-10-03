@@ -10,10 +10,8 @@ export default function ChatHeader() {
 
   const handleLogout = () => {
     console.log('🚪 ChatHeader: Logout instantâneo');
-    // Logout instantâneo - não espera resposta
-    logout(); // Não usar await - deixa executar em background
-    // Redirecionar imediatamente
-    navigate('/'); // Redireciona para a página inicial instantaneamente
+    logout();
+    navigate('/');
   };
 
   return (

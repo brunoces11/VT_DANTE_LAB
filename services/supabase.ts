@@ -1,200 +1,348 @@
 import { supabase } from './supa_init';
-import { getCurrentTimestampUTC } from '@/utils/timezone';
 
 /**
- * Função para carregar dados completos do usuário após login
- * Chama a edge function load_user_data que retorna sessões de chat e mensagens
+ * ✅ PADRÃO OFICIAL SUPABASE
+ * 
+ * Este arquivo contém funções que usam o SDK do Supabase diretamente.
+ * NÃO manipula localStorage manualmente.
+ * NÃO implementa cache ou timeouts customizados.
+ * Deixa o SDK gerenciar tokens, sessões e renovações automaticamente.
  */
-export async function fun_load_user_data() {
-  console.log('🚀 INÍCIO fun_load_user_data() - Função executada!');
-  try {
-    console.log('🔍 Obtendo token do localStorage...');
-    // Usar token do localStorage em vez de getSession() que trava
-    const authData = localStorage.getItem('sb-oifhsdqivbiyyvfheofx-auth-token');
-    
-    if (!authData) {
-      throw new Error('Usuário não está logado - sem dados de auth no localStorage');
-    }
-    
-    const parsed = JSON.parse(authData);
-    const access_token = parsed.access_token;
-    
-    if (!access_token) {
-      throw new Error('Token não disponível no localStorage');
-    }
-    
-    console.log('✅ Token obtido do localStorage, continuando...');
 
-    // URL da edge function - verificar se as variáveis de ambiente estão definidas
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-    
-    if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL não está definida no arquivo .env')
-    }
-    
-    const functionUrl = `${supabaseUrl}/functions/v1/load_user_data`
-    
-    console.log('📊 Carregando dados do usuário...');
-    console.log('🔗 URL da função:', functionUrl);
-    console.log('🔑 Token disponível:', access_token ? 'Sim' : 'Não');
-    
-    // Fazer a requisição HTTP para a edge function com timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.log('⏰ Timeout 15s na API load_user_data');
-      controller.abort();
-    }, 15000); // 15 segundos timeout
-    
-    const response = await fetch(functionUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
+// ========================================
+// FUNÇÕES DE AUTENTICAÇÃO
+// ========================================
+
+export const authService = {
+  /**
+   * Login com email e senha
+   */
+  async login(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
     });
-    
-    clearTimeout(timeoutId);
+    return { data, error };
+  },
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro na requisição: ${response.status} - ${errorText}`);
+  /**
+   * Registro de novo usuário
+   */
+  async register(email: string, password: string, name: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name }
+      }
+    });
+    return { data, error };
+  },
+
+  /**
+   * Logout
+   */
+  async logout() {
+    const { error } = await supabase.auth.signOut();
+    return { error };
+  },
+
+  /**
+   * Atualizar senha
+   */
+  async updatePassword(newPassword: string) {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    return { data, error };
+  },
+
+  /**
+   * Recuperar senha
+   */
+  async resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    return { error };
+  }
+};
+
+// ========================================
+// FUNÇÕES DE PERFIL DO USUÁRIO
+// ========================================
+
+export const profileService = {
+  /**
+   * Obter perfil do usuário
+   */
+  async getProfile(userId: string) {
+    const { data, error } = await supabase
+      .from('tab_user')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    return { data, error };
+  },
+
+  /**
+   * Criar perfil do usuário
+   */
+  async createProfile(userId: string, profileData: any = {}) {
+    const { data, error } = await supabase
+      .from('tab_user')
+      .insert({ user_id: userId, ...profileData })
+      .select()
+      .single();
+    return { data, error };
+  },
+
+  /**
+   * Atualizar perfil do usuário
+   */
+  async updateProfile(userId: string, updates: any) {
+    const { data, error } = await supabase
+      .from('tab_user')
+      .update(updates)
+      .eq('user_id', userId)
+      .select()
+      .single();
+    return { data, error };
+  }
+};
+
+// ========================================
+// FUNÇÕES DE CHAT
+// ========================================
+
+export const chatService = {
+  /**
+   * Carregar sessões de chat do usuário
+   */
+  async loadUserChatSessions(userId: string) {
+    try {
+      console.log('📊 Carregando sessões de chat...');
+      
+      const { data, error } = await supabase
+        .from('tab_chat_session')
+        .select(`
+          chat_session_id,
+          chat_session_title,
+          created_at,
+          updated_at
+        `)
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false });
+      
+      if (error) {
+        console.error('❌ Erro ao carregar sessões:', error);
+        return { data: null, error };
+      }
+      
+      console.log(`✅ ${data?.length || 0} sessões carregadas`);
+      return { data, error: null };
+    } catch (error) {
+      console.error('❌ Erro em loadUserChatSessions:', error);
+      return { data: null, error };
+    }
+  },
+
+  /**
+   * Carregar mensagens de uma sessão
+   */
+  async loadChatMessages(sessionId: string) {
+    try {
+      console.log('💬 Carregando mensagens da sessão:', sessionId.slice(0, 6));
+      
+      const { data, error } = await supabase
+        .from('tab_chat_msg')
+        .select('*')
+        .eq('chat_session_id', sessionId)
+        .order('created_at', { ascending: true });
+      
+      if (error) {
+        console.error('❌ Erro ao carregar mensagens:', error);
+        return { data: null, error };
+      }
+      
+      console.log(`✅ ${data?.length || 0} mensagens carregadas`);
+      return { data, error: null };
+    } catch (error) {
+      console.error('❌ Erro em loadChatMessages:', error);
+      return { data: null, error };
+    }
+  },
+
+  /**
+   * Salvar nova mensagem de chat
+   */
+  async saveChatMessage(params: {
+    chat_session_id: string;
+    chat_session_title: string;
+    msg_input: string;
+    msg_output: string;
+    user_id: string;
+  }) {
+    try {
+      const sessionId = params.chat_session_id.slice(0, 6);
+      console.log(`💾 Salvando mensagem: ${sessionId}`);
+      
+      // 1. Criar/atualizar sessão
+      const { error: sessionError } = await supabase
+        .from('tab_chat_session')
+        .upsert({
+          chat_session_id: params.chat_session_id,
+          user_id: params.user_id,
+          chat_session_title: params.chat_session_title,
+          updated_at: new Date().toISOString()
+        });
+      
+      if (sessionError) {
+        console.error('❌ Erro ao salvar sessão:', sessionError);
+        return { success: false, error: sessionError };
+      }
+      
+      // 2. Salvar mensagem
+      const { error: messageError } = await supabase
+        .from('tab_chat_msg')
+        .insert({
+          chat_session_id: params.chat_session_id,
+          msg_input: params.msg_input,
+          msg_output: params.msg_output
+        });
+      
+      if (messageError) {
+        console.error('❌ Erro ao salvar mensagem:', messageError);
+        return { success: false, error: messageError };
+      }
+      
+      console.log(`✅ ${sessionId} salva`);
+      return { success: true, error: null };
+    } catch (error) {
+      console.error('❌ Erro em saveChatMessage:', error);
+      return { success: false, error };
+    }
+  },
+
+  /**
+   * Renomear sessão de chat
+   */
+  async renameChat(sessionId: string, newTitle: string, userId: string) {
+    try {
+      const shortId = sessionId.slice(0, 6);
+      console.log(`🏷️ Renomeando ${shortId}: "${newTitle.slice(0, 30)}..."`);
+      
+      const { error } = await supabase
+        .from('tab_chat_session')
+        .update({ 
+          chat_session_title: newTitle,
+          updated_at: new Date().toISOString()
+        })
+        .eq('chat_session_id', sessionId)
+        .eq('user_id', userId);
+      
+      if (error) {
+        console.error('❌ Erro ao renomear:', error);
+        return { success: false, error };
+      }
+      
+      console.log(`✅ ${shortId} renomeado`);
+      return { success: true, error: null };
+    } catch (error) {
+      console.error('❌ Erro em renameChat:', error);
+      return { success: false, error };
+    }
+  },
+
+  /**
+   * Deletar sessão de chat
+   */
+  async deleteChat(sessionId: string, userId: string) {
+    try {
+      const shortId = sessionId.slice(0, 6);
+      console.log(`🗑️ Deletando ${shortId}`);
+      
+      // Deletar mensagens primeiro (cascade pode não estar configurado)
+      await supabase
+        .from('tab_chat_msg')
+        .delete()
+        .eq('chat_session_id', sessionId);
+      
+      // Deletar sessão
+      const { error } = await supabase
+        .from('tab_chat_session')
+        .delete()
+        .eq('chat_session_id', sessionId)
+        .eq('user_id', userId);
+      
+      if (error) {
+        console.error('❌ Erro ao deletar:', error);
+        return { success: false, error };
+      }
+      
+      console.log(`✅ ${shortId} deletado`);
+      return { success: true, error: null };
+    } catch (error) {
+      console.error('❌ Erro em deleteChat:', error);
+      return { success: false, error };
+    }
+  }
+};
+
+// ========================================
+// FUNÇÕES DE STORAGE (AVATAR)
+// ========================================
+
+export const storageService = {
+  /**
+   * Upload de avatar do usuário
+   */
+  async uploadAvatar(file: File, userId: string) {
+    // Validações
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      return { data: null, error: { message: 'Tipo de arquivo não permitido' } };
     }
 
-    const data = await response.json();
-    console.log('📥 Resposta recebida:', data ? 'Dados OK' : 'Dados vazios');
-    
-    // Verificar se há erro na resposta
-    if (data.error) {
-      throw new Error(`Erro retornado pela função: ${data.error}`);
+    const maxSize = 4 * 1024 * 1024; // 4MB
+    if (file.size > maxSize) {
+      return { data: null, error: { message: 'Arquivo muito grande (máx 4MB)' } };
     }
 
-    console.log('✅ Dados atuais carregados do servidor');
-    return {
-      success: true,
-      data: data,
-      error: null
-    };
+    // Upload
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId}/${Date.now()}.${fileExt}`;
 
-  } catch (error) {
-    console.error('❌ Erro em fun_load_user_data:', error);
-    
-    // Se for erro de timeout, não é crítico - apenas log
-    if (error.name === 'AbortError') {
-      console.warn('⚠️ Timeout ao carregar dados do usuário - continuando normalmente');
-      return {
-        success: false,
-        data: null,
-        error: 'Timeout na API - dados não carregados'
-      };
-    }
-    
-    return {
-      success: false,
-      data: null,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
+    const { data, error } = await supabase.storage
+      .from('user_avatar')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) return { data: null, error };
+
+    // URL pública
+    const { data: publicUrlData } = supabase.storage
+      .from('user_avatar')
+      .getPublicUrl(fileName);
+
+    return { 
+      data: { 
+        path: data.path, 
+        publicUrl: publicUrlData.publicUrl 
+      }, 
+      error: null 
     };
   }
-}
+};
+
+// ========================================
+// FUNÇÕES LEGADAS (COMPATIBILIDADE)
+// ========================================
 
 /**
- * Função para invalidar outras sessões do usuário
- * Chama a edge function single_session que desloga todas as outras sessões ativas
+ * @deprecated Use chatService.saveChatMessage() instead
+ * Mantido para compatibilidade com código existente
  */
-export async function fun_single_session() {
-  try {
-    // Obter a sessão atual do usuário
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError) {
-      throw new Error(`Erro ao obter sessão: ${sessionError.message}`);
-    }
-    
-    if (!session?.access_token) {
-      throw new Error('Usuário não está logado ou token não disponível');
-    }
-
-    // URL da edge function - verificar se as variáveis de ambiente estão definidas
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-    
-    if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL não está definida no arquivo .env')
-    }
-    
-    const functionUrl = `${supabaseUrl}/functions/v1/single_session`
-    
-    console.log('🔒 Invalidando outras sessões do usuário...');
-    
-    // Fazer a requisição HTTP para a edge function com timeout e error handling
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-    
-    const response = await fetch(functionUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      signal: controller.signal,
-    });
-    
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro na requisição: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    
-    // Verificar se há erro na resposta
-    if (data.error) {
-      throw new Error(`Erro retornado pela função: ${data.error}`);
-    }
-
-    return {
-      success: true,
-      message: data.message,
-      error: null
-    };
-
-  } catch (error) {
-    console.error('Erro em fun_single_session:', error);
-    
-    // Se for erro de rede/timeout, não é crítico - apenas log
-    if (error.name === 'AbortError' || error.message === 'Failed to fetch') {
-      console.warn('⚠️ Timeout ou erro de rede na invalidação de sessões - continuando normalmente');
-      return {
-        success: false,
-        message: 'Timeout na invalidação de outras sessões',
-        error: 'Network timeout - não crítico'
-      };
-    }
-    
-    return {
-      success: false,
-      message: null,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
-    };
-  }
-}
-
-/**
- * Função para salvar dados de chat (sessão + mensagem) no banco de dados
- * Chama a edge function ef_save_chat que executa SQL única com CTE + ON CONFLICT
- */
-// Cache de sessão para evitar múltiplas chamadas
-let cachedSession: any = null;
-let sessionCacheTime = 0;
-const SESSION_CACHE_DURATION = 30000; // 30 segundos
-
-// Função para limpar cache de sessão
-export function clearSessionCache() {
-  console.log('🧹 Cache de sessão limpo');
-  cachedSession = null;
-  sessionCacheTime = 0;
-}
-
 export async function fun_save_chat_data(params: {
   chat_session_id: string;
   chat_session_title: string;
@@ -202,262 +350,21 @@ export async function fun_save_chat_data(params: {
   msg_output: string;
   user_id: string;
 }) {
-  // Log removido para evitar duplicação - já logado no frontend
-  
-  try {
-    let access_token = null;
-    
-    const now = Date.now();
-    if (cachedSession && (now - sessionCacheTime) < SESSION_CACHE_DURATION) {
-      access_token = cachedSession.access_token;
-    } else {
-      // Priorizar localStorage (mais rápido e confiável)
-      const authData = localStorage.getItem('sb-oifhsdqivbiyyvfheofx-auth-token');
-      if (authData) {
-        try {
-          const parsed = JSON.parse(authData);
-          access_token = parsed.access_token;
-          // Atualizar cache
-          cachedSession = {
-            access_token: parsed.access_token,
-            refresh_token: parsed.refresh_token,
-            user: parsed.user
-          };
-          sessionCacheTime = now;
-        } catch (parseError) {
-          console.warn('⚠️ Erro ao parsear token do localStorage');
-        }
-      }
-      
-      // Fallback: tentar getSession com timeout apenas se localStorage falhar
-      if (!access_token) {
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout sessão')), 3000)
-        );
-        
-        try {
-          const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
-          const session = result.data?.session;
-          
-          if (session?.access_token) {
-            access_token = session.access_token;
-            cachedSession = session;
-            sessionCacheTime = now;
-          }
-        } catch (timeoutError) {
-          if (cachedSession?.access_token) {
-            access_token = cachedSession.access_token;
-          } else {
-            throw timeoutError;
-          }
-        }
-      }
-    }
-    
-    if (!access_token) {
-      throw new Error('Token indisponível');
-    }
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL não definida');
-    }
-    
-    const functionUrl = `${supabaseUrl}/functions/v1/ef_save_chat`;
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.log('⏰ Timeout 10s');
-      controller.abort();
-    }, 10000);
-    
-    const response = await fetch(functionUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_session_id: params.chat_session_id,
-        chat_session_title: params.chat_session_title,
-        msg_input: params.msg_input,
-        msg_output: params.msg_output,
-        user_id: params.user_id
-      }),
-      signal: controller.signal,
-    });
-    
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    // Log removido para evitar duplicação - já logado no frontend
-
-    return {
-      success: true,
-      data: data,
-      error: null
-    };
-
-  } catch (error) {
-    console.error('❌ Erro em fun_save_chat_data:', error);
-    
-    // Se for erro de timeout, não é crítico - apenas log
-    if (error.name === 'AbortError') {
-      console.warn('⚠️ Timeout ao salvar chat - continuando normalmente');
-      return {
-        success: false,
-        data: null,
-        error: 'Timeout - não crítico'
-      };
-    }
-    
-    return {
-      success: false,
-      data: null,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
-    };
-  }
+  return await chatService.saveChatMessage(params);
 }
-// 🏷️ FUNÇÃO PARA RENOMEAR CHAT
+
+/**
+ * @deprecated Use chatService.renameChat() instead
+ * Mantido para compatibilidade com código existente
+ */
 export async function fun_renomear_chat(params: {
   chat_session_id: string;
   new_title: string;
   user_id: string;
 }) {
-  const sessionId = params.chat_session_id.slice(0, 6);
-  console.log(`🏷️ Renomeando ${sessionId}: "${params.new_title.slice(0, 30)}..."`);
-  
-  try {
-    let access_token = null;
-    
-    const now = Date.now();
-    if (cachedSession && (now - sessionCacheTime) < SESSION_CACHE_DURATION) {
-      access_token = cachedSession.access_token;
-    } else {
-      // Priorizar localStorage (mais rápido e confiável)
-      const authData = localStorage.getItem('sb-oifhsdqivbiyyvfheofx-auth-token');
-      if (authData) {
-        try {
-          const parsed = JSON.parse(authData);
-          access_token = parsed.access_token;
-          // Atualizar cache
-          cachedSession = {
-            access_token: parsed.access_token,
-            refresh_token: parsed.refresh_token,
-            user: parsed.user
-          };
-          sessionCacheTime = now;
-        } catch (parseError) {
-          console.warn('⚠️ Erro ao parsear token do localStorage');
-        }
-      }
-      
-      // Fallback: tentar getSession com timeout apenas se localStorage falhar
-      if (!access_token) {
-        const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Timeout sessão')), 3000)
-        );
-        
-        try {
-          const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
-          const session = result.data?.session;
-          
-          if (session?.access_token) {
-            access_token = session.access_token;
-            cachedSession = session;
-            sessionCacheTime = now;
-          }
-        } catch (timeoutError) {
-          if (cachedSession?.access_token) {
-            access_token = cachedSession.access_token;
-          } else {
-            throw timeoutError;
-          }
-        }
-      }
-    }
-    
-    if (!access_token) {
-      throw new Error('Token indisponível');
-    }
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    if (!supabaseUrl) {
-      throw new Error('VITE_SUPABASE_URL não definida');
-    }
-    
-    const functionUrl = `${supabaseUrl}/functions/v1/ef_renomear_chat`;
-    
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.log('⏰ Timeout 10s');
-      controller.abort();
-    }, 10000);
-    
-    const response = await fetch(functionUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_session_id: params.chat_session_id,
-        new_title: params.new_title,
-        user_id: params.user_id
-      }),
-      signal: controller.signal,
-    });
-    
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`${response.status}: ${errorText}`);
-    }
-
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(data.error);
-    }
-
-    console.log(`✅ ${sessionId} renomeado`);
-
-    return {
-      success: true,
-      data: data,
-      error: null
-    };
-
-  } catch (error) {
-    console.error(`❌ ${sessionId} erro:`, error);
-    
-    // Se for erro de timeout, não é crítico - apenas log
-    if (error.name === 'AbortError') {
-      console.warn('⚠️ Timeout ao renomear chat - continuando normalmente');
-      return {
-        success: false,
-        data: null,
-        error: 'Timeout - não crítico'
-      };
-    }
-    
-    return {
-      success: false,
-      data: null,
-      error: error instanceof Error ? error.message : 'Erro desconhecido'
-    };
-  }
+  return await chatService.renameChat(
+    params.chat_session_id,
+    params.new_title,
+    params.user_id
+  );
 }

@@ -17,7 +17,7 @@ export default function UserProfileIcon({
   showTooltip = true,
   onLogout
 }: UserProfileIconProps) {
-  const { user, logout } = useAuth();
+  const { user, profile, logout } = useAuth(); // ✅ Adiciona profile
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -80,6 +80,7 @@ export default function UserProfileIcon({
     }
   };
 
+  // ✅ Só renderiza se tiver user (profile é opcional)
   if (!user) return null;
 
   return (
@@ -106,9 +107,17 @@ export default function UserProfileIcon({
           style={{
             boxShadow: '0 0 0 2px white, 0 4px 7px rgba(0, 0, 0, 0.115)'
           }}
-          title={showTooltip ? (user.email || 'Usuário logado') : undefined}
+          title={showTooltip ? (profile?.user_name || user?.email || 'Usuário logado') : undefined}
         >
-          <User className={`${iconSizes[size]} text-neutral-600`} />
+          {profile?.avatar_url ? (
+            <img 
+              src={profile.avatar_url} 
+              alt={profile.user_name || 'Avatar'}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <User className={`${iconSizes[size]} text-neutral-600`} />
+          )}
         </button>
 
         {/* Dropdown Menu */}
