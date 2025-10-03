@@ -63,22 +63,20 @@ export default function UserProfileIcon({
   };
 
   const handleLogout = async () => {
+    console.log('🚪 UserProfileIcon: Logout clicado');
     setIsDropdownOpen(false);
     
     if (onLogout) {
-      onLogout(); // Usa o callback customizado se fornecido
+      // Usa o callback customizado se fornecido
+      onLogout();
     } else {
-      try {
-        console.log('🚪 Iniciando logout...');
-        await logout(); // Usa o logout padrão se não houver callback
-        console.log('✅ Logout concluído, redirecionando...');
-        // Usar React Router em vez de window.location
-        navigate('/', { replace: true });
-      } catch (error) {
-        console.error('❌ Erro no logout:', error);
-        // Mesmo com erro, redireciona para garantir que o usuário saia
-        navigate('/', { replace: true });
-      }
+      // Logout instantâneo - não espera resposta
+      console.log('🚀 Executando logout instantâneo...');
+      logout(); // Não usar await - deixa executar em background
+      
+      // Redirecionar imediatamente (não espera logout terminar)
+      console.log('🏠 Redirecionando para home...');
+      navigate('/', { replace: true });
     }
   };
 

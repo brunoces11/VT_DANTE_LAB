@@ -6,17 +6,24 @@ import { getCurrentTimestampUTC } from '@/utils/timezone';
  * Chama a edge function load_user_data que retorna sessões de chat e mensagens
  */
 export async function fun_load_user_data() {
+  console.log('🚀 INÍCIO fun_load_user_data() - Função executada!');
   try {
-    // Obter a sessão atual do usuário
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    console.log('🔍 Obtendo token do localStorage...');
+    // Usar token do localStorage em vez de getSession() que trava
+    const authData = localStorage.getItem('sb-oifhsdqivbiyyvfheofx-auth-token');
     
-    if (sessionError) {
-      throw new Error(`Erro ao obter sessão: ${sessionError.message}`);
+    if (!authData) {
+      throw new Error('Usuário não está logado - sem dados de auth no localStorage');
     }
     
-    if (!session?.access_token) {
-      throw new Error('Usuário não está logado ou token não disponível');
+    const parsed = JSON.parse(authData);
+    const access_token = parsed.access_token;
+    
+    if (!access_token) {
+      throw new Error('Token não disponível no localStorage');
     }
+    
+    console.log('✅ Token obtido do localStorage, continuando...');
 
     // URL da edge function - verificar se as variáveis de ambiente estão definidas
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -28,15 +35,26 @@ export async function fun_load_user_data() {
     const functionUrl = `${supabaseUrl}/functions/v1/load_user_data`
     
     console.log('📊 Carregando dados do usuário...');
+    console.log('🔗 URL da função:', functionUrl);
+    console.log('🔑 Token disponível:', access_token ? 'Sim' : 'Não');
     
-    // Fazer a requisição HTTP para a edge function
+    // Fazer a requisição HTTP para a edge function com timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      console.log('⏰ Timeout 15s na API load_user_data');
+      controller.abort();
+    }, 15000); // 15 segundos timeout
+    
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${session.access_token}`,
+        'Authorization': `Bearer ${access_token}`,
         'Content-Type': 'application/json',
       },
+      signal: controller.signal,
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -44,12 +62,14 @@ export async function fun_load_user_data() {
     }
 
     const data = await response.json();
+    console.log('📥 Resposta recebida:', data ? 'Dados OK' : 'Dados vazios');
     
     // Verificar se há erro na resposta
     if (data.error) {
       throw new Error(`Erro retornado pela função: ${data.error}`);
     }
 
+    console.log('✅ Dados atuais carregados do servidor');
     return {
       success: true,
       data: data,
@@ -57,7 +77,17 @@ export async function fun_load_user_data() {
     };
 
   } catch (error) {
-    console.error('Erro em fun_load_user_data:', error);
+    console.error('❌ Erro em fun_load_user_data:', error);
+    
+    // Se for erro de timeout, não é crítico - apenas log
+    if (error.name === 'AbortError') {
+      console.warn('⚠️ Timeout ao carregar dados do usuário - continuando normalmente');
+      return {
+        success: false,
+        data: null,
+        error: 'Timeout na API - dados não carregados'
+      };
+    }
     
     return {
       success: false,
@@ -175,41 +205,57 @@ export async function fun_save_chat_data(params: {
   // Log removido para evitar duplicação - já logado no frontend
   
   try {
-    let session = null;
-    let sessionError = null;
+    let access_token = null;
     
     const now = Date.now();
     if (cachedSession && (now - sessionCacheTime) < SESSION_CACHE_DURATION) {
-      session = cachedSession;
+      access_token = cachedSession.access_token;
     } else {
-      const sessionPromise = supabase.auth.getSession();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout sessão')), 3000)
-      );
-      
-      try {
-        const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
-        session = result.data?.session;
-        sessionError = result.error;
-        
-        if (session) {
-          cachedSession = session;
+      // Priorizar localStorage (mais rápido e confiável)
+      const authData = localStorage.getItem('sb-oifhsdqivbiyyvfheofx-auth-token');
+      if (authData) {
+        try {
+          const parsed = JSON.parse(authData);
+          access_token = parsed.access_token;
+          // Atualizar cache
+          cachedSession = {
+            access_token: parsed.access_token,
+            refresh_token: parsed.refresh_token,
+            user: parsed.user
+          };
           sessionCacheTime = now;
+        } catch (parseError) {
+          console.warn('⚠️ Erro ao parsear token do localStorage');
         }
-      } catch (timeoutError) {
-        if (cachedSession) {
-          session = cachedSession;
-        } else {
-          throw timeoutError;
+      }
+      
+      // Fallback: tentar getSession com timeout apenas se localStorage falhar
+      if (!access_token) {
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout sessão')), 3000)
+        );
+        
+        try {
+          const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+          const session = result.data?.session;
+          
+          if (session?.access_token) {
+            access_token = session.access_token;
+            cachedSession = session;
+            sessionCacheTime = now;
+          }
+        } catch (timeoutError) {
+          if (cachedSession?.access_token) {
+            access_token = cachedSession.access_token;
+          } else {
+            throw timeoutError;
+          }
         }
       }
     }
     
-    if (sessionError) {
-      throw new Error(`Erro sessão: ${sessionError.message}`);
-    }
-    
-    if (!session?.access_token) {
+    if (!access_token) {
       throw new Error('Token indisponível');
     }
 
@@ -229,7 +275,7 @@ export async function fun_save_chat_data(params: {
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${session.access_token}`,
+        'Authorization': `Bearer ${access_token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -293,41 +339,57 @@ export async function fun_renomear_chat(params: {
   console.log(`🏷️ Renomeando ${sessionId}: "${params.new_title.slice(0, 30)}..."`);
   
   try {
-    let session = null;
-    let sessionError = null;
+    let access_token = null;
     
     const now = Date.now();
     if (cachedSession && (now - sessionCacheTime) < SESSION_CACHE_DURATION) {
-      session = cachedSession;
+      access_token = cachedSession.access_token;
     } else {
-      const sessionPromise = supabase.auth.getSession();
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout sessão')), 3000)
-      );
-      
-      try {
-        const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
-        session = result.data?.session;
-        sessionError = result.error;
-        
-        if (session) {
-          cachedSession = session;
+      // Priorizar localStorage (mais rápido e confiável)
+      const authData = localStorage.getItem('sb-oifhsdqivbiyyvfheofx-auth-token');
+      if (authData) {
+        try {
+          const parsed = JSON.parse(authData);
+          access_token = parsed.access_token;
+          // Atualizar cache
+          cachedSession = {
+            access_token: parsed.access_token,
+            refresh_token: parsed.refresh_token,
+            user: parsed.user
+          };
           sessionCacheTime = now;
+        } catch (parseError) {
+          console.warn('⚠️ Erro ao parsear token do localStorage');
         }
-      } catch (timeoutError) {
-        if (cachedSession) {
-          session = cachedSession;
-        } else {
-          throw timeoutError;
+      }
+      
+      // Fallback: tentar getSession com timeout apenas se localStorage falhar
+      if (!access_token) {
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Timeout sessão')), 3000)
+        );
+        
+        try {
+          const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+          const session = result.data?.session;
+          
+          if (session?.access_token) {
+            access_token = session.access_token;
+            cachedSession = session;
+            sessionCacheTime = now;
+          }
+        } catch (timeoutError) {
+          if (cachedSession?.access_token) {
+            access_token = cachedSession.access_token;
+          } else {
+            throw timeoutError;
+          }
         }
       }
     }
-
-    if (sessionError) {
-      throw new Error(`Erro sessão: ${sessionError.message}`);
-    }
     
-    if (!session?.access_token) {
+    if (!access_token) {
       throw new Error('Token indisponível');
     }
 
@@ -347,7 +409,7 @@ export async function fun_renomear_chat(params: {
     const response = await fetch(functionUrl, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${session.access_token}`,
+        'Authorization': `Bearer ${access_token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({

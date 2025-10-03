@@ -68,11 +68,20 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         if (error) {
           setError(error.message);
         } else {
+          console.log('🎉 Login bem-sucedido!');
           setSuccess('Login realizado com sucesso!');
+          
+          // Aguardar um pouco para mostrar mensagem de sucesso
           setTimeout(() => {
+            console.log('🚪 Fechando modal...');
             handleClose();
-            onSuccess?.();
-          }, 1000);
+            
+            // Chamar onSuccess
+            if (onSuccess) {
+              console.log('🎯 Chamando onSuccess()...');
+              onSuccess();
+            }
+          }, 500);
         }
       } else {
         if (password !== confirmPassword) {

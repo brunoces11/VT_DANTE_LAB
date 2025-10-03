@@ -8,15 +8,12 @@ export default function ChatHeader() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/'); // Redireciona para a página inicial após logout
-    } catch (error) {
-      console.error('Erro no logout:', error);
-      // Mesmo com erro, redireciona para garantir que o usuário saia
-      navigate('/');
-    }
+  const handleLogout = () => {
+    console.log('🚪 ChatHeader: Logout instantâneo');
+    // Logout instantâneo - não espera resposta
+    logout(); // Não usar await - deixa executar em background
+    // Redirecionar imediatamente
+    navigate('/'); // Redireciona para a página inicial instantaneamente
   };
 
   return (

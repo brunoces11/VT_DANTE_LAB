@@ -12,9 +12,17 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLabDropdownOpen, setIsLabDropdownOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Fechar modal automaticamente quando usuário for autenticado
+  useEffect(() => {
+    if (user && isAuthModalOpen) {
+      console.log('👤 Usuário autenticado detectado, fechando modal...');
+      setIsAuthModalOpen(false);
+    }
+  }, [user, isAuthModalOpen]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -46,8 +54,14 @@ export default function Header() {
   };
 
   const handleAuthSuccess = () => {
+    console.log('🎯 handleAuthSuccess chamado');
     setIsAuthModalOpen(false);
-    navigate('/chat-page', { state: { startWelcome: true } });
+    
+    // Aguardar um pouco antes de navegar para garantir que o modal fechou
+    setTimeout(() => {
+      console.log('🚀 Navegando para /chat-page');
+      navigate('/chat-page', { state: { startWelcome: true } });
+    }, 100);
   };
 
   return (
@@ -172,7 +186,9 @@ export default function Header() {
               >
                 💬 Iniciar Chat
               </Button>
-              {user ? (
+              {loading ? (
+                <div className="w-9 h-9 rounded-full bg-neutral-100 animate-pulse" />
+              ) : user ? (
                 <UserProfileIcon size="md" />
               ) : (
                 <Button 
@@ -315,17 +331,18 @@ export default function Header() {
                   >
                     💬 Iniciar Chat
                   </Button>
-                  {!user && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleLoginClick}
-                    className="w-full text-neutral-700 border-neutral-300"
-                  >
-                    Entrar
-                  </Button>
-                  )}
-                  {user && (
+                  {loading ? (
+                    <div className="w-full h-9 rounded-md bg-neutral-100 animate-pulse" />
+                  ) : !user ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleLoginClick}
+                      className="w-full text-neutral-700 border-neutral-300"
+                    >
+                      Entrar
+                    </Button>
+                  ) : (
                     <div className="flex justify-center pt-2">
                       <UserProfileIcon size="md" showTooltip={true} />
                     </div>

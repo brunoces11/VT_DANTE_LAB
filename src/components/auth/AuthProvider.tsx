@@ -177,8 +177,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
-        // Get initial session
-        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('🚀 Inicializando autenticação...');
+        
+        let session = null;
+        let error = null;
+        
+        // PRIORIZAR localStorage para inicialização rápida
+        const authData = localStorage.getItem('sb-oifhsdqivbiyyvfheofx-auth-token');
+        if (authData) {
+          try {
+            const parsed = JSON.parse(authData);
+            // Criar objeto session manualmente do localStorage
+            session = {
+              access_token: parsed.access_token,
+              refresh_token: parsed.refresh_token,
+              expires_at: parsed.expires_at,
+              expires_in: parsed.expires_in,
+              token_type: parsed.token_type,
+              user: parsed.user
+            };
+            console.log('⚡ Sessão recuperada RAPIDAMENTE do localStorage');
+            
+            // Atualizar estado imediatamente para evitar flash
+            if (mounted) {
+              setSession(session);
+              setUser(session?.user ?? null);
+              setLoading(false);
+            }
+          } catch (parseError) {
+            console.warn('⚠️ Erro ao parsear localStorage');
+          }
+        }
+        
+        // Depois tentar getSession() em background para validar
+        try {
+          const sessionPromise = supabase.auth.getSession();
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout ao obter sessão inicial')), 3000)
+          );
+          
+          const result = await Promise.race([sessionPromise, timeoutPromise]) as any;
+          const apiSession = result.data?.session;
+          error = result.error;
+          
+          if (apiSession) {
+            console.log('✅ Sessão validada via getSession()');
+            session = apiSession;
+          }
+        } catch (timeoutError) {
+          console.warn('⚠️ Timeout em getSession(), usando localStorage');
+          // Já temos session do localStorage, então está ok
+        }
         
         if (mounted) {
           if (error) {
@@ -231,38 +280,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('🔔 Auth state changed:', event, 'User:', session?.user?.email);
+      
       if (mounted) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        console.log('✅ Estado atualizado: loading=false, user=', session?.user?.email || 'null');
         
         // Carregar dados do usuário e invalidar outras sessões automaticamente após login
         if (event === 'SIGNED_IN' && session?.user) {
-          // Usuário logado - executando ações automáticas
+          console.log('🔄 SIGNED_IN detectado, carregando dados em background...');
           
-          // Executar ambas funções simultaneamente
-          const [userDataResult, singleSessionResult] = await Promise.allSettled([
+          // Executar ambas funções simultaneamente em background (não bloquear UI)
+          Promise.allSettled([
             loadUserDataWithFallback(),
             fun_single_session()
-          ]);
-          
-          // Log dos resultados
-          if (userDataResult.status === 'fulfilled') {
-            console.log('✅ Dados do usuário processados');
-          } else {
-            console.error('❌ Erro ao carregar dados:', userDataResult.reason);
-          }
-          
-          if (singleSessionResult.status === 'fulfilled') {
-            const result = singleSessionResult.value;
-            if (result.success) {
-              console.log('✅ Outras sessões invalidadas:', result.message);
+          ]).then(([userDataResult, singleSessionResult]) => {
+            // Log dos resultados
+            if (userDataResult.status === 'fulfilled') {
+              console.log('✅ Dados do usuário processados');
             } else {
-              console.warn('⚠️ Erro ao invalidar sessões (não crítico):', result.error);
+              console.error('❌ Erro ao carregar dados:', userDataResult.reason);
             }
-          } else {
-            console.warn('⚠️ Erro ao invalidar sessões (não crítico):', singleSessionResult.reason);
-          }
+            
+            if (singleSessionResult.status === 'fulfilled') {
+              const result = singleSessionResult.value;
+              if (result.success) {
+                console.log('✅ Outras sessões invalidadas:', result.message);
+              } else {
+                console.warn('⚠️ Erro ao invalidar sessões (não crítico):', result.error);
+              }
+            } else {
+              console.warn('⚠️ Erro ao invalidar sessões (não crítico):', singleSessionResult.reason);
+            }
+          });
         }
         
         // Limpar dados quando usuário faz logout
@@ -304,19 +356,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async () => {
-    try {
-      console.log('🚪 AuthProvider: Iniciando logout...');
-      // Limpar dados antes do logout
-      setChatData(null);
-      invalidateUserDataCache();
-      console.log('🧹 AuthProvider: Dados limpos, chamando signOut...');
-      await supabase.auth.signOut();
-      console.log('✅ AuthProvider: SignOut concluído');
-      // Não definir loading como false aqui - deixar o auth listener cuidar disso
-    } catch (error) {
-      console.error('❌ AuthProvider: Logout error:', error);
-      setLoading(false); // Só definir false em caso de erro
-    }
+    console.log('🚪 AuthProvider: Logout INSTANTÂNEO iniciado...');
+    
+    // 1. LIMPAR TUDO LOCALMENTE PRIMEIRO (instantâneo)
+    setChatData(null);
+    invalidateUserDataCache();
+    localStorage.removeItem('sb-oifhsdqivbiyyvfheofx-auth-token');
+    
+    // 2. ATUALIZAR ESTADO IMEDIATAMENTE (UI responde instantaneamente)
+    setUser(null);
+    setSession(null);
+    setLoading(false);
+    
+    console.log('✅ AuthProvider: Logout local completo (instantâneo)');
+    
+    // 3. CHAMAR API EM BACKGROUND (não bloqueia UI)
+    supabase.auth.signOut()
+      .then(() => {
+        console.log('✅ SignOut API concluído em background');
+      })
+      .catch((error) => {
+        console.warn('⚠️ Erro no signOut API (não crítico, já deslogado localmente):', error);
+      });
   };
 
   const register = async (email: string, password: string, name: string) => {
