@@ -2,15 +2,7 @@ import React, { useState } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
-interface Message {
-  id: number;
-  content: string;
-  sender: 'user' | 'bot';
-  timestamp: string;
-  isLoading?: boolean;
-  loadingText?: string;
-}
+import { BasicMessage } from '@/types/message';
 
 interface ChatMsgInputProps {
   onSendMessage: (message: string) => void;
