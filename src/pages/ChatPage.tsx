@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ChatHeader from '@/components/chat_header';
 import SidebarCollapse from '@/components/sidebar_collapse';
@@ -67,7 +67,6 @@ export default function ChatPage() {
     }) || [];
 
     console.log('📝 Chats processados (com cache local):', serverChats);
-    setChats(serverChats);
     
     // 🎯 NOVA LÓGICA: Priorizar restauração do estado persistido
     const cachedSessionId = localCache?.ui_state.currentSessionId;
@@ -80,98 +79,107 @@ export default function ChatPage() {
       serverChatsCount: serverChats.length 
     });
     
-    // Se está forçando welcome mode (veio do header ou clicou em "Novo Chat")
-    if (isWelcomeForced) {
-      console.log('🏠 Modo welcome forçado - mantendo tela de boas-vindas');
-      setIsWelcomeMode(true);
-      setMessages([]);
-      setCurrentSessionId(null);
-    }
-    // 🎯 PRIORIDADE MÁXIMA: Se há estado persistido no cache E a sessão existe no servidor
-    else if (cachedSessionId && serverChats.find((chat: any) => chat.id === cachedSessionId)) {
-      console.log('🔄 RESTAURANDO estado persistido do cache:', cachedSessionId.slice(0, 6));
-      
-      // Marcar o chat como ativo no sidebar
-      setChats(prev => prev.map(chat => ({
-        ...chat,
-        isActive: chat.id === cachedSessionId
-      })));
-      
-      setCurrentSessionId(cachedSessionId);
-      setIsWelcomeMode(false);
-      
-      // 🎯 CARREGAR MENSAGENS IMEDIATAMENTE dos dados do servidor
-      console.log('📨 Carregando mensagens da sessão restaurada DIRETAMENTE do servidor...');
-      const serverSession = serverData.chat_sessions?.find((s: any) => s.chat_session_id === cachedSessionId);
-      
-      if (serverSession?.messages && serverSession.messages.length > 0) {
-        console.log(`✅ ${serverSession.messages.length} mensagens encontradas para restauração`);
-        
-        // Converter mensagens do servidor para formato Message
-        const convertedMessages: Message[] = [];
-        let messageId = 1;
-        
-        serverSession.messages.forEach((msg: any) => {
-          // Mensagem do usuário
-          if (msg.msg_input) {
-            convertedMessages.push({
-              id: messageId++,
-              content: msg.msg_input,
-              sender: 'user',
-              timestamp: getCurrentTimestampUTC(),
-              status: 'sent'
-            });
-          }
-          
-          // Resposta do bot
-          if (msg.msg_output) {
-            convertedMessages.push({
-              id: messageId++,
-              content: msg.msg_output,
-              sender: 'bot',
-              timestamp: getCurrentTimestampUTC()
-            });
-          }
-        });
-        
-        console.log(`🎯 RESTAURANDO ${convertedMessages.length} mensagens IMEDIATAMENTE`);
-        console.log('📋 Mensagens restauradas:', convertedMessages.map(m => `${m.sender}: ${m.content.substring(0, 30)}...`));
-        setMessages(convertedMessages);
-      } else {
-        console.log('📭 Nenhuma mensagem encontrada para a sessão restaurada');
+    // 🚀 OTIMIZAÇÃO: Batch todas as atualizações de estado em uma única transição
+    React.startTransition(() => {
+      // Se está forçando welcome mode (veio do header ou clicou em "Novo Chat")
+      if (isWelcomeForced) {
+        console.log('🏠 Modo welcome forçado - mantendo tela de boas-vindas');
+        setChats(serverChats);
+        setIsWelcomeMode(true);
         setMessages([]);
+        setCurrentSessionId(null);
       }
-    }
-    // Se cache indica welcome mode explicitamente
-    else if (cachedWelcomeMode === true) {
-      console.log('🏠 Restaurando modo welcome do cache (explícito)');
-      setIsWelcomeMode(true);
-      setMessages([]);
-      setCurrentSessionId(null);
-    }
-    // Se não há chats no servidor
-    else if (serverChats.length === 0) {
-      console.log('🏠 Nenhum chat no servidor - modo welcome');
-      setIsWelcomeMode(true);
-      setMessages([]);
-      setCurrentSessionId(null);
-    }
-    // 🎯 FALLBACK SEGURO: Se há chats mas nenhum estado válido no cache
-    else if (serverChats.length > 0) {
-      console.log('⚠️ Sem estado válido no cache, mas há chats - usando Welcome Mode por segurança');
-      // 🚨 IMPORTANTE: Não carregar automaticamente o primeiro chat após refresh
-      // Isso evita a "tela em branco" e força o usuário a selecionar explicitamente
-      setIsWelcomeMode(true);
-      setMessages([]);
-      setCurrentSessionId(null);
-    } 
-    // Estado padrão final
-    else {
-      console.log('🏠 Estado padrão - modo welcome');
-      setIsWelcomeMode(true);
-      setMessages([]);
-      setCurrentSessionId(null);
-    }
+      // 🎯 PRIORIDADE MÁXIMA: Se há estado persistido no cache E a sessão existe no servidor
+      else if (cachedSessionId && serverChats.find((chat: any) => chat.id === cachedSessionId)) {
+        console.log('🔄 RESTAURANDO estado persistido do cache:', cachedSessionId.slice(0, 6));
+        
+        // Marcar o chat como ativo no sidebar
+        const chatsWithActive = serverChats.map((chat: any) => ({
+          ...chat,
+          isActive: chat.id === cachedSessionId
+        }));
+        
+        // 🎯 CARREGAR MENSAGENS IMEDIATAMENTE dos dados do servidor
+        console.log('📨 Carregando mensagens da sessão restaurada DIRETAMENTE do servidor...');
+        const serverSession = serverData.chat_sessions?.find((s: any) => s.chat_session_id === cachedSessionId);
+        
+        let convertedMessages: Message[] = [];
+        if (serverSession?.messages && serverSession.messages.length > 0) {
+          console.log(`✅ ${serverSession.messages.length} mensagens encontradas para restauração`);
+          
+          // Converter mensagens do servidor para formato Message
+          let messageId = 1;
+          
+          serverSession.messages.forEach((msg: any) => {
+            // Mensagem do usuário
+            if (msg.msg_input) {
+              convertedMessages.push({
+                id: messageId++,
+                content: msg.msg_input,
+                sender: 'user',
+                timestamp: getCurrentTimestampUTC(),
+                status: 'sent'
+              });
+            }
+            
+            // Resposta do bot
+            if (msg.msg_output) {
+              convertedMessages.push({
+                id: messageId++,
+                content: msg.msg_output,
+                sender: 'bot',
+                timestamp: getCurrentTimestampUTC()
+              });
+            }
+          });
+          
+          console.log(`🎯 RESTAURANDO ${convertedMessages.length} mensagens IMEDIATAMENTE`);
+          console.log('📋 Mensagens restauradas:', convertedMessages.map(m => `${m.sender}: ${m.content.substring(0, 30)}...`));
+        } else {
+          console.log('📭 Nenhuma mensagem encontrada para a sessão restaurada');
+        }
+        
+        // Atualizar todos os estados de uma vez
+        setChats(chatsWithActive);
+        setCurrentSessionId(cachedSessionId);
+        setIsWelcomeMode(false);
+        setMessages(convertedMessages);
+      }
+      // Se cache indica welcome mode explicitamente
+      else if (cachedWelcomeMode === true) {
+        console.log('🏠 Restaurando modo welcome do cache (explícito)');
+        setChats(serverChats);
+        setIsWelcomeMode(true);
+        setMessages([]);
+        setCurrentSessionId(null);
+      }
+      // Se não há chats no servidor
+      else if (serverChats.length === 0) {
+        console.log('🏠 Nenhum chat no servidor - modo welcome');
+        setChats(serverChats);
+        setIsWelcomeMode(true);
+        setMessages([]);
+        setCurrentSessionId(null);
+      }
+      // 🎯 FALLBACK SEGURO: Se há chats mas nenhum estado válido no cache
+      else if (serverChats.length > 0) {
+        console.log('⚠️ Sem estado válido no cache, mas há chats - usando Welcome Mode por segurança');
+        // 🚨 IMPORTANTE: Não carregar automaticamente o primeiro chat após refresh
+        // Isso evita a "tela em branco" e força o usuário a selecionar explicitamente
+        setChats(serverChats);
+        setIsWelcomeMode(true);
+        setMessages([]);
+        setCurrentSessionId(null);
+      } 
+      // Estado padrão final
+      else {
+        console.log('🏠 Estado padrão - modo welcome');
+        setChats(serverChats);
+        setIsWelcomeMode(true);
+        setMessages([]);
+        setCurrentSessionId(null);
+      }
+    });
   };
 
   // Função para converter dados do sistema antigo para cache seguro
