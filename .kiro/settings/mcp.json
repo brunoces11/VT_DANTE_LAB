@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "SUPA_DANTE": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--read-only",
+        "--project-ref=oifhsdqivbiyyvfheofx"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "sbp_0b79c82cace37bbd8658311b1c2d4b19ce89b7cb"
+      },
+      "autoApprove": []
+    }
+  }
+}

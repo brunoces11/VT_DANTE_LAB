@@ -96,23 +96,15 @@ function App() {
   // Detectar se o usuário acessou via link de recuperação de senha
   useEffect(() => {
     const handleAuthRedirects = async () => {
-      console.log('🔍 Iniciando verificação de redirects de autenticação...');
-      console.log('🔍 URL atual:', window.location.href);
-      console.log('🔍 Hash:', window.location.hash);
-      console.log('🔍 Search:', window.location.search);
-      
       const urlParams = new URLSearchParams(window.location.search);
       const hash = window.location.hash;
       const hashParams = new URLSearchParams(hash.substring(1)); // Remove o #
-      
-      console.log('🔍 URL params:', urlParams.toString());
-      console.log('🔍 Hash params:', hashParams.toString());
       
       // Verificar se há erro de link expirado
       const error = hashParams.get('error');
       const errorCode = hashParams.get('error_code');
       
-      console.log('🔍 Error:', error, 'Error code:', errorCode);
+      // Verificar se há erro de link expirado
       
       if (error === 'access_denied' && errorCode === 'otp_expired') {
         console.log('❌ Link de recuperação expirado');
@@ -135,11 +127,7 @@ function App() {
         type = urlParams.get('type');
       }
       
-      console.log('🔍 Tokens encontrados:', { 
-        accessToken: !!accessToken, 
-        refreshToken: !!refreshToken, 
-        type 
-      });
+      // Verificar tokens de autenticação
       
       // Verificar se é confirmação de email
       if (type === 'signup' && accessToken && refreshToken) {
@@ -193,7 +181,7 @@ function App() {
             
             // Verificar se a sessão está realmente ativa
             const { data: sessionCheck } = await supabase.auth.getSession();
-            console.log('🔍 Verificação da sessão:', sessionCheck);
+            // Sessão de recuperação estabelecida
             
             setIsResetPasswordModalOpen(true);
           }
@@ -206,7 +194,7 @@ function App() {
         const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
       } else if (urlParams.get('reset-password') === 'true') {
-        console.log('🔍 Parâmetro reset-password detectado');
+        // Parâmetro reset-password detectado
         setIsResetPasswordModalOpen(true);
         const newUrl = window.location.origin + window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);

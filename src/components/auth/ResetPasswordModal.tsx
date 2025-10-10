@@ -38,7 +38,7 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
         if (error) {
           console.error('Erro ao verificar sessão:', error);
         }
-        console.log('Sessão atual:', session);
+        console.log('Sessão verificada:', !!session);
         
         // Se não há sessão e o modal está aberto, provavelmente o link expirou
         if (!session && isOpen) {
@@ -117,8 +117,8 @@ export default function ResetPasswordModal({ isOpen, onClose, onSuccess }: Reset
       // Verificar se há uma sessão ativa antes de tentar alterar a senha
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
-      console.log('🔍 Sessão atual:', sessionData);
-      console.log('🔍 Erro de sessão:', sessionError);
+      console.log('🔍 Sessão verificada:', !!sessionData?.session);
+      console.log('🔍 Erro de sessão:', !!sessionError);
       
       if (sessionError) {
         console.error('❌ Erro ao verificar sessão:', sessionError);

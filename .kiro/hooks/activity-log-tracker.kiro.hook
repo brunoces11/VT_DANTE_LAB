@@ -4,7 +4,7 @@
   "description": "Monitors all file changes in the project and automatically updates log_atividades.md with detailed reports of modifications, creations, and updates made to code and configuration files",
   "version": "1",
   "when": {
-    "type": "fileEdited",
+    "type": "userTriggered",
     "patterns": [
       "src/**/*",
       "services/**/*",

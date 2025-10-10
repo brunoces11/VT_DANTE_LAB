@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Bot, User } from 'lucide-react';
 import { getCurrentTimestampUTC, formatTimeBR } from '@/utils/timezone';
+import { HeroMessage } from '@/types/message';
 
 interface ChatHeroProps {
   isOpen: boolean;
@@ -16,15 +17,8 @@ interface ChatHeroProps {
   initialMessage: string;
 }
 
-interface Message {
-  id: number;
-  text: string;
-  isUser: boolean;
-  timestamp: string;
-}
-
 export default function ChatHero({ isOpen, onClose, initialMessage }: ChatHeroProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<HeroMessage[]>([]);
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 

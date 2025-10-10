@@ -129,6 +129,13 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
   };
 
   const handleDelete = (chatId: string) => {
+    // Integrar removeSessionFromCache para consistência
+    import('../../services/cache-service').then(({ removeSessionFromCache }) => {
+      removeSessionFromCache(chatId);
+    });
+    
+    // Remover também do localStorage antigo
+    
     setChats(prev => {
       const filtered = prev.filter(chat => chat.id !== chatId);
       // Se o chat deletado era o ativo, ativa o primeiro da lista

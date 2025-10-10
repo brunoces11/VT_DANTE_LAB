@@ -3,16 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Bot, User } from 'lucide-react';
 import { getCurrentTimestampUTC, formatTimeBR } from '@/utils/timezone';
-
-interface Message {
-  id: number;
-  content: string;
-  sender: 'user' | 'bot';
-  timestamp: string;
-}
+import { BasicMessage } from '@/types/message';
 
 export default function ChatContato() {
-  const [messages, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<BasicMessage[]>([
     {
       id: 1,
       content: "Olá! 👋 Sou o assistente de IA para esclarecer dúvidas sobre o Dante AI. Estou preparado para esclarecer suas questões instantaneamente e, quando necessário, encaminhar sua mensagem diretamente para o departamento responsável. Como posso ajudá-lo hoje?",

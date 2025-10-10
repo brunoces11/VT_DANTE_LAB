@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Edge Function - load_user_data</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste Edge Function: load_user_data</h1>
+        
+        <div class="input-group">
+            <label for="supabaseUrl">Supabase URL:</label>
+            <input type="text" id="supabaseUrl" placeholder="https://seu-projeto.supabase.co">
+        </div>
+        
+        <div class="input-group">
+            <label for="accessToken">Access Token (JWT):</label>
+            <input type="text" id="accessToken" placeholder="Cole o token JWT aqui">
+            <small style="color: #666;">Você pode obter o token no console do navegador após fazer login</small>
+        </div>
+        
+        <button onclick="testEdgeFunction()" id="testBtn">🚀 Testar Edge Function</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testEdgeFunction() {
+            const supabaseUrl = document.getElementById('supabaseUrl').value.trim();
+            const accessToken = document.getElementById('accessToken').value.trim();
+            const resultDiv = document.getElementById('result');
+            const testBtn = document.getElementById('testBtn');
+            
+            // Validação
+            if (!supabaseUrl || !accessToken) {
+                resultDiv.innerHTML = '<div class="result error">❌ Por favor, preencha todos os campos!</div>';
+                return;
+            }
+            
+            // Loading
+            testBtn.disabled = true;
+            resultDiv.innerHTML = '<div class="result loading">⏳ Testando edge function...</div>';
+            
+            try {
+                const functionUrl = `${supabaseUrl}/functions/v1/load_user_data`;
+                
+                console.log('🌐 URL:', functionUrl);
+                console.log('🔐 Token:', accessToken.substring(0, 20) + '...');
+                
+                const startTime = Date.now();
+                
+                const response = await fetch(functionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                console.log('📥 Status:', response.status);
+                console.log('⏱️ Duração:', duration + 'ms');
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const sessionsCount = data.chat_sessions?.length || 0;
+                    const totalMessages = data.chat_sessions?.reduce((acc, session) => 
+                        acc + (session.messages?.length || 0), 0) || 0;
+                    
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            <strong>✅ SUCESSO!</strong><br><br>
+                            <strong>⏱️ Tempo de resposta:</strong> ${duration}ms<br>
+                            <strong>📊 Status:</strong> ${response.status}<br>
+                            <strong>👤 User ID:</strong> ${data.user_id}<br>
+                            <strong>💬 Sessões encontradas:</strong> ${sessionsCount}<br>
+                            <strong>📝 Total de mensagens:</strong> ${totalMessages}<br><br>
+                            <strong>📦 Dados completos:</strong><br>
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            <strong>❌ ERRO!</strong><br><br>
+                            <strong>📊 Status:</strong> ${response.status}<br>
+                            <strong>⏱️ Tempo de resposta:</strong> ${duration}ms<br><br>
+                            <strong>📦 Resposta:</strong><br>
+                            ${JSON.stringify(data, null, 2)}
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('❌ Erro:', error);
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <strong>❌ ERRO DE REDE!</strong><br><br>
+                        ${error.message}<br><br>
+                        <strong>Possíveis causas:</strong><br>
+                        • Edge function não está deployada<br>
+                        • URL incorreta<br>
+                        • Token inválido ou expirado<br>
+                        • Problemas de CORS<br>
+                        • Timeout de rede
+                    </div>
+                `;
+            } finally {
+                testBtn.disabled = false;
+            }
+        }
+        
+        // Carregar valores salvos
+        window.addEventListener('load', () => {
+            const savedUrl = localStorage.getItem('test_supabase_url');
+            if (savedUrl) {
+                document.getElementById('supabaseUrl').value = savedUrl;
+            }
+        });
+        
+        // Salvar URL ao digitar
+        document.getElementById('supabaseUrl').addEventListener('change', (e) => {
+            localStorage.setItem('test_supabase_url', e.target.value);
+        });
+    </script>
+</body>
+</html>

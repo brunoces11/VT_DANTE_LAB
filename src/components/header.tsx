@@ -45,8 +45,14 @@ export default function Header() {
     setIsAuthModalOpen(true);
   };
 
-  const handleAuthSuccess = () => {
+  const handleAuthSuccess = async () => {
+    console.log('🎯 [Header] Login bem-sucedido, aguardando dados...');
     setIsAuthModalOpen(false);
+    
+    // Aguardar um pouco para garantir que o AuthProvider atualizou
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    console.log('🎯 [Header] Redirecionando para chat...');
     navigate('/chat-page', { state: { startWelcome: true } });
   };
 

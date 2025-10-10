@@ -1,0 +1,19 @@
+{
+  "enabled": true,
+  "name": "Supabase Compliance Checker",
+  "description": "Automatically analyzes files for Supabase compatibility and best practices before processing any user query, ensuring all code follows the padrao_supabase standards defined in supabase_sterring.md",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "src/**/*.tsx",
+      "src/**/*.ts",
+      "services/*.ts",
+      "supabase/**/*.ts"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Before processing any user request or making code changes, you MUST:\n\n1. Read and analyze the supabase_sterring.md file to understand the Supabase standards (padrao_supabase)\n2. Vereficar se todos os arquivos selecionados para edicao, se eles acima de tudo seguem o padrao_supabase a risca, para entao no final de sua resposta informar um relatorio conciso com sua analise, e tb acima de tudo guiar todas suas decisoes, todas suas sugestoes, apra q tudo o q vc fizer, sugerir, analisar, esteja acima de tuso seguindo o padrao supabase, pq essa é a sua princial e unica master role here.\n   - No direct database access from frontend\n   - No sensitive data in localStorage\n   - Proper use of Supabase Auth with JWT tokens\n   - local function services;supabase.ts (api call) to trigger Edge Functions for database operations\n   - Compliance with the database schema in .kiro/architecture.md\n   - Maximum integration with Supabase patterns\n3. Verify security and production-ready practices\n4. Only then proceed to address the user's request after cheching preciselly all the above itens, without exceptions.\n\nAt the end of ALL your responses, you MUST include:\n\n🎯 **Compatibilidade Supabase**\n- ✅/❌ Segurança: [assessment]\n- ✅/❌ Padrão Supabase: [assessment]\n- ✅/❌ Schema Compliance: [assessment]\n- ✅/❌ Best Practices: [assessment]\n\nThis ensures every change maintains maximum compatibility with Supabase standards."
+  }
+}
