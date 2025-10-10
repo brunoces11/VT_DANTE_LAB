@@ -6,8 +6,8 @@ import { Send, Loader2 } from 'lucide-react';
 
 export default function PayloadTest() {
   const [inputMessage, setInputMessage] = useState('Como fazer o registro de uma escritura de compra e venda?');
-  const [endpointUrl, setEndpointUrl] = useState('https://lf142.prompt-master.org');
-  const [flowId, setFlowId] = useState('1060b727-10e5-4597-aa26-4662f5bccd46');
+  const [endpointUrl, setEndpointUrl] = useState(import.meta.env.VITE_LANGFLOW_URL || 'https://lf142.prompt-master.org');
+  const [flowId, setFlowId] = useState(import.meta.env.VITE_LANGFLOW_FLOW_ID || '1060b727-10e5-4597-aa26-4662f5bccd46');
   const [payloadMessage, setPayloadMessage] = useState('');
   const [payloadResponse, setPayloadResponse] = useState('');
   const [treatedResponse, setTreatedResponse] = useState('');
