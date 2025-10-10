@@ -28,6 +28,14 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
 
   // Debug log
   console.log('🎨 ChatArea render:', { isWelcomeMode, currentSessionId, messagesCount: messages.length });
+  
+  // 🎯 VERIFICAÇÃO DE SEGURANÇA: Nunca exibir tela em branco
+  // Se não está em welcome mode mas não há sessão ativa nem mensagens, deve mostrar welcome
+  const shouldShowWelcome = !isWelcomeMode && !currentSessionId && messages.length === 0;
+  
+  if (shouldShowWelcome) {
+    console.log('⚠️ Detectada condição de tela em branco, exibindo Welcome Mode');
+  }
 
   // Função para atualizar status de mensagem
   const updateMessageStatus = (messageId: number, status: 'sending' | 'sent' | 'failed') => {
@@ -154,7 +162,7 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
       <ChatMsgHeader />
       
       {/* Renderização Condicional: Welcome Mode ou Chat Mode */}
-      {isWelcomeMode ? (
+      {isWelcomeMode || shouldShowWelcome ? (
         <ChatNeoMsg 
           onFirstMessage={onFirstMessage}
           isLoading={isLoading}

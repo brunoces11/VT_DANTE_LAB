@@ -44,6 +44,10 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
       isActive: chat.id === chatId
     })));
     setActiveDropdown(null);
+    
+    // 🎯 PERSISTIR imediatamente a seleção do chat
+    console.log('🎯 Chat selecionado:', chatId.slice(0, 6));
+    
     onChatClick(chatId); // Chamar função para carregar mensagens
   };
 
@@ -120,15 +124,19 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
     
     // Remover também do localStorage antigo
     
+    const wasActiveChat = chats.find(chat => chat.id === chatId)?.isActive;
+    
     setChats(prev => {
       const filtered = prev.filter(chat => chat.id !== chatId);
-      // Se o chat deletado era o ativo, ativa o primeiro da lista
-      if (prev.find(chat => chat.id === chatId)?.isActive && filtered.length > 0) {
-        filtered[0].isActive = true;
-      }
       return filtered;
     });
     setActiveDropdown(null);
+    
+    // 🎯 Se o chat deletado era o ativo, redirecionar para Welcome Chat
+    if (wasActiveChat) {
+      console.log('🗑️ Chat ativo deletado, redirecionando para Welcome Chat');
+      onNewChat(); // Chamar função para ativar modo welcome
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, chatId: string) => {
@@ -241,7 +249,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                             value={editTitle}
                             onChange={(e) => setEditTitle(e.target.value)}
                             onBlur={() => handleSaveRename(chat.id)}
-                            onKeyPress={(e) => handleKeyPress(e, chat.id)}
+                            onKeyDown={(e) => handleKeyPress(e, chat.id)}
                             className={`w-full text-sm font-medium border rounded px-2 py-1 focus:outline-none focus:ring-2 ${
                               isRenaming 
                                 ? 'bg-gray-100 border-gray-300 cursor-wait' 

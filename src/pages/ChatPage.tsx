@@ -50,7 +50,7 @@ export default function ChatPage() {
     
     const serverChats = serverData.chat_sessions?.map((session: any) => {
       // Priorizar título do cache local se disponível (mais recente)
-      const cachedSession = localCache?.sessions.find(s => s.id === session.chat_session_id);
+      const cachedSession = localCache?.sessions.find((s: any) => s.id === session.chat_session_id);
       const title = cachedSession?.title || session.chat_session_title;
       
       return {
@@ -69,27 +69,108 @@ export default function ChatPage() {
     console.log('📝 Chats processados (com cache local):', serverChats);
     setChats(serverChats);
     
+    // 🎯 NOVA LÓGICA: Priorizar restauração do estado persistido
+    const cachedSessionId = localCache?.ui_state.currentSessionId;
+    const cachedWelcomeMode = localCache?.ui_state.isWelcomeMode;
+    
+    console.log('🔍 Estado do cache:', { 
+      cachedSessionId: cachedSessionId?.slice(0, 6), 
+      cachedWelcomeMode, 
+      isWelcomeForced,
+      serverChatsCount: serverChats.length 
+    });
+    
     // Se está forçando welcome mode (veio do header ou clicou em "Novo Chat")
     if (isWelcomeForced) {
       console.log('🏠 Modo welcome forçado - mantendo tela de boas-vindas');
       setIsWelcomeMode(true);
       setMessages([]);
       setCurrentSessionId(null);
-    } 
-    // Se não está forçando welcome mode e há chats, pode carregar o primeiro
-    else if (serverChats.length > 0) {
-      console.log('🎯 Carregando primeira sessão disponível');
-      const firstSession = serverChats[0];
-      setCurrentSessionId(firstSession.id);
+    }
+    // 🎯 PRIORIDADE MÁXIMA: Se há estado persistido no cache E a sessão existe no servidor
+    else if (cachedSessionId && serverChats.find((chat: any) => chat.id === cachedSessionId)) {
+      console.log('🔄 RESTAURANDO estado persistido do cache:', cachedSessionId.slice(0, 6));
+      
+      // Marcar o chat como ativo no sidebar
+      setChats(prev => prev.map(chat => ({
+        ...chat,
+        isActive: chat.id === cachedSessionId
+      })));
+      
+      setCurrentSessionId(cachedSessionId);
       setIsWelcomeMode(false);
       
-      // Carregar mensagens da primeira sessão
-      if (firstSession.message_count > 0) {
-        fun_load_chat_session(firstSession.id);
+      // 🎯 CARREGAR MENSAGENS IMEDIATAMENTE dos dados do servidor
+      console.log('📨 Carregando mensagens da sessão restaurada DIRETAMENTE do servidor...');
+      const serverSession = serverData.chat_sessions?.find((s: any) => s.chat_session_id === cachedSessionId);
+      
+      if (serverSession?.messages && serverSession.messages.length > 0) {
+        console.log(`✅ ${serverSession.messages.length} mensagens encontradas para restauração`);
+        
+        // Converter mensagens do servidor para formato Message
+        const convertedMessages: Message[] = [];
+        let messageId = 1;
+        
+        serverSession.messages.forEach((msg: any) => {
+          // Mensagem do usuário
+          if (msg.msg_input) {
+            convertedMessages.push({
+              id: messageId++,
+              content: msg.msg_input,
+              sender: 'user',
+              timestamp: getCurrentTimestampUTC(),
+              status: 'sent'
+            });
+          }
+          
+          // Resposta do bot
+          if (msg.msg_output) {
+            convertedMessages.push({
+              id: messageId++,
+              content: msg.msg_output,
+              sender: 'bot',
+              timestamp: getCurrentTimestampUTC()
+            });
+          }
+        });
+        
+        console.log(`🎯 RESTAURANDO ${convertedMessages.length} mensagens IMEDIATAMENTE`);
+        console.log('📋 Mensagens restauradas:', convertedMessages.map(m => `${m.sender}: ${m.content.substring(0, 30)}...`));
+        setMessages(convertedMessages);
+      } else {
+        console.log('📭 Nenhuma mensagem encontrada para a sessão restaurada');
+        setMessages([]);
       }
-    } else {
-      console.log('🏠 Nenhum chat disponível - modo welcome');
+    }
+    // Se cache indica welcome mode explicitamente
+    else if (cachedWelcomeMode === true) {
+      console.log('🏠 Restaurando modo welcome do cache (explícito)');
       setIsWelcomeMode(true);
+      setMessages([]);
+      setCurrentSessionId(null);
+    }
+    // Se não há chats no servidor
+    else if (serverChats.length === 0) {
+      console.log('🏠 Nenhum chat no servidor - modo welcome');
+      setIsWelcomeMode(true);
+      setMessages([]);
+      setCurrentSessionId(null);
+    }
+    // 🎯 FALLBACK SEGURO: Se há chats mas nenhum estado válido no cache
+    else if (serverChats.length > 0) {
+      console.log('⚠️ Sem estado válido no cache, mas há chats - usando Welcome Mode por segurança');
+      // 🚨 IMPORTANTE: Não carregar automaticamente o primeiro chat após refresh
+      // Isso evita a "tela em branco" e força o usuário a selecionar explicitamente
+      setIsWelcomeMode(true);
+      setMessages([]);
+      setCurrentSessionId(null);
+    } 
+    // Estado padrão final
+    else {
+      console.log('🏠 Estado padrão - modo welcome');
+      setIsWelcomeMode(true);
+      setMessages([]);
+      setCurrentSessionId(null);
     }
   };
 
@@ -109,6 +190,26 @@ export default function ChatPage() {
     };
   };
   
+  // 🎯 SISTEMA DE PERSISTÊNCIA ROBUSTO seguindo padrão Supabase
+  const persistUIState = (sessionId: string | null, welcomeMode: boolean) => {
+    try {
+      const currentCache = loadSafeCache();
+      if (currentCache && currentCache.user_id === user?.id) {
+        currentCache.ui_state.currentSessionId = sessionId;
+        currentCache.ui_state.isWelcomeMode = welcomeMode;
+        saveSafeCache(currentCache);
+        
+        console.log('💾 Estado da UI persistido:', {
+          sessionId: sessionId?.slice(0, 6) || 'null',
+          welcomeMode,
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.warn('⚠️ Erro ao persistir estado da UI:', error);
+    }
+  };
+
   // Sistema de salvamento com cache seguro
   const saveToLocalStorage = (chatData: {
     chats: Chat[];
@@ -117,21 +218,15 @@ export default function ChatPage() {
     isWelcomeMode: boolean;
   }) => {
     try {
-      // Atualizar cache seguro com estado da UI
-      const currentCache = loadSafeCache();
-      if (currentCache && currentCache.user_id === user?.id) {
-        currentCache.ui_state.currentSessionId = chatData.currentSessionId;
-        currentCache.ui_state.isWelcomeMode = chatData.isWelcomeMode;
-        
-        // Atualizar contagem de mensagens se há sessão ativa
-        if (chatData.currentSessionId && chatData.messages.length > 0) {
-          updateSessionInCache(chatData.currentSessionId, {
-            message_count: chatData.messages.length,
-            last_updated: getCurrentTimestampUTC()
-          });
-        }
-        
-        saveSafeCache(currentCache);
+      // 🎯 Usar função específica para persistir estado da UI
+      persistUIState(chatData.currentSessionId, chatData.isWelcomeMode);
+      
+      // Atualizar contagem de mensagens se há sessão ativa
+      if (chatData.currentSessionId && chatData.messages.length > 0) {
+        updateSessionInCache(chatData.currentSessionId, {
+          message_count: chatData.messages.length,
+          last_updated: getCurrentTimestampUTC()
+        });
       }
       
       // 🚀 MANTER SISTEMA HISTÓRICO PARA COMPATIBILIDADE (mensagens completas)
@@ -199,12 +294,20 @@ export default function ChatPage() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isWelcomeForced, setIsWelcomeForced] = useState(false);
 
-  // Debug: Monitorar mudanças no isWelcomeMode
+  // 🎯 MONITORAR E PERSISTIR mudanças de estado críticas
   useEffect(() => {
-    console.log('🔔 isWelcomeMode mudou:', isWelcomeMode);
-    console.log('🔔 isWelcomeForced:', isWelcomeForced);
-    console.log('🔔 currentSessionId:', currentSessionId);
-  }, [isWelcomeMode, isWelcomeForced, currentSessionId]);
+    console.log('🔔 Estado mudou:', { 
+      isWelcomeMode, 
+      isWelcomeForced, 
+      currentSessionId: currentSessionId?.slice(0, 6) || 'null',
+      isInitialized 
+    });
+    
+    // 🎯 Persistir estado imediatamente quando há mudanças críticas
+    if (isInitialized && user?.id && !isWelcomeForced) {
+      persistUIState(currentSessionId, isWelcomeMode);
+    }
+  }, [isWelcomeMode, currentSessionId, isInitialized, user?.id, isWelcomeForced]);
   
   useEffect(() => {
     if (user?.id && isInitialized && (chats.length > 0 || messages.length > 0)) {
@@ -235,6 +338,9 @@ export default function ChatPage() {
         setMessages([]);
         setCurrentSessionId(sessionId);
         setIsWelcomeMode(false);
+        
+        // 🎯 PERSISTIR estado no cache
+        persistUIState(sessionId, false);
         return;
       }
       
@@ -279,20 +385,29 @@ export default function ChatPage() {
           setCurrentSessionId(sessionId);
           setIsWelcomeMode(false);
           
+          // 🎯 PERSISTIR estado no cache
+          persistUIState(sessionId, false);
+          
           console.log(`✅ ${convertedMessages.length} mensagens carregadas`);
           return;
         }
       }
       
-      // Fallback: sem mensagens
-      console.log('📭 Nenhuma mensagem encontrada');
+      // Fallback: sem mensagens mas sessão válida
+      console.log('📭 Nenhuma mensagem encontrada, mas sessão válida');
       setMessages([]);
       setCurrentSessionId(sessionId);
       setIsWelcomeMode(false);
       
+      // 🎯 PERSISTIR estado no cache
+      persistUIState(sessionId, false);
+      
     } catch (error) {
       console.error('❌ Erro ao carregar mensagens da sessão:', error);
       setMessages([]);
+      // 🎯 Em caso de erro, voltar para welcome mode
+      setIsWelcomeMode(true);
+      setCurrentSessionId(null);
     }
   };
 
@@ -303,6 +418,9 @@ export default function ChatPage() {
     setMessages([]);
     setIsWelcomeMode(true); // Ativar modo welcome
     setIsWelcomeForced(true); // Forçar modo welcome
+    
+    // 🎯 PERSISTIR estado welcome no cache
+    persistUIState(null, true);
   };
 
   // Função para lidar com a primeira mensagem (transição welcome → conversa)
@@ -523,6 +641,9 @@ export default function ChatPage() {
       setMessages([]);
       setCurrentSessionId(null);
       
+      // 🎯 PERSISTIR estado welcome no cache IMEDIATAMENTE
+      persistUIState(null, true);
+      
       console.log('🎯 Modo welcome forçado! Continuando para carregar chats no sidebar...');
     }
 
@@ -545,10 +666,38 @@ export default function ChatPage() {
         
         // Se não está forçando welcome, usar estado do cache
         if (!isWelcomeForced) {
-          setCurrentSessionId(safeCache.ui_state.currentSessionId);
-          setIsWelcomeMode(safeCache.ui_state.isWelcomeMode);
+          const cachedSessionId = safeCache.ui_state.currentSessionId;
+          const cachedWelcomeMode = safeCache.ui_state.isWelcomeMode;
+          
+          console.log('🔄 Restaurando estado do cache:', {
+            sessionId: cachedSessionId?.slice(0, 6),
+            welcomeMode: cachedWelcomeMode
+          });
+          
+          // 🎯 Se há sessão no cache, verificar se ela existe nos chats carregados
+          if (cachedSessionId && convertedChats.find(chat => chat.id === cachedSessionId)) {
+            console.log('✅ Sessão do cache encontrada nos chats, restaurando...');
+            setCurrentSessionId(cachedSessionId);
+            setIsWelcomeMode(false);
+            
+            // Marcar como ativo no sidebar
+            setChats(prev => prev.map(chat => ({
+              ...chat,
+              isActive: chat.id === cachedSessionId
+            })));
+            
+            // 🎯 NOTA: As mensagens serão carregadas quando os dados do servidor chegarem
+            // Não precisamos carregar aqui pois será feito em updateUIWithServerData
+            console.log('📝 Sessão restaurada, mensagens serão carregadas com dados do servidor');
+          } else {
+            // Se não há sessão válida no cache, usar welcome mode
+            console.log('⚠️ Sessão do cache não encontrada, usando welcome mode');
+            setCurrentSessionId(null);
+            setIsWelcomeMode(true);
+          }
+        } else {
+          console.log('🏠 Mantendo modo welcome forçado, ignorando cache');
         }
-        // Se está forçando welcome, manter os valores já setados
       }
     }
 
@@ -583,13 +732,23 @@ export default function ChatPage() {
         
         // Atualizar UI com dados frescos (apenas se mounted)
         if (mounted.current) {
+          console.log('🎯 Atualizando UI com dados do servidor - incluindo mensagens');
           updateUIWithServerData(serverData.data);
         }
         
         // Salvar cache seguro atualizado
         const safeCacheData = convertToSafeCache(serverData.data);
-        safeCacheData.ui_state.currentSessionId = safeCache?.ui_state.currentSessionId || null;
-        safeCacheData.ui_state.isWelcomeMode = safeCache?.ui_state.isWelcomeMode ?? (serverData.data.chat_sessions?.length === 0);
+        
+        // 🎯 Se está forçando welcome mode, manter esse estado no cache
+        if (isWelcomeForced) {
+          safeCacheData.ui_state.currentSessionId = null;
+          safeCacheData.ui_state.isWelcomeMode = true;
+          console.log('🏠 Mantendo welcome mode forçado no cache');
+        } else {
+          // Usar estado do cache existente ou padrão baseado nos dados
+          safeCacheData.ui_state.currentSessionId = safeCache?.ui_state.currentSessionId || null;
+          safeCacheData.ui_state.isWelcomeMode = safeCache?.ui_state.isWelcomeMode ?? (serverData.data.chat_sessions?.length === 0);
+        }
         
         saveSafeCache(safeCacheData);
         
@@ -654,6 +813,14 @@ export default function ChatPage() {
       // Marcar como inicializado sempre, mesmo com erro
       console.log('✅ Carregamento concluído, marcando como inicializado');
       setIsInitialized(true);
+      
+      // 🎯 Resetar isWelcomeForced após carregamento inicial para permitir navegação normal
+      if (isWelcomeForced) {
+        setTimeout(() => {
+          console.log('🔄 Resetando isWelcomeForced após carregamento inicial');
+          setIsWelcomeForced(false);
+        }, 1000); // Aguardar 1 segundo para garantir que a UI foi renderizada
+      }
     }
   };
 
