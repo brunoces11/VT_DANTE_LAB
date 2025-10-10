@@ -5,7 +5,8 @@ import SidebarCollapse from '@/components/sidebar_collapse';
 import ChatArea from '@/components/chat_area';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
-import { fun_load_user_data, saveInBackground, fun_call_langflow } from '../../services/supabase';
+import { fun_load_user_data, saveInBackground } from '../../services/supabase';
+import { fun_call_langflow } from '../../services/langflow';
 import { Message } from '@/types/message';
 // Sistema de cache seguro
 import { 
@@ -44,19 +45,28 @@ export default function ChatPage() {
     console.log('🔄 Atualizando UI com dados frescos do servidor');
     console.log('📊 Dados recebidos:', serverData);
     
-    const serverChats = serverData.chat_sessions?.map((session: any) => ({
-      id: session.chat_session_id,
-      title: session.chat_session_title,
-      lastMessage: session.messages?.length > 0 ? 
-        session.messages[session.messages.length - 1].msg_output?.substring(0, 50) + '...' : 
-        'Nova conversa',
-      timestamp: getCurrentTimestampUTC(), // Usar timestamp atual já que não temos created_at
-      isEmpty: !session.messages || session.messages.length === 0,
-      isActive: false,
-      message_count: session.messages?.length || 0
-    })) || [];
+    // Carregar cache local para priorizar títulos atualizados
+    const localCache = loadSafeCache();
+    
+    const serverChats = serverData.chat_sessions?.map((session: any) => {
+      // Priorizar título do cache local se disponível (mais recente)
+      const cachedSession = localCache?.sessions.find(s => s.id === session.chat_session_id);
+      const title = cachedSession?.title || session.chat_session_title;
+      
+      return {
+        id: session.chat_session_id,
+        title: title, // Usar título do cache se disponível
+        lastMessage: session.messages?.length > 0 ? 
+          session.messages[session.messages.length - 1].msg_output?.substring(0, 50) + '...' : 
+          'Nova conversa',
+        timestamp: getCurrentTimestampUTC(), // Usar timestamp atual já que não temos created_at
+        isEmpty: !session.messages || session.messages.length === 0,
+        isActive: false,
+        message_count: session.messages?.length || 0
+      };
+    }) || [];
 
-    console.log('📝 Chats processados:', serverChats);
+    console.log('📝 Chats processados (com cache local):', serverChats);
     setChats(serverChats);
     
     // Se está forçando welcome mode (veio do header ou clicou em "Novo Chat")

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollText, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
+
 import { fun_renomear_chat } from '../../services/supabase';
 import { useAuth } from './auth/AuthProvider';
 
@@ -23,7 +23,7 @@ interface SidebarCollapseProps {
   currentSessionId: string | null;
 }
 
-export default function SidebarCollapse({ chats, setChats, onChatClick, onNewChat, currentSessionId }: SidebarCollapseProps) {
+export default function SidebarCollapse({ chats, setChats, onChatClick, onNewChat }: SidebarCollapseProps) {
   const { user } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [editingChat, setEditingChat] = useState<string | null>(null);
@@ -31,29 +31,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
 
-  // Função para atualizar título no user_chat_data (localStorage)
-  const updateUserChatDataTitle = (sessionId: string, newTitle: string) => {
-    try {
-      const userChatData = localStorage.getItem('user_chat_data');
-      if (!userChatData) return;
-      
-      const parsedData = JSON.parse(userChatData);
-      if (!parsedData.chat_sessions || !Array.isArray(parsedData.chat_sessions)) return;
-      
-      // Encontrar e atualizar a sessão específica
-      const sessionIndex = parsedData.chat_sessions.findIndex(
-        (session: any) => session.chat_session_id === sessionId
-      );
-      
-      if (sessionIndex !== -1) {
-        parsedData.chat_sessions[sessionIndex].chat_session_title = newTitle;
-        localStorage.setItem('user_chat_data', JSON.stringify(parsedData));
-        console.log(`💾 user_chat_data atualizado: ${sessionId.slice(0, 6)} → "${newTitle}"`);
-      }
-    } catch (error) {
-      console.warn('⚠️ Erro ao atualizar user_chat_data:', error);
-    }
-  };
+
 
   const handleNewChat = () => {
     console.log('🆕 Sidebar: Iniciando novo chat');
@@ -105,8 +83,14 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
             : chat
         ));
         
-        // 🚀 SINCRONIZAR COM user_chat_data (localStorage)
-        updateUserChatDataTitle(chatId, editTitle.trim());
+        // 🔄 INVALIDAR CACHE após mutação (padrão Supabase)
+        console.log('🔄 Invalidando cache após renomeação...');
+        const { updateSessionInCache } = await import('../../services/cache-service');
+        updateSessionInCache(chatId, {
+          title: editTitle.trim(),
+          last_updated: new Date().toISOString()
+        });
+        console.log('✅ Cache invalidado e atualizado');
         
         console.log(`✅ Chat ${chatId.slice(0, 6)} renomeado para: "${editTitle.trim()}"`);
       } else {

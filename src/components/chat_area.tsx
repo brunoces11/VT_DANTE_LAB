@@ -5,7 +5,8 @@ import ChatMsgList from '@/components/chat_msg_list';
 import ChatInputMsg from '@/components/chat_input_msg';
 import ChatNeoMsg from '@/components/chat_neo_msg';
 import { getCurrentTimestampUTC } from '@/utils/timezone';
-import { saveInBackground, fun_call_langflow } from '../../services/supabase';
+import { saveInBackground } from '../../services/supabase';
+import { fun_call_langflow } from '../../services/langflow';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Message } from '@/types/message';
 

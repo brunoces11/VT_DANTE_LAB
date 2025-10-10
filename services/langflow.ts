@@ -1,5 +1,10 @@
-// Langflow API Integration
-// Este arquivo será dedicado a manter e agrupar todas as funções de chamadas API para o agente de AI (Langflow)
+/**
+ * ========================================
+ * LANGFLOW API INTEGRATION
+ * ========================================
+ * Este arquivo centraliza TODAS as funções de integração com Langflow
+ * Separação clara: supabase.ts = Supabase | langflow.ts = Langflow
+ */
 
 import { fun_save_chat_data } from './supabase';
 
@@ -33,6 +38,94 @@ interface DanteRiParams {
     chat_session_title: string;
     msg_input: string;
     user_id: string;
+}
+
+/**
+ * Função centralizada para chamar APENAS o Langflow (sem salvamento automático)
+ * Usada quando você quer apenas a resposta do Langflow
+ */
+export async function fun_call_langflow(params: {
+  input_value: string;
+  session_id: string;
+}): Promise<{ success: boolean; response?: string; error?: string }> {
+  try {
+    console.log('🚀 Enviando mensagem para Langflow...', {
+      session_id: params.session_id,
+      input: params.input_value
+    });
+
+    // Obter variáveis de ambiente do Langflow
+    const langflowUrl = import.meta.env.VITE_LANGFLOW_URL;
+    const langflowFlowId = import.meta.env.VITE_LANGFLOW_FLOW_ID;
+
+    if (!langflowUrl || !langflowFlowId) {
+      throw new Error('Variáveis de ambiente do Langflow não configuradas');
+    }
+
+    // Criar payload para Langflow
+    const payload = {
+      input_value: params.input_value,
+      output_type: 'chat',
+      input_type: 'chat',
+      session_id: params.session_id,
+    };
+
+    // Construir URL completa
+    const fullUrl = langflowUrl.endsWith('/')
+      ? `${langflowUrl}api/v1/run/${langflowFlowId}`
+      : `${langflowUrl}/api/v1/run/${langflowFlowId}`;
+
+    console.log('📡 Chamando Langflow:', fullUrl);
+
+    // Fazer requisição para Langflow
+    const response = await fetch(fullUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erro na requisição Langflow: ${response.status} - ${response.statusText}`);
+    }
+
+    // Obter resposta do Langflow
+    const responseData: LangflowResponse = await response.json();
+    console.log('📥 Resposta bruta do Langflow recebida');
+
+    // Tratamento unificado da resposta
+    let treatedResponse = '';
+
+    if (responseData.outputs?.[0]?.outputs?.[0]) {
+      const output = responseData.outputs[0].outputs[0];
+
+      treatedResponse =
+        output.outputs?.message?.message ||
+        output.artifacts?.message ||
+        output.results?.message?.text ||
+        output.messages?.[0]?.message ||
+        'Resposta do Langflow recebida, mas estrutura não reconhecida.';
+    } else {
+      treatedResponse =
+        responseData.result ||
+        responseData.message ||
+        'Resposta do Langflow recebida, mas formato não reconhecido.';
+    }
+
+    console.log('✅ Resposta tratada do Langflow');
+
+    return {
+      success: true,
+      response: treatedResponse,
+    };
+  } catch (error: any) {
+    console.error('❌ Erro ao chamar Langflow:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
+    };
+  }
 }
 
 /**
