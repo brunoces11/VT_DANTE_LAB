@@ -41,6 +41,75 @@ interface DanteRiParams {
 }
 
 /**
+ * Função de teste para verificar conectividade com Langflow
+ */
+// Função global para teste rápido no console
+(window as any).testLangflow = async () => {
+  const result = await fun_test_langflow_connection();
+  console.log('🧪 Resultado do teste:', result);
+  return result;
+};
+
+export async function fun_test_langflow_connection(): Promise<{ success: boolean; message: string }> {
+  try {
+    const langflowUrl = import.meta.env.VITE_LANGFLOW_URL;
+    const langflowFlowId = import.meta.env.VITE_LANGFLOW_FLOW_ID;
+    const langflowApiKey = import.meta.env.VITE_LANGFLOW_API_KEY;
+
+    console.log('🧪 Testando conexão com Langflow...');
+    console.log('🔗 URL:', langflowUrl);
+    console.log('🆔 Flow ID:', langflowFlowId);
+    console.log('🔑 API Key (primeiros 10 chars):', langflowApiKey?.substring(0, 10) + '...');
+
+    if (!langflowUrl || !langflowFlowId || !langflowApiKey) {
+      return {
+        success: false,
+        message: 'Variáveis de ambiente não configuradas corretamente'
+      };
+    }
+
+    // Teste simples com payload mínimo
+    const testPayload = {
+      "input_value": "teste de conexão",
+      "output_type": "chat",
+      "input_type": "chat",
+      "session_id": "test_session"
+    };
+
+    const fullUrl = langflowUrl.endsWith('/')
+      ? `${langflowUrl}api/v1/run/${langflowFlowId}`
+      : `${langflowUrl}/api/v1/run/${langflowFlowId}`;
+
+    const response = await fetch(fullUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': langflowApiKey,
+      },
+      body: JSON.stringify(testPayload),
+    });
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: `Conexão OK - Status: ${response.status}`
+      };
+    } else {
+      const errorBody = await response.text();
+      return {
+        success: false,
+        message: `Erro ${response.status}: ${response.statusText} - ${errorBody}`
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: `Erro de conexão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+    };
+  }
+}
+
+/**
  * Função centralizada para chamar APENAS o Langflow (sem salvamento automático)
  * Usada quando você quer apenas a resposta do Langflow
  */
@@ -57,17 +126,22 @@ export async function fun_call_langflow(params: {
     // Obter variáveis de ambiente do Langflow
     const langflowUrl = import.meta.env.VITE_LANGFLOW_URL;
     const langflowFlowId = import.meta.env.VITE_LANGFLOW_FLOW_ID;
+    const langflowApiKey = import.meta.env.VITE_LANGFLOW_API_KEY;
 
     if (!langflowUrl || !langflowFlowId) {
       throw new Error('Variáveis de ambiente do Langflow não configuradas');
     }
 
-    // Criar payload para Langflow
+    if (!langflowApiKey) {
+      throw new Error('VITE_LANGFLOW_API_KEY não encontrada nas variáveis de ambiente');
+    }
+
+    // Criar payload para Langflow (formato exato do exemplo fornecido)
     const payload = {
-      input_value: params.input_value,
-      output_type: 'chat',
-      input_type: 'chat',
-      session_id: params.session_id,
+      "input_value": params.input_value,
+      "output_type": "chat",
+      "input_type": "chat",
+      "session_id": params.session_id
     };
 
     // Construir URL completa
@@ -76,18 +150,33 @@ export async function fun_call_langflow(params: {
       : `${langflowUrl}/api/v1/run/${langflowFlowId}`;
 
     console.log('📡 Chamando Langflow:', fullUrl);
+    console.log('📦 Payload enviado:', JSON.stringify(payload, null, 2));
+    console.log('🔑 API Key (primeiros 10 chars):', langflowApiKey.substring(0, 10) + '...');
+    console.log('🔍 Verificações:');
+    console.log('  - URL válida:', /^https?:\/\/.+/.test(fullUrl));
+    console.log('  - Flow ID válido:', /^[a-f0-9-]{36}$/.test(langflowFlowId));
+    console.log('  - API Key válida:', /^sk-.+/.test(langflowApiKey));
 
-    // Fazer requisição para Langflow
+    // Fazer requisição para Langflow com autenticação
     const response = await fetch(fullUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'x-api-key': langflowApiKey,
       },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
-      throw new Error(`Erro na requisição Langflow: ${response.status} - ${response.statusText}`);
+      // Tentar obter detalhes do erro do corpo da resposta
+      let errorDetails = '';
+      try {
+        const errorBody = await response.text();
+        errorDetails = errorBody ? ` - Detalhes: ${errorBody}` : '';
+      } catch (e) {
+        errorDetails = ' - Não foi possível obter detalhes do erro';
+      }
+      throw new Error(`Erro na requisição Langflow: ${response.status} - ${response.statusText}${errorDetails}`);
     }
 
     // Obter resposta do Langflow
@@ -143,9 +232,14 @@ export async function fun_dante_ri_langflow(params: DanteRiParams) {
         // Obter variáveis de ambiente do Langflow
         const langflowUrl = import.meta.env.VITE_LANGFLOW_URL;
         const langflowFlowId = import.meta.env.VITE_LANGFLOW_FLOW_ID;
+        const langflowApiKey = import.meta.env.VITE_LANGFLOW_API_KEY;
 
         if (!langflowUrl || !langflowFlowId) {
             throw new Error('Variáveis de ambiente do Langflow não configuradas');
+        }
+
+        if (!langflowApiKey) {
+            throw new Error('VITE_LANGFLOW_API_KEY não encontrada nas variáveis de ambiente');
         }
 
         // Criar payload para Langflow (baseado no PayloadTest)
@@ -162,18 +256,29 @@ export async function fun_dante_ri_langflow(params: DanteRiParams) {
             : `${langflowUrl}/api/v1/run/${langflowFlowId}`;
 
         console.log('📡 Fazendo requisição para Langflow:', fullUrl);
+        console.log('📦 Payload enviado:', JSON.stringify(payload, null, 2));
+        console.log('🔑 API Key (primeiros 10 chars):', langflowApiKey.substring(0, 10) + '...');
 
-        // Fazer requisição para Langflow
+        // Fazer requisição para Langflow com autenticação
         const response = await fetch(fullUrl, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-api-key': langflowApiKey
             },
             body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
-            throw new Error(`Erro na requisição Langflow: ${response.status} - ${response.statusText}`);
+            // Tentar obter detalhes do erro do corpo da resposta
+            let errorDetails = '';
+            try {
+                const errorBody = await response.text();
+                errorDetails = errorBody ? ` - Detalhes: ${errorBody}` : '';
+            } catch (e) {
+                errorDetails = ' - Não foi possível obter detalhes do erro';
+            }
+            throw new Error(`Erro na requisição Langflow: ${response.status} - ${response.statusText}${errorDetails}`);
         }
 
         // Obter resposta do Langflow
