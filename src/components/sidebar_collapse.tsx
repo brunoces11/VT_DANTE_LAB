@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollText, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
+
 import { fun_renomear_chat } from '../../services/supabase';
 import { useAuth } from './auth/AuthProvider';
 
@@ -23,7 +23,7 @@ interface SidebarCollapseProps {
   currentSessionId: string | null;
 }
 
-export default function SidebarCollapse({ chats, setChats, onChatClick, onNewChat, currentSessionId }: SidebarCollapseProps) {
+export default function SidebarCollapse({ chats, setChats, onChatClick, onNewChat }: SidebarCollapseProps) {
   const { user } = useAuth();
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [editingChat, setEditingChat] = useState<string | null>(null);
@@ -31,29 +31,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
 
-  // Função para atualizar título no user_chat_data (localStorage)
-  const updateUserChatDataTitle = (sessionId: string, newTitle: string) => {
-    try {
-      const userChatData = localStorage.getItem('user_chat_data');
-      if (!userChatData) return;
-      
-      const parsedData = JSON.parse(userChatData);
-      if (!parsedData.chat_sessions || !Array.isArray(parsedData.chat_sessions)) return;
-      
-      // Encontrar e atualizar a sessão específica
-      const sessionIndex = parsedData.chat_sessions.findIndex(
-        (session: any) => session.chat_session_id === sessionId
-      );
-      
-      if (sessionIndex !== -1) {
-        parsedData.chat_sessions[sessionIndex].chat_session_title = newTitle;
-        localStorage.setItem('user_chat_data', JSON.stringify(parsedData));
-        console.log(`💾 user_chat_data atualizado: ${sessionId.slice(0, 6)} → "${newTitle}"`);
-      }
-    } catch (error) {
-      console.warn('⚠️ Erro ao atualizar user_chat_data:', error);
-    }
-  };
+
 
   const handleNewChat = () => {
     console.log('🆕 Sidebar: Iniciando novo chat');
@@ -66,6 +44,10 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
       isActive: chat.id === chatId
     })));
     setActiveDropdown(null);
+    
+    // 🎯 PERSISTIR imediatamente a seleção do chat
+    console.log('🎯 Chat selecionado:', chatId.slice(0, 6));
+    
     onChatClick(chatId); // Chamar função para carregar mensagens
   };
 
@@ -105,8 +87,14 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
             : chat
         ));
         
-        // 🚀 SINCRONIZAR COM user_chat_data (localStorage)
-        updateUserChatDataTitle(chatId, editTitle.trim());
+        // 🔄 INVALIDAR CACHE após mutação (padrão Supabase)
+        console.log('🔄 Invalidando cache após renomeação...');
+        const { updateSessionInCache } = await import('../../services/cache-service');
+        updateSessionInCache(chatId, {
+          title: editTitle.trim(),
+          last_updated: new Date().toISOString()
+        });
+        console.log('✅ Cache invalidado e atualizado');
         
         console.log(`✅ Chat ${chatId.slice(0, 6)} renomeado para: "${editTitle.trim()}"`);
       } else {
@@ -129,15 +117,26 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
   };
 
   const handleDelete = (chatId: string) => {
+    // Integrar removeSessionFromCache para consistência
+    import('../../services/cache-service').then(({ removeSessionFromCache }) => {
+      removeSessionFromCache(chatId);
+    });
+    
+    // Remover também do localStorage antigo
+    
+    const wasActiveChat = chats.find(chat => chat.id === chatId)?.isActive;
+    
     setChats(prev => {
       const filtered = prev.filter(chat => chat.id !== chatId);
-      // Se o chat deletado era o ativo, ativa o primeiro da lista
-      if (prev.find(chat => chat.id === chatId)?.isActive && filtered.length > 0) {
-        filtered[0].isActive = true;
-      }
       return filtered;
     });
     setActiveDropdown(null);
+    
+    // 🎯 Se o chat deletado era o ativo, redirecionar para Welcome Chat
+    if (wasActiveChat) {
+      console.log('🗑️ Chat ativo deletado, redirecionando para Welcome Chat');
+      onNewChat(); // Chamar função para ativar modo welcome
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent, chatId: string) => {
@@ -250,7 +249,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                             value={editTitle}
                             onChange={(e) => setEditTitle(e.target.value)}
                             onBlur={() => handleSaveRename(chat.id)}
-                            onKeyPress={(e) => handleKeyPress(e, chat.id)}
+                            onKeyDown={(e) => handleKeyPress(e, chat.id)}
                             className={`w-full text-sm font-medium border rounded px-2 py-1 focus:outline-none focus:ring-2 ${
                               isRenaming 
                                 ? 'bg-gray-100 border-gray-300 cursor-wait' 

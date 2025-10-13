@@ -8,14 +8,15 @@ export default function PayloadTest() {
   const [inputMessage, setInputMessage] = useState('');
   const [endpointUrl, setEndpointUrl] = useState('');
   const [flowId, setFlowId] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [payloadMessage, setPayloadMessage] = useState('');
   const [payloadResponse, setPayloadResponse] = useState('');
   const [treatedResponse, setTreatedResponse] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
-    if (!inputMessage.trim() || !endpointUrl.trim() || !flowId.trim()) {
-      alert('Por favor, preencha todos os campos obrigatórios');
+    if (!inputMessage.trim() || !endpointUrl.trim() || !flowId.trim() || !apiKey.trim()) {
+      alert('Por favor, preencha todos os campos obrigatórios (incluindo API Key)');
       return;
     }
 
@@ -36,11 +37,12 @@ export default function PayloadTest() {
       // Construir a URL completa com o Flow ID
       const fullUrl = endpointUrl.endsWith('/') ? `${endpointUrl}api/v1/run/${flowId}` : `${endpointUrl}/api/v1/run/${flowId}`;
       
-      // Fazer a requisição HTTP para Langflow
+      // Fazer a requisição HTTP para Langflow com autenticação
       const response = await fetch(fullUrl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey
         },
         body: JSON.stringify(payload)
       });
@@ -134,7 +136,7 @@ export default function PayloadTest() {
                 />
                 <Button
                   onClick={handleSend}
-                  disabled={isLoading || !inputMessage.trim() || !endpointUrl.trim() || !flowId.trim()}
+                  disabled={isLoading || !inputMessage.trim() || !endpointUrl.trim() || !flowId.trim() || !apiKey.trim()}
                   className="bg-orange-500 hover:bg-orange-600 text-white px-6"
                 >
                   {isLoading ? (
@@ -178,6 +180,21 @@ export default function PayloadTest() {
                 placeholder="1060b727-10e5-4597-aa26-4662f5bccd46"
                 value={flowId}
                 onChange={(e) => setFlowId(e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            {/* API Key */}
+            <div>
+              <label htmlFor="apiKey" className="block text-sm font-medium text-neutral-700 mb-2">
+                API Key
+              </label>
+              <Input
+                id="apiKey"
+                type="password"
+                placeholder="sk-HYxXqIFq-Fy6YBzakYto0_gmIIdFBgDRhS-aN-CZ3Zs"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
                 className="w-full"
               />
             </div>

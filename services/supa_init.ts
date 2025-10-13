@@ -17,7 +17,26 @@ export const supabase = createClient(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false
+      detectSessionInUrl: false,
+      storage: window.localStorage,
+      storageKey: 'sb-auth-token',
+      flowType: 'pkce'
     }
   }
 )
+
+// Log para debug
+console.log('🔧 [Supabase] Cliente inicializado');
+console.log('🔧 [Supabase] URL:', supabaseUrl);
+console.log('🔧 [Supabase] persistSession: true');
+console.log('🔧 [Supabase] storageKey: sb-auth-token');
+
+// Testar se localStorage está funcionando
+try {
+  localStorage.setItem('test-storage', 'working');
+  const test = localStorage.getItem('test-storage');
+  localStorage.removeItem('test-storage');
+  console.log('✅ [Supabase] localStorage funcionando:', test === 'working');
+} catch (error) {
+  console.error('❌ [Supabase] localStorage NÃO está funcionando:', error);
+}

@@ -618,6 +618,7 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Impact**: Melhoria na performance eliminando operação de backup desnecessária, reduzindo carga no sistema de persistência e evitando salvamentos duplicados no localStorage/banco de dados
 
 **Última atualização:** 01/10/2025 - 16:30
+<<<<<<< HEAD
 ## 
 01/10/2025 - 19:15 - Refatoração do ChatInputMsg para Textarea Auto-Redimensionável
 - **Files Modified**: `src/components/chat_input_msg.tsx`
@@ -747,3 +748,37 @@ Este arquivo será atualizado automaticamente sempre que modificações efetivas
 - **Impact**: Aprimoramento na funcionalidade de redimensionamento automático do textarea no componente de welcome, garantindo cálculo mais preciso da altura necessária e melhor experiência do usuário ao digitar mensagens longas
 
 **Última atualização:** 02/10/2025 - 10:30
+=======
+##
+ 04/10/2025 - Sábado - Atualização de Configuração MCP Supabase
+- **Files Modified**: `.kiro/settings/mcp.json`
+- **Changes Made**: Atualização das credenciais do servidor MCP Supabase:
+  - **Nome do Servidor**: Renomeado de `supabase_PMT` para `SUPA_DANTE` para melhor identificação
+  - **Access Token**: Atualizado de `sbp_00f482f734ce15cc17f39b17b9dabad1e27af4f5` para `sbp_0b79c82cace37bbd8658311b1c2d4b19ce89b7cb`
+  - Mantidas configurações: comando `npx`, flag `--read-only`, project-ref `oifhsdqivbiyyvfheofx`, array `autoApprove` vazio
+- **Status**: ✅ Configuração atualizada com sucesso - MCP server reconectado com novas credenciais
+- **Impact**: Renovação das credenciais de acesso ao MCP Supabase, garantindo continuidade das operações de integração com o banco de dados via Model Context Protocol. O novo nome `SUPA_DANTE` reflete melhor o contexto do projeto VT_DANTE_LAB.
+
+**Última atualização:** 04/10/2025 - Sábado
+
+## 04/10/2025 - 10:00 - Atualização de Steering Rules do Supabase
+- **Files Modified**: `.kiro/steering/supabase_sterring.md`
+- **Changes Made**: Substituído conteúdo placeholder por regras completas de orientação para desenvolvimento com Supabase:
+  - **Contexto do Projeto**: Documentado que projeto foi criado pelo Bolt.new com integração Supabase nativa
+  - **Padrão Mandatório**: Estabelecido que todas decisões devem seguir rigorosamente o modelo padrão do Supabase
+  - **Postura de Desenvolvimento**: Definido que assistente deve atuar como engenheiro senior Supabase focando em:
+    - Máxima integração com Supabase
+    - Mínima fricção nas implementações
+    - Máxima estabilidade e compatibilidade
+  - **Restrições de Sugestões**: Estabelecido que apenas sugestões baseadas em projetos Supabase são permitidas
+  - **Otimização**: Foco em maior uso e eficiência dos recursos Supabase
+  - **Boas Práticas de Segurança**: Proibição explícita de:
+    - Acesso direto ao banco de dados pelo frontend
+    - Salvamento de dados sensíveis no localStorage
+    - Abordagens de baixa qualidade ou perigosas
+  - **Escopo Restrito**: Projeto definido exclusivamente para Supabase, sem alternativas fora desse ecossistema
+- **Status**: ✅ Steering rules atualizadas com sucesso - orientações completas estabelecidas
+- **Impact**: Melhoria significativa na governança do projeto, garantindo que todas futuras implementações sigam padrões de segurança e arquitetura adequados para projetos Supabase em produção, com foco em estabilidade e compatibilidade máxima
+
+**Última atualização:** 04/10/2025 - 10:00
+>>>>>>> 3472842 (SALCVANDO DANTE NOVO_v0.7.3)

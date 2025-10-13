@@ -1,9 +1,10 @@
 import React from 'react';
-import { User, Home, Loader2 } from 'lucide-react';
+import { User, Home, Loader2, CheckCheck, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ChatLoader from './chat_loader';
 import { formatDateTimeBR } from '@/utils/timezone';
+import { Message } from '@/types/message';
 
 // Função para pré-processar texto e converter listas numeradas em markdown
 const preprocessMarkdown = (text: string): string => {
@@ -11,7 +12,7 @@ const preprocessMarkdown = (text: string): string => {
   
   // 1. Detectar e converter listas numeradas
   // Padrão: "1. Texto" ou "1.Texto" (com ou sem espaço)
-  processed = processed.replace(/(\d+)\.(\s*)([^\n]+)/g, (match, number, space, content) => {
+  processed = processed.replace(/(\d+)\.(\s*)([^\n]+)/g, (_, number, __, content) => {
     return `${number}. ${content.trim()}`;
   });
   
@@ -29,14 +30,7 @@ const preprocessMarkdown = (text: string): string => {
   return processed;
 };
 
-interface Message {
-  id: number;
-  content: string;
-  sender: 'user' | 'bot';
-  timestamp: string;
-  isLoading?: boolean;
-  loadingText?: string;
-}
+
 
 interface ChatMsgListProps {
   messages: Message[];
@@ -105,15 +99,7 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                         br: () => <br className="block" />
                       }}
                     >
-                      {(() => {
-                        const processed = preprocessMarkdown(message.content);
-                        // Log temporário para debug
-                        if (message.content.includes('1.') || message.content.includes('2.')) {
-                          console.log('🔍 Texto original:', message.content.substring(0, 200));
-                          console.log('🔍 Texto processado:', processed.substring(0, 200));
-                        }
-                        return processed;
-                      })()}
+                      {preprocessMarkdown(message.content)}
                     </ReactMarkdown>
                   </div>
                 ) : (
@@ -121,6 +107,7 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                     {message.content}
                   </p>
                 )}
+                {/* Timestamp e indicador de status */}
                 <div className="flex items-center justify-between mt-2">
                   <span
                     className={`text-xs ${
@@ -131,6 +118,27 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                   >
                     {formatDateTimeBR(message.timestamp)}
                   </span>
+                  
+                  {/* Indicador visual de status (apenas para mensagens do usuário) */}
+                  {message.sender === 'user' && message.status && (
+                    <div className="flex items-center ml-2">
+                      {message.status === 'sending' && (
+                        <div title="Enviando...">
+                          <Loader2 className="h-3 w-3 text-neutral-400 animate-spin" />
+                        </div>
+                      )}
+                      {message.status === 'sent' && (
+                        <div title="Enviado e salvo">
+                          <CheckCheck className="h-3 w-3 text-green-400" />
+                        </div>
+                      )}
+                      {message.status === 'failed' && (
+                        <div title="Falha ao salvar">
+                          <AlertCircle className="h-3 w-3 text-red-400" />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

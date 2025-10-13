@@ -1,6 +1,6 @@
 # Project Structure
 
-MUITO IMPORTANTE, VC NUNCA VAI CRIAR NENHUM CODIGO, NENHUMA MUDANCA se vc nao entender 100% com clareza total o pedido do usuario, caso contrario vc DEVERA SEMPRE perguntar e esclarecwer com o usuario qualquer ponto, vc so esta autorizado a fazer modificacoes ou criacoes de codigo e arquivos se vc estiver totalmente certo e convicto de que entendeu perfeitamente a solicitacao do usuario, caso contrario vc deve perguntar e pedir esclasrecimento antes. entedeu totalmente isso?
+MUITO IMPORTANTE, VC NUNCA VAI CRIAR NENHUM CODIGO, NENHUMA MUDANCA se vc nao entender 100% com clareza total o pedido do usuario, caso contrario vc DEVERA SEMPRE perguntar e esclarecer com o usuario qualquer ponto ntes de gerar codigos e mudancas no codebase, vc so esta autorizado a fazer modificacoes ou criacoes de codigo e arquivos se vc estiver totalmente certo e convicto de que entendeu perfeitamente a solicitacao do usuario, caso contrario vc deve perguntar e pedir esclasrecimento antes. entedeu totalmente isso?
 Resumindo nunca faca nada se vc nao entender 100% com clareza meu pedido, caso contrario vc deve perguntar antes.
 
 ## Root Directory Organization
@@ -14,7 +14,8 @@ VT_DANTE_LAB/
 ├── .env                   # Environment variables
 └── [config files]         # Build and tool configurations
 
-+ services/react.ts        # para concentrar as funcoes do frontend criado usando react; entao sempre q o usuario se referir a alguma funcao do frontend ou do react, vc devera criar/consultar/editar nesse arquivo "services/react.ts"; entao sempre q o usuario se referir a alguma funcao relativa ao frontend ou react, entao sempre considere o "services/react.ts".
+
+MUITO IMPORTANTE: 
 
 
 + services/supabase.ts     # para concentrar as chamadas de API para executar edge funcions; entao sempre q o usuario se referir a alguma funcao para acionar uma edge funcion, entao vc devera criar/consultar/editar nesse arquivo "services/supabase.ts".
