@@ -11,7 +11,10 @@
       "env": {
         "SUPABASE_ACCESS_TOKEN": "sbp_0b79c82cace37bbd8658311b1c2d4b19ce89b7cb"
       },
-      "autoApprove": []
+      "disabled": false,
+      "autoApprove": [
+        "search_docs"
+      ]
     }
   }
 }
