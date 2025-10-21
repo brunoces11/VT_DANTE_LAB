@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Assinatura from '@/components/assinatura';
 import { ArrowLeft } from 'lucide-react';
 
 export default function PoliticaPrivacidadePage() {
@@ -103,6 +104,8 @@ export default function PoliticaPrivacidadePage() {
           </div>
         </div>
       </main>
+      
+      <Assinatura />
     </div>
   );
 }

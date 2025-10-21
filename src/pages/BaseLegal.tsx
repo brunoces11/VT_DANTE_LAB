@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '@/components/header';
+import Assinatura from '@/components/assinatura';
 import { Calendar, FileText, CheckCircle, Clock } from 'lucide-react';
 
 export default function BaseLegal() {
@@ -154,6 +155,8 @@ export default function BaseLegal() {
           </div>
         </div>
       </div>
+      
+      <Assinatura />
     </div>
   );
 }

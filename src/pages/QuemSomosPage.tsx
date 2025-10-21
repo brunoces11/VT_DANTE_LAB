@@ -1,58 +1,48 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Users, Crown, Code, TrendingUp, Scale, UserCheck, Headphones, Truck } from 'lucide-react';
+import Assinatura from '@/components/assinatura';
+import { ArrowLeft, Users, User } from 'lucide-react';
 
 export default function QuemSomosPage() {
-  const socios = [
+  const nossoTime = [
     {
       nome: 'José Eduardo',
       cargo: 'CEO',
-      icon: Crown,
-      description: 'Liderança estratégica e visão de negócio'
+      description: 'Idealizador, Liderança Estratégica e Visão de Negócio'
     },
     {
       nome: 'Bruno Cesar',
       cargo: 'CTO',
-      icon: Code,
-      description: 'Arquitetura tecnológica e desenvolvimento'
+      description: 'Arquitetura de IA, Engenharia de Prompt e UI/UX Design'
     },
     {
       nome: 'Erik Mattfeldt',
       cargo: 'Planejamento e Marketing',
-      icon: TrendingUp,
       description: 'Estratégia de mercado e crescimento'
     },
     {
       nome: 'Alessandra de Liz',
       cargo: 'Curadoria e Base Legal',
-      icon: Scale,
       description: 'Expertise jurídica e validação legal'
-    }
-  ];
-
-  const equipe = [
+    },
     {
       nome: 'Nina',
       cargo: 'Gerência de Projeto',
-      icon: UserCheck,
       description: 'Coordenação e gestão de projetos'
     },
     {
       nome: 'Jefferson',
       cargo: 'Suporte Jurídico',
-      icon: Scale,
       description: 'Assistência especializada em direito'
     },
     {
       nome: 'Samara',
       cargo: 'Suporte Operacional',
-      icon: Headphones,
       description: 'Atendimento e suporte aos usuários'
     },
     {
       nome: 'Rafaela',
       cargo: 'Suporte Logístico',
-      icon: Truck,
       description: 'Organização e processos internos'
     }
   ];
@@ -87,44 +77,22 @@ export default function QuemSomosPage() {
             </p>
           </div>
 
-          {/* Sócios Section */}
-          <section className="mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Sócios Fundadores</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {socios.map((socio, index) => {
-                const IconComponent = socio.icon;
-                return (
-                  <div key={index} className="bg-gray-50 rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-                    <div className="flex justify-center mb-4">
-                      <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center">
-                        <IconComponent className="w-8 h-8 text-amber-700" />
-                      </div>
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{socio.nome}</h3>
-                    <p className="text-amber-700 font-medium mb-3">{socio.cargo}</p>
-                    <p className="text-sm text-gray-600">{socio.description}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Equipe Section */}
+          {/* Nosso Time Section */}
           <section className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Nossa Equipe</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Nosso Time</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {equipe.map((membro, index) => {
-                const IconComponent = membro.icon;
+              {nossoTime.map((pessoa, index) => {
                 return (
                   <div key={index} className="bg-gray-50 rounded-lg p-6 text-center hover:shadow-md transition-shadow">
                     <div className="flex justify-center mb-4">
-                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                        <IconComponent className="w-8 h-8 text-blue-700" />
+                      {/* Photo Placeholder */}
+                      <div className="w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center border-2 border-gray-300">
+                        <User className="w-10 h-10 text-gray-500" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{membro.nome}</h3>
-                    <p className="text-blue-700 font-medium mb-3">{membro.cargo}</p>
-                    <p className="text-sm text-gray-600">{membro.description}</p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{pessoa.nome}</h3>
+                    <p className="text-amber-700 font-medium mb-3">{pessoa.cargo}</p>
+                    <p className="text-sm text-gray-600">{pessoa.description}</p>
                   </div>
                 );
               })}
@@ -145,39 +113,7 @@ export default function QuemSomosPage() {
             </div>
           </section>
 
-          {/* Values Section */}
-          <section className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Nossos Valores</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Scale className="w-8 h-8 text-green-700" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Precisão Legal</h3>
-                <p className="text-gray-600">
-                  Compromisso com a exatidão e fundamentação jurídica em todas as respostas fornecidas.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Code className="w-8 h-8 text-blue-700" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Inovação Tecnológica</h3>
-                <p className="text-gray-600">
-                  Uso da mais avançada tecnologia de IA para revolucionar o acesso à informação jurídica.
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-purple-700" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-3">Foco no Cliente</h3>
-                <p className="text-gray-600">
-                  Dedicação total em oferecer a melhor experiência e suporte aos nossos usuários.
-                </p>
-              </div>
-            </div>
-          </section>
+
 
           <div className="mt-12 pt-8 border-t border-gray-200">
             <Link 
@@ -190,6 +126,8 @@ export default function QuemSomosPage() {
           </div>
         </div>
       </main>
+      
+      <Assinatura />
     </div>
   );
 }
