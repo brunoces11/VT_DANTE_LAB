@@ -1,5 +1,6 @@
 import React from 'react';
 import Header from '@/components/header';
+import Assinatura from '@/components/assinatura';
 import { Brain, Database, Search, CheckCircle, Scale, BookOpen, Shield, Zap } from 'lucide-react';
 
 export default function ComoFunciona() {
@@ -235,6 +236,8 @@ export default function ComoFunciona() {
           </div>
         </div>
       </div>
+      
+      <Assinatura />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Header from '@/components/header';
 import ChatContato from '@/components/chat_contato';
+import Assinatura from '@/components/assinatura';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
 
@@ -82,6 +83,8 @@ export default function Contato() {
           </div>
         </div>
       </div>
+      
+      <Assinatura />
     </div>
   );
 }

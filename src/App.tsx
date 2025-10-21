@@ -15,6 +15,9 @@ import Planos from '@/pages/Planos';
 import Contato from '@/pages/Contato';
 import TestePage from '@/pages/TestePage';
 import PayloadTest from '@/pages/PayloadTest';
+import PoliticaPrivacidadePage from '@/pages/PoliticaPrivacidadePage';
+import TermosUsoPage from '@/pages/TermosUsoPage';
+import QuemSomosPage from '@/pages/QuemSomosPage';
 
 // Simple error boundary component
 class ErrorBoundary extends React.Component<
@@ -222,6 +225,9 @@ function App() {
             <Route path="/como-funciona" element={<ComoFunciona />} />
             <Route path="/planos" element={<Planos />} />
             <Route path="/contato" element={<Contato />} />
+            <Route path="/politica-privacidade" element={<PoliticaPrivacidadePage />} />
+            <Route path="/termos-uso" element={<TermosUsoPage />} />
+            <Route path="/quem-somos" element={<QuemSomosPage />} />
             <Route path="/teste" element={<TestePage />} />
             <Route path="/payload-test" element={<PayloadTest />} />
           </Routes>

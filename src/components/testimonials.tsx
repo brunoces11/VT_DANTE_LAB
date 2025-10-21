@@ -90,26 +90,10 @@ export default function Testimonials() {
           ))}
         </div>
 
-        {/* Trust Indicators */}
-        <div className="mt-16 text-center">
-          <p className="text-sm text-neutral-600 mb-8">
-            Confiado por mais de 500 cartórios no Brasil
-          </p>
-          
-          {/* Logo Grid */}
-          <div className="flex justify-center items-center space-x-8 opacity-40">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="w-16 h-16 bg-neutral-200 rounded-lg flex items-center justify-center">
-                <div className="w-8 h-8 bg-neutral-300 rounded"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Final CTA */}
         <div className="mt-16 text-center">
           <p className="text-sm text-neutral-600 mb-4">
-            ★★★★★ • Avaliado por 450 profissionais de cartório
+            ★★★★★ • Testado e Aprovado por profissionais de cartório • Eficiência e Segurança jurídica para sua operação • ★★★★★
           </p>
         </div>
       </div>

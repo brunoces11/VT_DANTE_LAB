@@ -20,7 +20,7 @@ MUITO IMPORTANTE:
 
 + services/supabase.ts     # para concentrar as chamadas de API para executar edge funcions; entao sempre q o usuario se referir a alguma funcao para acionar uma edge funcion, entao vc devera criar/consultar/editar nesse arquivo "services/supabase.ts".
 
-Muito importante, as edge funcions do supabase propriamente dita, todas estao salvas em outro diretorio, seguindo o foato padrao sugerido pelo proprio supabase que é: "supabase/nome_da_edge_funcion/index.ts".
+Muito importante, as edge funcions do supabase propriamente dita, todas estao salvas em outro diretorio, seguindo o formato padrao sugerido pelo proprio supabase que é: "supabase/nome_da_edge_funcion/index.ts".
 
 Muito importante, todas as funcoes, edge funcions ou qualquer conexao q envolva acesso ao banco de dados do supabase, devera seguir a risca ao schema publico do banco de dados que foi salvo no arquivo ".kiro/architecture.md"; entao sempre q lidar com essas questoes, acesse o schema exato do bando de dados supabase detalhado no arquivo indicado.
 

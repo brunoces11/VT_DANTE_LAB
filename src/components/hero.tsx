@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowRight, Play, MessageCircle } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import ChatHero from "./chat_hero";
+import heroBackground from "@/assets/DANTE_IA_Registro_imoveis_BG_v5.jpg";
 
 export default function Hero() {
   const [question, setQuestion] = useState("");
@@ -14,29 +14,25 @@ export default function Hero() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && question.trim()) {
-      e.preventDefault();
-      handleChat();
-    }
-  };
+  // handleKeyPress function removed as it's no longer needed
 
   return (
     <>
-      <section 
-        className="relative overflow-hidden bg-white pt-24 pb-20 sm:pt-32 sm:pb-18"
+      <section
+        className="relative overflow-hidden bg-white flex items-center justify-center"
         style={{
-          backgroundImage: 'url(https://images.pexels.com/photos/159832/justice-law-case-hearing-159832.jpeg)',
+          backgroundImage: `url(${heroBackground})`,
           backgroundPosition: 'center top',
           backgroundRepeat: 'no-repeat',
-          backgroundSize: '100% auto'
+          backgroundSize: '100% auto',
+          minHeight: '550px'
         }}
       >
         {/* Background overlay for better text readability - reduced opacity from 80% to 40% */}
         <div className="absolute inset-0 bg-white/40"></div>
-        
+
         {/* Background grid - changed from lines to dots with reduced opacity */}
-        <div 
+        <div
           className="absolute inset-0"
           style={{
             backgroundImage: 'radial-gradient(circle, #80808040 1px, transparent 1px)',
@@ -44,11 +40,11 @@ export default function Hero() {
             opacity: 0.63
           }}
         ></div>
-        
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="mx-auto max-w-2xl text-center">
             {/* Main headline */}
-            <h1 className="font-display text-3xl font-medium tracking-tight text-neutral-900 sm:text-4xl leading-[1.9]">
+            <h1 className="font-display text-3xl font-medium tracking-tight text-neutral-900 sm:text-4xl leading-[1.9] mt-[25px] mb-[15px]">
               <span className="block">IA Especializada em</span>
               <span className="block relative mt-2">
                 <span className="font-bold sm:text-5xl relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent">
@@ -58,7 +54,6 @@ export default function Hero() {
               </span>
             </h1>
 
-            
             {/* Subtitle */}
             <p className="mx-auto mt-6 text-[1.1rem] leading-8 text-neutral-700 max-w-[600px]">
               Dante é uma IA avançada especializada fornecer embasamento jurídico para cartórios e registros imobiliários
@@ -77,7 +72,8 @@ export default function Hero() {
               </Button>
             </div>
 
-            {/* Interactive Chat Form */}
+            {/* Interactive Chat Form - COMMENTED OUT */}
+            {/* 
             <div className="mt-16">
               <div className="mx-auto max-w-lg">
                 <div className="relative rounded-xl border border-neutral-200 bg-white/90 backdrop-blur-sm p-2 shadow-lg ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-orange-500/20">
@@ -106,12 +102,13 @@ export default function Hero() {
               🏛️ Especialista em Registro de Imóveis • ⚖️ Baseado na legislação
               </p>
             </div>
+            */}
           </div>
         </div>
       </section>
 
-      <ChatHero 
-        isOpen={isChatOpen} 
+      <ChatHero
+        isOpen={isChatOpen}
         onClose={() => {
           setIsChatOpen(false);
           setQuestion(""); // Clear the input when modal closes
