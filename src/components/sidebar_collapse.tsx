@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScrollText, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -30,6 +30,32 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
   const [editTitle, setEditTitle] = useState('');
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
+  const dropdownRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!activeDropdown) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const activeRef = dropdownRefs.current.get(activeDropdown);
+      
+      // Fecha se clicou fora do dropdown ativo
+      if (activeRef && !activeRef.contains(target)) {
+        setActiveDropdown(null);
+      }
+    };
+
+    // Pequeno delay para evitar fechar imediatamente após abrir
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeDropdown]);
 
 
 
@@ -285,7 +311,12 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                       </div>
 
                       {/* Botão de opções */}
-                      <div className="relative">
+                      <div 
+                        className="relative"
+                        ref={(el) => {
+                          if (el) dropdownRefs.current.set(chat.id, el);
+                        }}
+                      >
                         <Button
                           variant="ghost"
                           size="sm"
