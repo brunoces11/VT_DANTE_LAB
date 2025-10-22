@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Menu, X, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
@@ -16,20 +16,33 @@ export default function Header() {
   const role = useUserRole();
   const navigate = useNavigate();
   const location = useLocation();
+  const labDropdownRef = useRef<HTMLDivElement>(null);
+  const labDropdownMobileRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
+    if (!isLabDropdownOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (isLabDropdownOpen) {
-        const target = event.target as Element;
-        if (!target.closest('.relative')) {
-          setIsLabDropdownOpen(false);
-        }
+      const target = event.target as Node;
+      
+      // Verifica se o clique foi fora do dropdown desktop OU mobile
+      const clickedOutsideDesktop = labDropdownRef.current && !labDropdownRef.current.contains(target);
+      const clickedOutsideMobile = labDropdownMobileRef.current && !labDropdownMobileRef.current.contains(target);
+      
+      // Fecha se clicou fora de ambos (ou se a ref não existe)
+      if (clickedOutsideDesktop || clickedOutsideMobile) {
+        setIsLabDropdownOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // Pequeno delay para evitar fechar imediatamente após abrir
+    const timeoutId = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
     return () => {
+      clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isLabDropdownOpen]);
@@ -124,7 +137,7 @@ export default function Header() {
                 {role === 'sadmin' && (
                   <>
                     <span className="text-amber-900">|</span>
-                    <div className="relative">
+                    <div className="relative" ref={labDropdownRef}>
                     <button
                       onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
                       className={`flex items-center text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
@@ -156,6 +169,15 @@ export default function Header() {
                           className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
                         >
                           Dante UI
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            navigate('/metabase');
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                        >
+                          Monitor
                         </button>
                         <button
                           onClick={() => {
@@ -271,7 +293,7 @@ export default function Header() {
                   Contato
                 </button>
                 {role === 'sadmin' && (
-                  <div>
+                  <div ref={labDropdownMobileRef}>
                     <button
                       onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
                       className={`flex items-center text-sm font-medium w-full text-left hover:text-neutral-900 ${
@@ -285,14 +307,14 @@ export default function Header() {
                     </button>
                     
                     {isLabDropdownOpen && (
-                      <div className="mt-2 ml-4">
+                      <div className="mt-2 ml-4 flex flex-col space-y-2">
                         <button
                           onClick={() => {
                             setIsLabDropdownOpen(false);
                             setIsMenuOpen(false);
                             navigate('/chat-page');
                           }}
-                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium text-left"
                         >
                           Chat page
                         </button>
@@ -302,7 +324,7 @@ export default function Header() {
                             setIsMenuOpen(false);
                             navigate('/dante-ui');
                           }}
-                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium text-left"
                         >
                           Dante UI
                         </button>
@@ -310,9 +332,19 @@ export default function Header() {
                           onClick={() => {
                             setIsLabDropdownOpen(false);
                             setIsMenuOpen(false);
+                            navigate('/metabase');
+                          }}
+                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium text-left"
+                        >
+                          Monitor
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            setIsMenuOpen(false);
                             navigate('/payload-test');
                           }}
-                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium text-left"
                         >
                           Payload Test
                         </button>
