@@ -1,26 +1,13 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import Header from '@/components/header';
 import Assinatura from '@/components/assinatura';
-import { ArrowLeft } from 'lucide-react';
 
 export default function PoliticaPrivacidadePage() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-4">
-          <Link 
-            to="/" 
-            className="inline-flex items-center text-amber-700 hover:text-amber-800 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para página inicial
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       {/* Content */}
-      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
+      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 mt-16">
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Política de Privacidade</h1>
           <p className="text-gray-600 mb-8">Última atualização: 21 de janeiro de 2025</p>
@@ -93,15 +80,6 @@ export default function PoliticaPrivacidadePage() {
             </section>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <Link 
-              to="/" 
-              className="inline-flex items-center text-amber-700 hover:text-amber-800 transition-colors font-medium"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar para página inicial
-            </Link>
-          </div>
         </div>
       </main>
       

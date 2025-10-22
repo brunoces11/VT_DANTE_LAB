@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Menu, X, ChevronDown } from 'lucide-react';
@@ -7,12 +6,14 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import AuthModal from '@/components/auth/AuthModal';
 import UserProfileIcon from '@/components/user_profile_icon';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLabDropdownOpen, setIsLabDropdownOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user } = useAuth();
+  const role = useUserRole();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -120,52 +121,56 @@ export default function Header() {
                 >
                   Contato
                 </button>
-                <span className="text-amber-900">|</span>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
-                    className={`flex items-center text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
-                      location.pathname === '/chat-page' || location.pathname === '/dante-ui'
-                        ? 'text-orange-700' 
-                        : 'text-neutral-700 hover:text-neutral-900'
-                    }`}
-                  >
-                    Lab
-                    <ChevronDown className="ml-1 h-4 w-4" />
-                  </button>
-                  
-                  {isLabDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
-                      <button
-                        onClick={() => {
-                          setIsLabDropdownOpen(false);
-                          navigate('/chat-page');
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
-                      >
-                        Chat page
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsLabDropdownOpen(false);
-                          navigate('/dante-ui');
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
-                      >
-                        Dante UI
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsLabDropdownOpen(false);
-                          navigate('/payload-test');
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
-                      >
-                        Payload Test
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {role === 'sadmin' && (
+                  <>
+                    <span className="text-amber-900">|</span>
+                    <div className="relative">
+                    <button
+                      onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
+                      className={`flex items-center text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
+                        location.pathname === '/chat-page' || location.pathname === '/dante-ui'
+                          ? 'text-orange-700' 
+                          : 'text-neutral-700 hover:text-neutral-900'
+                      }`}
+                    >
+                      Lab
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </button>
+                    
+                    {isLabDropdownOpen && (
+                      <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-neutral-200 py-2 z-50">
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            navigate('/chat-page');
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                        >
+                          Chat page
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            navigate('/dante-ui');
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                        >
+                          Dante UI
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            navigate('/payload-test');
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-neutral-700 hover:bg-neutral-50 hover:text-neutral-900"
+                        >
+                          Payload Test
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  </>
+                )}
               </nav>
             </div>
 
@@ -265,54 +270,56 @@ export default function Header() {
                 >
                   Contato
                 </button>
-                <div>
-                  <button
-                    onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
-                    className={`flex items-center text-sm font-medium w-full text-left hover:text-neutral-900 ${
-                      location.pathname === '/chat-page' || location.pathname === '/dante-ui'
-                        ? 'text-orange-700' 
-                        : 'text-neutral-700'
-                    }`}
-                  >
-                    Lab
-                    <ChevronDown className="ml-1 h-4 w-4" />
-                  </button>
-                  
-                  {isLabDropdownOpen && (
-                    <div className="mt-2 ml-4">
-                      <button
-                        onClick={() => {
-                          setIsLabDropdownOpen(false);
-                          setIsMenuOpen(false);
-                          navigate('/chat-page');
-                        }}
-                        className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
-                      >
-                        Chat page
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsLabDropdownOpen(false);
-                          setIsMenuOpen(false);
-                          navigate('/dante-ui');
-                        }}
-                        className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
-                      >
-                        Dante UI
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsLabDropdownOpen(false);
-                          setIsMenuOpen(false);
-                          navigate('/payload-test');
-                        }}
-                        className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
-                      >
-                        Payload Test
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {role === 'sadmin' && (
+                  <div>
+                    <button
+                      onClick={() => setIsLabDropdownOpen(!isLabDropdownOpen)}
+                      className={`flex items-center text-sm font-medium w-full text-left hover:text-neutral-900 ${
+                        location.pathname === '/chat-page' || location.pathname === '/dante-ui'
+                          ? 'text-orange-700' 
+                          : 'text-neutral-700'
+                      }`}
+                    >
+                      Lab
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </button>
+                    
+                    {isLabDropdownOpen && (
+                      <div className="mt-2 ml-4">
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            setIsMenuOpen(false);
+                            navigate('/chat-page');
+                          }}
+                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                        >
+                          Chat page
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            setIsMenuOpen(false);
+                            navigate('/dante-ui');
+                          }}
+                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                        >
+                          Dante UI
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsLabDropdownOpen(false);
+                            setIsMenuOpen(false);
+                            navigate('/payload-test');
+                          }}
+                          className="text-neutral-600 hover:text-neutral-900 text-sm font-medium"
+                        >
+                          Payload Test
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="flex flex-col space-y-2 pt-4 border-t border-neutral-200">
                   <Button 
                     size="sm" 
