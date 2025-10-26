@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import ResetPasswordModal from '@/components/auth/ResetPasswordModal';
 import EmailConfirmationModal from '@/components/auth/EmailConfirmationModal';
 import AuthModal from '@/components/auth/AuthModal';
@@ -216,8 +217,9 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Router>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/chat-page" element={<ChatPage />} />
@@ -277,8 +279,9 @@ function App() {
             </div>
           )}
           */}
-        </Router>
-      </AuthProvider>
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
