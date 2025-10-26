@@ -208,11 +208,11 @@ export default function Header() {
               {user ? (
                 <UserProfileIcon size="md" />
               ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleLoginClick}
-                  className="text-neutral-700 border-neutral-300 hover:bg-neutral-50"
+                  className="text-white/90 border-neutral-300 hover:bg-neutral-50 hover:text-neutral-700"
                 >
                   Entrar
                 </Button>
@@ -361,11 +361,11 @@ export default function Header() {
                     💬 Iniciar Chat
                   </Button>
                   {!user && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={handleLoginClick}
-                    className="w-full text-neutral-700 border-neutral-300"
+                    className="w-full text-white/90 border-neutral-300 hover:text-neutral-700"
                   >
                     Entrar
                   </Button>
