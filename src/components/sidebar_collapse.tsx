@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ScrollText, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -206,7 +206,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                     onClick={handleNewChat}
                     className="bg-neutral-500 hover:bg-neutral-600 text-white p-2 h-8 w-8 flex items-center justify-center"
                   >
-                    <ScrollText className="h-4 w-4" />
+                    <Home className="h-4 w-4" />
                   </Button>
                 </div>
               </TooltipTrigger>
@@ -219,7 +219,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
               onClick={handleNewChat}
               className="w-full flex items-center justify-center space-x-2 bg-neutral-500 hover:bg-neutral-600 text-white"
             >
-              <ScrollText className="h-4 w-4" />
+              <Home className="h-4 w-4" />
               <span>Novo Chat</span>
             </Button>
           )}
@@ -248,7 +248,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                           }`}
                           onClick={() => handleChatClick(chat.id)}
                         >
-                          <ScrollText className={`h-4 w-4 ${
+                          <Home className={`h-4 w-4 ${
                             chat.isActive ? 'text-neutral-700' : 'text-gray-600'
                           }`} />
                         </div>
