@@ -212,7 +212,7 @@ export default function Header() {
                   variant="outline"
                   size="sm"
                   onClick={handleLoginClick}
-                  className="text-white/90 border-neutral-300 hover:bg-neutral-50 hover:text-neutral-700"
+                  className="text-neutral-700 border-neutral-300 hover:bg-neutral-50 hover:text-neutral-900"
                 >
                   Entrar
                 </Button>
@@ -365,7 +365,7 @@ export default function Header() {
                     variant="outline"
                     size="sm"
                     onClick={handleLoginClick}
-                    className="w-full text-white/90 border-neutral-300 hover:text-neutral-700"
+                    className="w-full text-neutral-700 border-neutral-300 hover:bg-neutral-50 hover:text-neutral-900"
                   >
                     Entrar
                   </Button>
