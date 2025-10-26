@@ -83,42 +83,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
 
     // Listener simplificado para mudanças de auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (mounted) {
-        console.log('🔄 [AuthProvider] Auth state change:', event);
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Buscar user_role quando usuário está autenticado
-        if (session?.user?.id) {
-          try {
-            const role = await getUserRole(session.user.id);
-            setUserRole(role);
-            console.log('👤 [AuthProvider] User role:', role || 'null');
-          } catch (error) {
-            console.error('❌ [AuthProvider] Erro ao buscar role:', error);
-            setUserRole(null); // Fail-safe: assume sem permissões especiais
+    // ⚠️ IMPORTANTE: NÃO usar async no callback para evitar deadlock!
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Usar IIFE async dentro do callback
+      (async () => {
+        if (mounted) {
+          console.log('🔄 [AuthProvider] Auth state change:', event);
+
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+
+          // Buscar user_role quando usuário está autenticado
+          if (session?.user?.id) {
+            try {
+              const role = await getUserRole(session.user.id);
+              setUserRole(role);
+              console.log('👤 [AuthProvider] User role:', role || 'null');
+            } catch (error) {
+              console.error('❌ [AuthProvider] Erro ao buscar role:', error);
+              setUserRole(null); // Fail-safe: assume sem permissões especiais
+            }
+          } else {
+            setUserRole(null);
           }
-        } else {
-          setUserRole(null);
+
+          // Limpar cache ao fazer logout
+          if (event === 'SIGNED_OUT') {
+            console.log('🧹 [AuthProvider] Limpando cache no logout...');
+            clearSafeCache();
+            localStorage.removeItem('user_chat_data');
+            console.log('✅ [AuthProvider] Cache limpo');
+          }
+
+          // Log de login bem-sucedido
+          if (event === 'SIGNED_IN') {
+            console.log('✅ [AuthProvider] Login bem-sucedido');
+            console.log('👤 [AuthProvider] User ID:', session?.user?.id);
+          }
         }
-        
-        // Limpar cache ao fazer logout
-        if (event === 'SIGNED_OUT') {
-          console.log('🧹 [AuthProvider] Limpando cache no logout...');
-          clearSafeCache();
-          localStorage.removeItem('user_chat_data');
-          console.log('✅ [AuthProvider] Cache limpo');
-        }
-        
-        // Log de login bem-sucedido
-        if (event === 'SIGNED_IN') {
-          console.log('✅ [AuthProvider] Login bem-sucedido');
-          console.log('👤 [AuthProvider] User ID:', session?.user?.id);
-        }
-      }
+      })();
     });
 
     return () => {
