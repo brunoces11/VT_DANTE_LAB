@@ -138,7 +138,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-white border-gray-200" style={{ backgroundColor: '#ffffff', color: '#111827' }}>
         <DialogHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className="p-3 bg-orange-500 rounded-xl">
