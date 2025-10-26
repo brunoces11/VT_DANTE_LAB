@@ -66,8 +66,8 @@ export default function Hero() {
                 Comece grátis
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button variant="outline" size="lg" className="px-6 py-3 text-base border-neutral-300 hover:border-neutral-400 hover:text-neutral-800 bg-white/80 backdrop-blur-sm">
-                <Play className="mr-2 h-4 w-4" />
+              <Button variant="outline" size="lg" className="px-6 py-3 text-base border-neutral-300 hover:border-neutral-400 bg-white/80 backdrop-blur-sm text-neutral-700 hover:text-neutral-800">
+                <Play className="mr-2 h-4 w-4 text-neutral-700" />
                 Ver demonstração
               </Button>
             </div>

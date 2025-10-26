@@ -39,7 +39,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
       const activeRef = dropdownRefs.current.get(activeDropdown);
-      
+
       // Fecha se clicou fora do dropdown ativo
       if (activeRef && !activeRef.contains(target)) {
         setActiveDropdown(null);
@@ -70,10 +70,10 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
       isActive: chat.id === chatId
     })));
     setActiveDropdown(null);
-    
+
     // 🎯 PERSISTIR imediatamente a seleção do chat
     console.log('🎯 Chat selecionado:', chatId.slice(0, 6));
-    
+
     onChatClick(chatId); // Chamar função para carregar mensagens
   };
 
@@ -96,7 +96,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
     }
 
     setIsRenaming(true);
-    
+
     try {
       // Chamar API para renomear no banco
       const result = await fun_renomear_chat({
@@ -107,12 +107,12 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
 
       if (result.success) {
         // Atualizar estado local apenas se API foi bem-sucedida
-        setChats(prev => prev.map(chat => 
-          chat.id === chatId 
+        setChats(prev => prev.map(chat =>
+          chat.id === chatId
             ? { ...chat, title: editTitle.trim() }
             : chat
         ));
-        
+
         // 🔄 INVALIDAR CACHE após mutação (padrão Supabase)
         console.log('🔄 Invalidando cache após renomeação...');
         const { updateSessionInCache } = await import('../../services/cache-service');
@@ -121,7 +121,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
           last_updated: new Date().toISOString()
         });
         console.log('✅ Cache invalidado e atualizado');
-        
+
         console.log(`✅ Chat ${chatId.slice(0, 6)} renomeado para: "${editTitle.trim()}"`);
       } else {
         console.warn('⚠️ Falha ao renomear:', result.error);
@@ -147,17 +147,17 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
     import('../../services/cache-service').then(({ removeSessionFromCache }) => {
       removeSessionFromCache(chatId);
     });
-    
+
     // Remover também do localStorage antigo
-    
+
     const wasActiveChat = chats.find(chat => chat.id === chatId)?.isActive;
-    
+
     setChats(prev => {
       const filtered = prev.filter(chat => chat.id !== chatId);
       return filtered;
     });
     setActiveDropdown(null);
-    
+
     // 🎯 Se o chat deletado era o ativo, redirecionar para Welcome Chat
     if (wasActiveChat) {
       console.log('🗑️ Chat ativo deletado, redirecionando para Welcome Chat');
@@ -176,7 +176,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
   return (
     <TooltipProvider>
       <aside
-        className={`${isCollapsed ? 'w-[64px]' : 'w-[350px]'} bg-background border-r border-border flex-shrink-0 flex flex-col transition-all duration-300`} 
+        className={`${isCollapsed ? 'w-[64px]' : 'w-[350px]'} bg-background border-r border-border flex-shrink-0 flex flex-col transition-all duration-300`}
         style={{ height: 'calc(100vh - 60px)' }}
       >
         {/* Header com botão de colapso e Novo Chat */}
@@ -204,7 +204,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                 <div className="flex justify-center mb-2">
                   <Button
                     onClick={handleNewChat}
-                    className="bg-neutral-500 hover:bg-neutral-600 text-white p-2 h-8 w-8 flex items-center justify-center"
+                    className="bg-neutral-500 hover:bg-neutral-600 text-white p-2 h-8 w-8 flex items-center justify-center hover:ring-2 hover:ring-neutral-400/50 hover:ring-offset-1 transition-all"
                   >
                     <Home className="h-4 w-4" />
                   </Button>
@@ -217,7 +217,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
           ) : (
             <Button
               onClick={handleNewChat}
-              className="w-full flex items-center justify-center space-x-2 bg-neutral-500 hover:bg-neutral-600 text-white"
+              className="w-full flex items-center justify-center space-x-2 bg-neutral-500 hover:bg-neutral-600 text-white hover:ring-2 hover:ring-neutral-400/50 hover:ring-offset-1 transition-all"
             >
               <Home className="h-4 w-4" />
               <span>Novo Chat</span>
@@ -232,7 +232,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
               Histórico de Conversas
             </h2>
           )}
-          
+
           <div className={isCollapsed ? 'space-y-3' : 'space-y-2'}>
             {chats.map((chat, index) => (
               <div key={chat.id} className={isCollapsed && index === 0 ? 'mt-2' : ''}>
@@ -241,16 +241,14 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                     <TooltipTrigger asChild>
                       <div className="flex justify-center">
                         <div
-                          className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${
-                            chat.isActive
-                              ? 'bg-accent border-border shadow-sm'
-                              : 'bg-muted border-border hover:bg-accent'
-                          }`}
+                          className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${chat.isActive
+                            ? 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700 shadow-sm'
+                            : 'bg-muted border-border hover:bg-accent hover:ring-2 hover:ring-neutral-400/40 dark:hover:ring-neutral-500/40 hover:ring-offset-1'
+                            }`}
                           onClick={() => handleChatClick(chat.id)}
                         >
-                          <Home className={`h-4 w-4 ${
-                            chat.isActive ? 'text-neutral-700' : 'text-gray-600'
-                          }`} />
+                          <Home className={`h-4 w-4 ${chat.isActive ? 'text-orange-700 dark:text-orange-400' : 'text-gray-600 dark:text-gray-400'
+                            }`} />
                         </div>
                       </div>
                     </TooltipTrigger>
@@ -260,11 +258,10 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                   </Tooltip>
                 ) : (
                   <div
-                    className={`relative group p-3 rounded-lg border cursor-pointer transition-all ${
-                      chat.isActive
-                        ? 'bg-accent border-border shadow-sm'
-                        : 'bg-muted border-border hover:bg-accent'
-                    }`}
+                    className={`relative group p-3 rounded-lg border cursor-pointer transition-all ${chat.isActive
+                      ? 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-700 shadow-sm'
+                      : 'bg-muted border-border hover:bg-accent hover:ring-2 hover:ring-neutral-400/40 dark:hover:ring-neutral-500/40 hover:ring-offset-1'
+                      }`}
                     onClick={() => handleChatClick(chat.id)}
                   >
                     <div className="flex items-start justify-between">
@@ -276,20 +273,18 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                             onChange={(e) => setEditTitle(e.target.value)}
                             onBlur={() => handleSaveRename(chat.id)}
                             onKeyDown={(e) => handleKeyPress(e, chat.id)}
-                            className={`w-full text-sm font-medium border rounded px-2 py-1 focus:outline-none focus:ring-2 ${
-                              isRenaming
-                                ? 'bg-muted border-border cursor-wait'
-                                : 'bg-background border-orange-300 focus:ring-orange-500 dark:bg-neutral-800'
-                            }`}
+                            className={`w-full text-sm font-medium border rounded px-2 py-1 focus:outline-none focus:ring-2 ${isRenaming
+                              ? 'bg-muted border-border cursor-wait'
+                              : 'bg-background border-orange-300 focus:ring-orange-500 dark:bg-neutral-800'
+                              }`}
                             disabled={isRenaming}
                             autoFocus
                             onClick={(e) => e.stopPropagation()}
                             placeholder={isRenaming ? 'Salvando...' : ''}
                           />
                         ) : (
-                          <p className={`text-sm font-medium truncate ${
-                            chat.isActive ? 'text-foreground' : 'text-foreground'
-                          }`}>
+                          <p className={`text-sm font-medium truncate ${chat.isActive ? 'text-foreground' : 'text-foreground'
+                            }`}>
                             {chat.title}
                             {chat.isEmpty && (
                               <span className="ml-2 text-xs text-muted-foreground">(vazio)</span>
@@ -297,21 +292,19 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                           </p>
                         )}
                         {chat.lastMessage && (
-                          <p className={`text-xs mt-1 truncate ${
-                            chat.isActive ? 'text-muted-foreground' : 'text-muted-foreground'
-                          }`}>
+                          <p className={`text-xs mt-1 truncate ${chat.isActive ? 'text-muted-foreground' : 'text-muted-foreground'
+                            }`}>
                             {chat.lastMessage}
                           </p>
                         )}
-                        <p className={`text-xs mt-1 ${
-                          chat.isActive ? 'text-muted-foreground' : 'text-muted-foreground'
-                        }`}>
+                        <p className={`text-xs mt-1 ${chat.isActive ? 'text-muted-foreground' : 'text-muted-foreground'
+                          }`}>
                           {chat.timestamp}
                         </p>
                       </div>
 
                       {/* Botão de opções */}
-                      <div 
+                      <div
                         className="relative"
                         ref={(el) => {
                           if (el) dropdownRefs.current.set(chat.id, el);

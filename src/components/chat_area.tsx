@@ -159,7 +159,7 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
   return (
     <div className="flex-1 flex flex-col bg-background" style={{ height: 'calc(100vh - 60px)' }}>
       {/* Header do Chat */}
-      <ChatMsgHeader />
+      {/* <ChatMsgHeader /> */}
       
       {/* Renderização Condicional: Welcome Mode ou Chat Mode */}
       {isWelcomeMode || shouldShowWelcome ? (
