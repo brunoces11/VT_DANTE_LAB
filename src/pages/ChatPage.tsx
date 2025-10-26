@@ -851,10 +851,10 @@ export default function ChatPage() {
   // Mostra loading enquanto verifica autenticação
   if (loading) {
     return (
-      <div className="h-screen bg-white flex items-center justify-center">
+      <div className="h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-neutral-600">Carregando...</p>
+          <p className="text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
@@ -866,7 +866,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-screen bg-white overflow-hidden">
+    <div className="h-screen bg-background overflow-hidden">
       {/* Header fixo no topo */}
       <ChatHeader />
       

@@ -23,7 +23,7 @@ export default function ChatHeader() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 max-h-[60px] h-[60px] w-full bg-gray-100 border-b border-gray-200">
+    <header className="fixed top-0 left-0 right-0 z-50 max-h-[60px] h-[60px] w-full bg-muted border-b border-border">
       <div className="flex items-center justify-between h-full pl-4 pr-6">
         {/* Logo no canto esquerdo */}
         <button 
@@ -33,7 +33,7 @@ export default function ChatHeader() {
           <div className="p-2 rounded-lg w-9 h-9" style={{ backgroundColor: '#3D1413' }}>
             <Brain className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-neutral-900">Dante-IA</span>
+          <span className="text-xl font-bold text-foreground">Dante-IA</span>
         </button>
 
         {/* Avatar do usuário no canto direito */}
