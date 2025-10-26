@@ -61,14 +61,14 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading }: ChatNeoMsgProp
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center bg-white px-8">
+    <div className="flex-1 flex flex-col items-center justify-center bg-background px-8">
       <div className="w-full max-w-[800px] text-center">
         {/* Welcome Title */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-neutral-900 mb-4">
+          <h1 className="text-4xl font-bold text-foreground mb-4">
             Bem-vindo ao Dante-IA
           </h1>
-          <p className="text-lg text-neutral-600 leading-relaxed">
+          <p className="text-lg text-muted-foreground leading-relaxed">
             Seu assistente especializado em <strong>Registro de Imóveis</strong>. 
             Faça sua pergunta sobre procedimentos registrais, legislação vigente ou qualificação de títulos.
           </p>
@@ -77,28 +77,28 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading }: ChatNeoMsgProp
         {/* Suggestions */}
         <div className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[600px] mx-auto">
-            <div className="bg-neutral-50 rounded-lg p-4 text-left border border-neutral-200 hover:border-orange-300 transition-colors cursor-pointer"
+            <div className="bg-muted rounded-lg p-4 text-left border border-border hover:border-orange-300 transition-colors cursor-pointer"
                  onClick={() => setInputValue('Como fazer o registro de uma escritura de compra e venda?')}>
-              <h3 className="font-semibold text-neutral-900 mb-2">📋 Procedimentos Registrais</h3>
-              <p className="text-sm text-neutral-600">Orientações sobre registro de títulos e documentos</p>
+              <h3 className="font-semibold text-foreground mb-2">📋 Procedimentos Registrais</h3>
+              <p className="text-sm text-muted-foreground">Orientações sobre registro de títulos e documentos</p>
             </div>
             
-            <div className="bg-neutral-50 rounded-lg p-4 text-left border border-neutral-200 hover:border-orange-300 transition-colors cursor-pointer"
+            <div className="bg-muted rounded-lg p-4 text-left border border-border hover:border-orange-300 transition-colors cursor-pointer"
                  onClick={() => setInputValue('Quais são os documentos necessários para registro de imóvel?')}>
-              <h3 className="font-semibold text-neutral-900 mb-2">📄 Documentação</h3>
-              <p className="text-sm text-neutral-600">Documentos exigidos e qualificação registral</p>
+              <h3 className="font-semibold text-foreground mb-2">📄 Documentação</h3>
+              <p className="text-sm text-muted-foreground">Documentos exigidos e qualificação registral</p>
             </div>
             
-            <div className="bg-neutral-50 rounded-lg p-4 text-left border border-neutral-200 hover:border-orange-300 transition-colors cursor-pointer"
+            <div className="bg-muted rounded-lg p-4 text-left border border-border hover:border-orange-300 transition-colors cursor-pointer"
                  onClick={() => setInputValue('Como calcular emolumentos para registro de imóvel?')}>
-              <h3 className="font-semibold text-neutral-900 mb-2">💰 Emolumentos</h3>
-              <p className="text-sm text-neutral-600">Cálculo de taxas e tributos registrais</p>
+              <h3 className="font-semibold text-foreground mb-2">💰 Emolumentos</h3>
+              <p className="text-sm text-muted-foreground">Cálculo de taxas e tributos registrais</p>
             </div>
             
-            <div className="bg-neutral-50 rounded-lg p-4 text-left border border-neutral-200 hover:border-orange-300 transition-colors cursor-pointer"
+            <div className="bg-muted rounded-lg p-4 text-left border border-border hover:border-orange-300 transition-colors cursor-pointer"
                  onClick={() => setInputValue('Qual a legislação aplicável ao registro de imóveis?')}>
-              <h3 className="font-semibold text-neutral-900 mb-2">⚖️ Legislação</h3>
-              <p className="text-sm text-neutral-600">Lei 6.015/73 e normas do CNJ</p>
+              <h3 className="font-semibold text-foreground mb-2">⚖️ Legislação</h3>
+              <p className="text-sm text-muted-foreground">Lei 6.015/73 e normas do CNJ</p>
             </div>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading }: ChatNeoMsgProp
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
               placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-              className="w-full bg-white border-2 border-neutral-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 resize-none text-base leading-relaxed transition-all duration-200 shadow-inner"
+              className="w-full bg-background border-2 border-input focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 resize-none text-base text-foreground leading-relaxed transition-all duration-200 shadow-inner dark:bg-neutral-900"
               disabled={isLoading}
               style={{
                 height: '56px',

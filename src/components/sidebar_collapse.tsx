@@ -175,24 +175,24 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
 
   return (
     <TooltipProvider>
-      <aside 
-        className={`${isCollapsed ? 'w-[64px]' : 'w-[350px]'} bg-white border-r border-gray-200 flex-shrink-0 flex flex-col transition-all duration-300`} 
+      <aside
+        className={`${isCollapsed ? 'w-[64px]' : 'w-[350px]'} bg-background border-r border-border flex-shrink-0 flex flex-col transition-all duration-300`} 
         style={{ height: 'calc(100vh - 60px)' }}
       >
         {/* Header com botão de colapso e Novo Chat */}
-        <div className={`${isCollapsed ? 'p-2' : 'p-4'} border-b border-gray-200`}>
+        <div className={`${isCollapsed ? 'p-2' : 'p-4'} border-b border-border`}>
           {/* Botão de colapso */}
           <div className={`flex ${isCollapsed ? 'justify-center' : 'justify-end'} mb-3`}>
             <Button
               onClick={() => setIsCollapsed(!isCollapsed)}
               variant="ghost"
               size="sm"
-              className="p-2 h-8 w-8 hover:bg-gray-100"
+              className="p-2 h-8 w-8 hover:bg-accent"
             >
               {isCollapsed ? (
-                <ChevronRight className="h-7 w-7 text-neutral-500 font-bold stroke-[3]" style={{ transform: 'translate(3px, 2px)' }} />
+                <ChevronRight className="h-7 w-7 text-muted-foreground font-bold stroke-[3]" style={{ transform: 'translate(3px, 2px)' }} />
               ) : (
-                <ChevronLeft className="h-7 w-7 text-neutral-500 font-bold stroke-[3]" style={{ transform: 'translate(2px, 2px)' }} />
+                <ChevronLeft className="h-7 w-7 text-muted-foreground font-bold stroke-[3]" style={{ transform: 'translate(2px, 2px)' }} />
               )}
             </Button>
           </div>
@@ -228,7 +228,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
         {/* Lista de Chats */}
         <div className={`flex-1 overflow-y-auto ${isCollapsed ? 'p-2' : 'p-4'} sidebar-scrollbar`}>
           {!isCollapsed && (
-            <h2 className="text-sm font-medium text-gray-600 mb-3 uppercase tracking-wide">
+            <h2 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wide">
               Histórico de Conversas
             </h2>
           )}
@@ -243,8 +243,8 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                         <div
                           className={`relative group p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-center h-8 w-8 ${
                             chat.isActive
-                              ? 'bg-neutral-200 border-neutral-300 shadow-sm'
-                              : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                              ? 'bg-accent border-border shadow-sm'
+                              : 'bg-muted border-border hover:bg-accent'
                           }`}
                           onClick={() => handleChatClick(chat.id)}
                         >
@@ -262,8 +262,8 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                   <div
                     className={`relative group p-3 rounded-lg border cursor-pointer transition-all ${
                       chat.isActive
-                        ? 'bg-neutral-200 border-neutral-300 shadow-sm'
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
+                        ? 'bg-accent border-border shadow-sm'
+                        : 'bg-muted border-border hover:bg-accent'
                     }`}
                     onClick={() => handleChatClick(chat.id)}
                   >
@@ -277,9 +277,9 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                             onBlur={() => handleSaveRename(chat.id)}
                             onKeyDown={(e) => handleKeyPress(e, chat.id)}
                             className={`w-full text-sm font-medium border rounded px-2 py-1 focus:outline-none focus:ring-2 ${
-                              isRenaming 
-                                ? 'bg-gray-100 border-gray-300 cursor-wait' 
-                                : 'bg-white border-orange-300 focus:ring-orange-500'
+                              isRenaming
+                                ? 'bg-muted border-border cursor-wait'
+                                : 'bg-background border-orange-300 focus:ring-orange-500 dark:bg-neutral-800'
                             }`}
                             disabled={isRenaming}
                             autoFocus
@@ -288,23 +288,23 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                           />
                         ) : (
                           <p className={`text-sm font-medium truncate ${
-                            chat.isActive ? 'text-neutral-800' : 'text-gray-900'
+                            chat.isActive ? 'text-foreground' : 'text-foreground'
                           }`}>
                             {chat.title}
                             {chat.isEmpty && (
-                              <span className="ml-2 text-xs text-gray-400">(vazio)</span>
+                              <span className="ml-2 text-xs text-muted-foreground">(vazio)</span>
                             )}
                           </p>
                         )}
                         {chat.lastMessage && (
                           <p className={`text-xs mt-1 truncate ${
-                            chat.isActive ? 'text-neutral-600' : 'text-gray-600'
+                            chat.isActive ? 'text-muted-foreground' : 'text-muted-foreground'
                           }`}>
                             {chat.lastMessage}
                           </p>
                         )}
                         <p className={`text-xs mt-1 ${
-                          chat.isActive ? 'text-neutral-600' : 'text-gray-600'
+                          chat.isActive ? 'text-muted-foreground' : 'text-muted-foreground'
                         }`}>
                           {chat.timestamp}
                         </p>
@@ -328,13 +328,13 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
 
                         {/* Dropdown de opções */}
                         {activeDropdown === chat.id && (
-                          <div className="absolute right-0 top-full mt-1 w-32 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                          <div className="absolute right-0 top-full mt-1 w-32 bg-popover rounded-lg shadow-lg border border-border py-1 z-50">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleRename(chat.id, chat.title);
                               }}
-                              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
+                              className="w-full text-left px-3 py-2 text-sm text-popover-foreground hover:bg-accent flex items-center space-x-2"
                             >
                               <Edit2 className="h-3 w-3" />
                               <span>Renomear</span>
@@ -344,7 +344,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                                 e.stopPropagation();
                                 handleDelete(chat.id);
                               }}
-                              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"
+                              className="w-full text-left px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center space-x-2"
                             >
                               <Trash2 className="h-3 w-3" />
                               <span>Deletar</span>
@@ -361,8 +361,8 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
 
           {chats.length === 0 && !isCollapsed && (
             <div className="text-center py-8">
-              <p className="text-sm text-gray-500">Nenhuma conversa ainda</p>
-              <p className="text-xs text-gray-400 mt-1">Clique em "Novo Chat" para começar</p>
+              <p className="text-sm text-muted-foreground">Nenhuma conversa ainda</p>
+              <p className="text-xs text-muted-foreground mt-1">Clique em "Novo Chat" para começar</p>
             </div>
           )}
         </div>
