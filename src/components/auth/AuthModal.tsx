@@ -165,7 +165,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required={!isLogin && !isResetPassword}
-                className="w-full"
+                className="w-full !bg-white !text-gray-900 !border-gray-300"
               />
             </div>
           )}
@@ -181,7 +181,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full"
+              className="w-full !bg-white !text-gray-900 !border-gray-300"
             />
           </div>
 
@@ -198,7 +198,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pr-10"
+                  className="w-full pr-10 !bg-white !text-gray-900 !border-gray-300"
                 />
                 <button
                   type="button"
@@ -224,7 +224,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required={!isLogin && !isResetPassword}
-                  className="w-full pr-10"
+                  className="w-full pr-10 !bg-white !text-gray-900 !border-gray-300"
                 />
                 <button
                   type="button"
