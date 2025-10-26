@@ -128,7 +128,7 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading }: ChatNeoMsgProp
               onChange={handleInputChange}
               onKeyPress={handleKeyPress}
               placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-              className="w-full bg-background border-2 border-input focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 resize-none text-base text-foreground leading-relaxed transition-all duration-200 shadow-inner dark:bg-neutral-900"
+              className="w-full bg-background border-2 border-input focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 resize-none text-base text-foreground leading-relaxed transition-all duration-200 shadow-inner placeholder:text-muted-foreground"
               disabled={isLoading}
               style={{
                 height: '56px',
