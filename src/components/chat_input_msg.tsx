@@ -95,7 +95,7 @@ export default function ChatInputMsg({ onSendMessage, isLoading }: ChatInputMsgP
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-            className="w-full bg-background dark:bg-neutral-900 text-foreground border-2 border-input focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 pr-20 resize-none text-sm leading-relaxed transition-all duration-200 shadow-inner placeholder:text-muted-foreground"
+            className="w-full bg-background text-foreground border-2 border-input focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 pr-20 resize-none text-sm leading-relaxed transition-all duration-200 shadow-inner placeholder:text-muted-foreground"
             style={{
               height: '56px',
               paddingTop: '15px',

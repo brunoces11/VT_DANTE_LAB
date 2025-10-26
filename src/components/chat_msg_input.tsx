@@ -35,7 +35,7 @@ export default function ChatMsgInput({ onSendMessage, isLoading }: ChatMsgInputP
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-            className="w-full bg-background dark:bg-neutral-900 text-foreground border-input focus:border-orange-400 focus:ring-orange-400 h-12 pr-16 placeholder:text-muted-foreground"
+            className="w-full bg-background text-foreground border-input focus:border-orange-400 focus:ring-orange-400 h-12 pr-16 placeholder:text-muted-foreground"
           />
           <Button 
             onClick={handleSendMessage}
