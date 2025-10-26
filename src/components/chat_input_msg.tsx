@@ -70,7 +70,7 @@ export default function ChatInputMsg({ onSendMessage, isLoading }: ChatInputMsgP
   };
 
   return (
-    <div className="p-4 border-t border-neutral-200 bg-white flex justify-center">
+    <div className="p-4 border-t border-border bg-background flex justify-center">
       <div className="w-full max-w-[950px]">
         <style jsx>{`
           textarea::-webkit-scrollbar {
@@ -95,7 +95,7 @@ export default function ChatInputMsg({ onSendMessage, isLoading }: ChatInputMsgP
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-            className="w-full bg-white border-2 border-neutral-300 focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 pr-20 resize-none text-sm leading-relaxed transition-all duration-200 shadow-inner"
+            className="w-full bg-background dark:bg-neutral-900 text-foreground border-2 border-input focus:border-orange-400 focus:ring-2 focus:ring-orange-200 rounded-lg px-4 pr-20 resize-none text-sm leading-relaxed transition-all duration-200 shadow-inner placeholder:text-muted-foreground"
             style={{
               height: '56px',
               paddingTop: '15px',
@@ -127,7 +127,7 @@ export default function ChatInputMsg({ onSendMessage, isLoading }: ChatInputMsgP
             )}
           </Button>
         </div>
-        <p className="text-xs text-neutral-500 mt-2 text-center">
+        <p className="text-xs text-muted-foreground mt-2 text-center">
           Dante-IA como toda inteligência artificial pode cometer erros. Verifique informações importantes.
         </p>
       </div>

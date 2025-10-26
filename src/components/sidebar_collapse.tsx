@@ -369,8 +369,8 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
 
         {/* Rodapé com informações */}
         {!isCollapsed && (
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <p className="text-xs text-gray-600 text-center">
+          <div className="p-4 border-t border-border bg-muted">
+            <p className="text-xs text-muted-foreground text-center">
               {chats.length} conversa{chats.length !== 1 ? 's' : ''} • Dante AI
             </p>
           </div>
