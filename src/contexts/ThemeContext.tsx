@@ -28,20 +28,45 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return 'light';
   });
 
-  // Aplicar tema no <html> e salvar no localStorage
+  // 🎯 MONITORAR MUDANÇAS DE ROTA PARA APLICAR DARK MODE APENAS NO CHATPAGE
   useEffect(() => {
-    const root = window.document.documentElement;
+    const checkRoute = () => {
+      const currentPath = window.location.pathname;
+      const darkModeAllowedRoutes = ['/chat-page'];
+      const isDarkModeAllowed = darkModeAllowedRoutes.includes(currentPath);
 
-    // Remover classe anterior
-    root.classList.remove('light', 'dark');
+      const root = window.document.documentElement;
 
-    // Adicionar nova classe
-    root.classList.add(theme);
+      // Remover classe anterior
+      root.classList.remove('light', 'dark');
 
-    // Salvar no localStorage
-    localStorage.setItem('theme', theme);
+      // 🎯 APLICAR DARK MODE APENAS SE ESTIVER EM ROTA PERMITIDA
+      if (isDarkModeAllowed && theme === 'dark') {
+        root.classList.add('dark');
+        console.log('🎨 Dark mode aplicado (ChatPage)');
+      } else {
+        root.classList.add('light');
+        console.log('🎨 Light mode forçado (outras páginas)');
+      }
 
-    console.log('🎨 Tema aplicado:', theme);
+      // Salvar no localStorage
+      localStorage.setItem('theme', theme);
+    };
+
+    // Verificar rota inicial
+    checkRoute();
+
+    // Monitorar mudanças de rota
+    window.addEventListener('popstate', checkRoute);
+    
+    // Observar mudanças no pathname (para navegação programática)
+    const observer = new MutationObserver(checkRoute);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      window.removeEventListener('popstate', checkRoute);
+      observer.disconnect();
+    };
   }, [theme]);
 
   // Função para alternar tema

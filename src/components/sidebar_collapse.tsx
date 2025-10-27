@@ -61,6 +61,13 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
 
   const handleNewChat = () => {
     console.log('🆕 Sidebar: Iniciando novo chat');
+
+    // 🎯 DESATIVAR todos os cards ativos antes de criar novo chat
+    setChats(prev => prev.map(chat => ({
+      ...chat,
+      isActive: false
+    })));
+
     onNewChat(); // Chamar função do pai para ativar modo welcome
   };
 

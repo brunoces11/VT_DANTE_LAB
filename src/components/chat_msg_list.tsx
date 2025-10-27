@@ -35,16 +35,23 @@ const preprocessMarkdown = (text: string): string => {
 interface ChatMsgListProps {
   messages: Message[];
   messagesEndRef: React.RefObject<HTMLDivElement>;
+  lastUserMessageRef?: React.RefObject<HTMLDivElement>;
 }
 
-export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListProps) {
+export default function ChatMsgList({ messages, messagesEndRef, lastUserMessageRef }: ChatMsgListProps) {
+  // 🎯 Encontrar o índice da última mensagem do usuário
+  const userMessages = messages.filter(msg => !msg.isLoading && msg.sender === 'user');
+  const lastUserMessageId = userMessages.length > 0 ? userMessages[userMessages.length - 1].id : null;
+
   return (
     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar flex justify-center">
       <div className="w-full max-w-[950px] space-y-6">
         {messages.filter(message => !message.isLoading).map((message) => (
           <div
             key={message.id}
+            ref={message.id === lastUserMessageId ? lastUserMessageRef : null}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            style={message.id === lastUserMessageId ? { scrollMarginTop: '30px' } : undefined}
           >
             <div
               className={`flex items-start space-x-3 max-w-[85%] ${
