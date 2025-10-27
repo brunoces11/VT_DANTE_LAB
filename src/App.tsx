@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import ResetPasswordModal from '@/components/auth/ResetPasswordModal';
 import EmailConfirmationModal from '@/components/auth/EmailConfirmationModal';
 import AuthModal from '@/components/auth/AuthModal';
@@ -18,6 +19,7 @@ import PayloadTest from '@/pages/PayloadTest';
 import PoliticaPrivacidadePage from '@/pages/PoliticaPrivacidadePage';
 import TermosUsoPage from '@/pages/TermosUsoPage';
 import QuemSomosPage from '@/pages/QuemSomosPage';
+import MetabasePage from '@/pages/MetabasePage';
 
 // Simple error boundary component
 class ErrorBoundary extends React.Component<
@@ -215,8 +217,9 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <Router>
+      <ThemeProvider>
+        <AuthProvider>
+          <Router>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/chat-page" element={<ChatPage />} />
@@ -228,6 +231,7 @@ function App() {
             <Route path="/politica-privacidade" element={<PoliticaPrivacidadePage />} />
             <Route path="/termos-uso" element={<TermosUsoPage />} />
             <Route path="/quem-somos" element={<QuemSomosPage />} />
+            <Route path="/metabase" element={<MetabasePage />} />
             <Route path="/teste" element={<TestePage />} />
             <Route path="/payload-test" element={<PayloadTest />} />
           </Routes>
@@ -275,8 +279,9 @@ function App() {
             </div>
           )}
           */}
-        </Router>
-      </AuthProvider>
+          </Router>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

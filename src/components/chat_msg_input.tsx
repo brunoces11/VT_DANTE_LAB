@@ -27,7 +27,7 @@ export default function ChatMsgInput({ onSendMessage, isLoading }: ChatMsgInputP
   };
 
   return (
-    <div className="p-4 border-t border-neutral-200 bg-white flex justify-center">
+    <div className="p-4 border-t border-border bg-background flex justify-center">
       <div className="w-full max-w-[950px]">
         <div className="relative">
           <Input
@@ -35,7 +35,7 @@ export default function ChatMsgInput({ onSendMessage, isLoading }: ChatMsgInputP
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Digite sua pergunta sobre Registro de Imóveis..."
-            className="w-full bg-white border-neutral-200 focus:border-orange-400 focus:ring-orange-400 h-12 pr-16"
+            className="w-full bg-background text-foreground border-input focus:border-orange-400 focus:ring-orange-400 h-12 pr-16 placeholder:text-muted-foreground"
           />
           <Button 
             onClick={handleSendMessage}
@@ -52,7 +52,7 @@ export default function ChatMsgInput({ onSendMessage, isLoading }: ChatMsgInputP
             )}
           </Button>
         </div>
-        <p className="text-xs text-neutral-500 mt-2 text-center">
+        <p className="text-xs text-muted-foreground mt-2 text-center">
           Dante-IA como toda inteligência artificial pode cometer erros. Verifique informações importantes.
         </p>
       </div>

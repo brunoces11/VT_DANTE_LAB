@@ -44,6 +44,8 @@ export default function ChatMsgHeader() {
         </div>
       </div>
       
+      {/* DROPDOWN LOCALIDADE - TEMPORARIAMENTE OCULTO */}
+      {/* 
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -71,6 +73,7 @@ export default function ChatMsgHeader() {
           </div>
         )}
       </div>
+      */}
     </div>
   );
 }

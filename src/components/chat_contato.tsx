@@ -87,9 +87,9 @@ export default function ChatContato() {
   };
 
   return (
-    <div className="bg-white rounded-3xl border-2 border-neutral-200 overflow-hidden mx-auto" style={{ height: '400px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.08)' }}>
+    <div className="bg-white rounded-3xl border-2 border-neutral-200 overflow-hidden mx-auto !bg-white" style={{ height: '400px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.08)' }}>
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar messages-container" style={{ height: '320px' }}>
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar messages-container !bg-white" style={{ height: '320px' }}>
         {messages.map((message) => (
           <div
             key={message.id}
@@ -145,14 +145,14 @@ export default function ChatContato() {
       </div>
 
       {/* Input Area */}
-      <div className="border-t border-neutral-200 p-4 rounded-b-3xl">
+      <div className="border-t border-neutral-200 p-4 rounded-b-3xl !bg-white">
         <div className="relative">
           <Input
             placeholder="Descreva o motivo do seu contato ou faça suas perguntas para obter resposta imediata"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyPress={handleKeyPress}
-            className="w-full h-12 border-2 border-neutral-200 focus:border-orange-400 focus:ring-orange-400 pr-24 rounded-xl"
+            className="w-full h-12 border-2 border-neutral-200 focus:border-orange-400 focus:ring-orange-400 pr-24 rounded-xl !bg-white !text-neutral-900"
           />
           <Button
             onClick={handleSendMessage}

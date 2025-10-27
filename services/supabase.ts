@@ -10,6 +10,38 @@ import type { Session } from '@supabase/supabase-js';
  */
 
 /**
+ * Função para buscar o user_role de um usuário específico
+ * Retorna o role do usuário ou null em caso de erro/não encontrado
+ * 
+ * @param userId - UUID do usuário
+ * @returns user_role ('free' | 'pro' | 'premium' | 'admin' | 'sadmin') ou null
+ */
+export async function getUserRole(userId: string): Promise<string | null> {
+  try {
+    console.log('🔍 [getUserRole] Buscando role para user:', userId.slice(0, 8));
+
+    const { data, error } = await supabase
+      .from('tab_user')
+      .select('user_role')
+      .eq('user_id', userId)
+      .single();
+
+    if (error) {
+      console.error('❌ [getUserRole] Erro ao buscar role:', error);
+      return null;
+    }
+
+    const role = data?.user_role || null;
+    console.log('✅ [getUserRole] Role encontrado:', role || 'null');
+    
+    return role;
+  } catch (err) {
+    console.error('❌ [getUserRole] Erro inesperado:', err);
+    return null;
+  }
+}
+
+/**
  * Função para carregar dados completos do usuário após login
  * Chama a edge function load_user_data que retorna sessões de chat e mensagens
  */

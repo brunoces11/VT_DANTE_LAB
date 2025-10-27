@@ -35,16 +35,23 @@ const preprocessMarkdown = (text: string): string => {
 interface ChatMsgListProps {
   messages: Message[];
   messagesEndRef: React.RefObject<HTMLDivElement>;
+  lastUserMessageRef?: React.RefObject<HTMLDivElement>;
 }
 
-export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListProps) {
+export default function ChatMsgList({ messages, messagesEndRef, lastUserMessageRef }: ChatMsgListProps) {
+  // 🎯 Encontrar o índice da última mensagem do usuário
+  const userMessages = messages.filter(msg => !msg.isLoading && msg.sender === 'user');
+  const lastUserMessageId = userMessages.length > 0 ? userMessages[userMessages.length - 1].id : null;
+
   return (
     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar flex justify-center">
       <div className="w-full max-w-[950px] space-y-6">
         {messages.filter(message => !message.isLoading).map((message) => (
           <div
             key={message.id}
+            ref={message.id === lastUserMessageId ? lastUserMessageRef : null}
             className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            style={message.id === lastUserMessageId ? { scrollMarginTop: '30px' } : undefined}
           >
             <div
               className={`flex items-start space-x-3 max-w-[85%] ${
@@ -57,13 +64,13 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-lg flex-shrink-0 ${
                   message.sender === 'user'
-                    ? 'bg-neutral-900'
+                    ? 'bg-neutral-900 dark:bg-neutral-100'
                     : ''
                 }`}
                 style={message.sender === 'bot' ? { backgroundColor: '#B14627' } : {}}
               >
                 {message.sender === 'user' ? (
-                  <User className="h-4 w-4 text-white" />
+                  <User className="h-4 w-4 text-white dark:text-neutral-900" />
                 ) : (
                   <Home className="h-4 w-4 text-white" />
                 )}
@@ -73,28 +80,28 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
               <div
                 className={`rounded-lg p-3 ${
                   message.sender === 'user'
-                    ? 'bg-neutral-900 text-white'
-                    : 'bg-neutral-100 text-neutral-900 mb-[30px]'
+                    ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+                    : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 mb-[30px]'
                 }`}
               >
                 {message.sender === 'bot' ? (
-                  <div className="prose prose-sm max-w-none prose-headings:text-neutral-900 prose-headings:font-semibold prose-h1:text-xl prose-h1:mb-3 prose-h2:text-lg prose-h2:mb-2 prose-h3:text-base prose-h3:mb-2 prose-h4:text-sm prose-h4:mb-1 prose-p:text-sm prose-p:leading-relaxed prose-p:mb-3 prose-strong:text-neutral-900 prose-strong:font-semibold prose-ul:text-sm prose-ul:mb-3 prose-ol:text-sm prose-ol:mb-3 prose-li:text-sm prose-li:mb-1 prose-blockquote:text-sm prose-blockquote:border-orange-300 prose-blockquote:bg-orange-50 prose-blockquote:px-3 prose-blockquote:py-2 prose-blockquote:rounded prose-blockquote:mb-3 prose-code:text-xs prose-code:bg-neutral-200 prose-code:px-1 prose-code:rounded">
+                  <div className="prose prose-sm max-w-none prose-headings:text-neutral-900 dark:prose-headings:text-neutral-100 prose-headings:font-semibold prose-h1:text-xl prose-h1:mb-3 prose-h2:text-lg prose-h2:mb-2 prose-h3:text-base prose-h3:mb-2 prose-h4:text-sm prose-h4:mb-1 prose-p:text-sm prose-p:leading-relaxed prose-p:mb-3 prose-strong:text-neutral-900 dark:prose-strong:text-neutral-100 prose-strong:font-semibold prose-ul:text-sm prose-ul:mb-3 prose-ol:text-sm prose-ol:mb-3 prose-li:text-sm prose-li:mb-1 prose-blockquote:text-sm prose-blockquote:border-orange-300 prose-blockquote:bg-orange-50 dark:prose-blockquote:bg-orange-900/20 dark:prose-blockquote:border-orange-700 prose-blockquote:px-3 prose-blockquote:py-2 prose-blockquote:rounded prose-blockquote:mb-3 prose-code:text-xs prose-code:bg-neutral-200 dark:prose-code:bg-neutral-700 prose-code:px-1 prose-code:rounded">
                     <ReactMarkdown 
                       remarkPlugins={[remarkGfm]}
                       components={{
                         // Forçar quebras de linha
                         p: ({children}) => <p className="mb-3 last:mb-0">{children}</p>,
                         // Melhorar headings
-                        h1: ({children}) => <h1 className="text-xl font-bold mb-3 text-neutral-900">{children}</h1>,
-                        h2: ({children}) => <h2 className="text-lg font-bold mb-2 text-neutral-900">{children}</h2>,
-                        h3: ({children}) => <h3 className="text-base font-bold mb-2 text-neutral-900">{children}</h3>,
-                        h4: ({children}) => <h4 className="text-sm font-bold mb-1 text-neutral-900">{children}</h4>,
+                        h1: ({children}) => <h1 className="text-xl font-bold mb-3 text-neutral-900 dark:text-neutral-100">{children}</h1>,
+                        h2: ({children}) => <h2 className="text-lg font-bold mb-2 text-neutral-900 dark:text-neutral-100">{children}</h2>,
+                        h3: ({children}) => <h3 className="text-base font-bold mb-2 text-neutral-900 dark:text-neutral-100">{children}</h3>,
+                        h4: ({children}) => <h4 className="text-sm font-bold mb-1 text-neutral-900 dark:text-neutral-100">{children}</h4>,
                         // Melhorar listas
                         ul: ({children}) => <ul className="mb-3 pl-4 list-disc">{children}</ul>,
                         ol: ({children}) => <ol className="mb-3 pl-4 list-decimal">{children}</ol>,
                         li: ({children}) => <li className="mb-1 ml-2">{children}</li>,
                         // Melhorar strong/bold
-                        strong: ({children}) => <strong className="font-semibold text-neutral-900">{children}</strong>,
+                        strong: ({children}) => <strong className="font-semibold text-neutral-900 dark:text-neutral-100">{children}</strong>,
                         // Preservar quebras de linha
                         br: () => <br className="block" />
                       }}
@@ -112,8 +119,8 @@ export default function ChatMsgList({ messages, messagesEndRef }: ChatMsgListPro
                   <span
                     className={`text-xs ${
                       message.sender === 'user'
-                        ? 'text-neutral-300'
-                        : 'text-neutral-500'
+                        ? 'text-neutral-300 dark:text-neutral-600'
+                        : 'text-neutral-500 dark:text-neutral-400'
                     }`}
                   >
                     {formatDateTimeBR(message.timestamp)}

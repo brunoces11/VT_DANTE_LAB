@@ -7,8 +7,9 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Brain, Eye, EyeOff, User, Loader2, Camera } from 'lucide-react';
+import { Brain, Eye, EyeOff, User, Loader2, Camera, Sun, Moon } from 'lucide-react';
 import { useAuth } from './auth/AuthProvider';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface UserProfilePanelProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ interface UserProfilePanelProps {
 
 export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelProps) {
   const { user, changePassword } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -149,6 +151,49 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
         </DialogHeader>
 
         <div className="space-y-6 mt-6">
+          {/* Seção de Tema (Dark/Light Mode) */}
+          <div className="border-b pb-6">
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+              Aparência
+            </h3>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                {theme === 'dark' ? (
+                  <Moon className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
+                ) : (
+                  <Sun className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
+                )}
+                <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                  Modo {theme === 'dark' ? 'Escuro' : 'Claro'}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Button
+                  type="button"
+                  variant={theme === 'light' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTheme('light')}
+                  className={theme === 'light' ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
+                >
+                  <Sun className="h-4 w-4 mr-1" />
+                  Claro
+                </Button>
+                <Button
+                  type="button"
+                  variant={theme === 'dark' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setTheme('dark')}
+                  className={theme === 'dark' ? 'bg-orange-500 hover:bg-orange-600 text-white' : ''}
+                >
+                  <Moon className="h-4 w-4 mr-1" />
+                  Escuro
+                </Button>
+              </div>
+            </div>
+          </div>
+
           {/* Seção do Avatar */}
           <div className="text-center">
             <div className="relative inline-block">
@@ -198,8 +243,8 @@ export default function UserProfilePanel({ isOpen, onClose }: UserProfilePanelPr
           </div>
 
           {/* Seção de Mudança de Senha */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-neutral-900 mb-4">
+          <div className="border-t dark:border-neutral-700 pt-6">
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
               Alterar Senha
             </h3>
             

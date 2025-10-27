@@ -132,8 +132,9 @@ export async function fun_call_langflow(params: {
       throw new Error('Variáveis de ambiente do Langflow não configuradas');
     }
 
+    // API Key é opcional - apenas avisa se não estiver presente
     if (!langflowApiKey) {
-      throw new Error('VITE_LANGFLOW_API_KEY não encontrada nas variáveis de ambiente');
+      console.warn('⚠️ VITE_LANGFLOW_API_KEY não encontrada - continuando sem autenticação');
     }
 
     // Criar payload para Langflow (formato exato do exemplo fornecido)
@@ -151,19 +152,28 @@ export async function fun_call_langflow(params: {
 
     console.log('📡 Chamando Langflow:', fullUrl);
     console.log('📦 Payload enviado:', JSON.stringify(payload, null, 2));
-    console.log('🔑 API Key (primeiros 10 chars):', langflowApiKey.substring(0, 10) + '...');
+    if (langflowApiKey) {
+      console.log('🔑 API Key (primeiros 10 chars):', langflowApiKey.substring(0, 10) + '...');
+    }
     console.log('🔍 Verificações:');
     console.log('  - URL válida:', /^https?:\/\/.+/.test(fullUrl));
     console.log('  - Flow ID válido:', /^[a-f0-9-]{36}$/.test(langflowFlowId));
-    console.log('  - API Key válida:', /^sk-.+/.test(langflowApiKey));
+    if (langflowApiKey) {
+      console.log('  - API Key válida:', /^sk-.+/.test(langflowApiKey));
+    }
 
-    // Fazer requisição para Langflow com autenticação
+    // Fazer requisição para Langflow (com autenticação se disponível)
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+
+    if (langflowApiKey) {
+      headers['x-api-key'] = langflowApiKey;
+    }
+
     const response = await fetch(fullUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': langflowApiKey,
-      },
+      headers,
       body: JSON.stringify(payload),
     });
 
@@ -238,8 +248,9 @@ export async function fun_dante_ri_langflow(params: DanteRiParams) {
             throw new Error('Variáveis de ambiente do Langflow não configuradas');
         }
 
+        // API Key é opcional - apenas avisa se não estiver presente
         if (!langflowApiKey) {
-            throw new Error('VITE_LANGFLOW_API_KEY não encontrada nas variáveis de ambiente');
+            console.warn('⚠️ VITE_LANGFLOW_API_KEY não encontrada - continuando sem autenticação');
         }
 
         // Criar payload para Langflow (baseado no PayloadTest)
@@ -257,15 +268,22 @@ export async function fun_dante_ri_langflow(params: DanteRiParams) {
 
         console.log('📡 Fazendo requisição para Langflow:', fullUrl);
         console.log('📦 Payload enviado:', JSON.stringify(payload, null, 2));
-        console.log('🔑 API Key (primeiros 10 chars):', langflowApiKey.substring(0, 10) + '...');
+        if (langflowApiKey) {
+            console.log('🔑 API Key (primeiros 10 chars):', langflowApiKey.substring(0, 10) + '...');
+        }
 
-        // Fazer requisição para Langflow com autenticação
+        // Fazer requisição para Langflow (com autenticação se disponível)
+        const headers: Record<string, string> = {
+            'Content-Type': 'application/json'
+        };
+
+        if (langflowApiKey) {
+            headers['x-api-key'] = langflowApiKey;
+        }
+
         const response = await fetch(fullUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': langflowApiKey
-            },
+            headers,
             body: JSON.stringify(payload)
         });
 

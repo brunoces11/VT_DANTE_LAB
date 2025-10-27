@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Linkedin, Youtube } from 'lucide-react';
 
@@ -27,16 +26,32 @@ export default function Assinatura({ className }: AssinaturaProps) {
           <div className="space-y-4 relative md:ml-20">
             <h3 className="text-lg font-semibold text-stone-50">Navegação</h3>
             <nav className="space-y-2">
-              <Link to="/quem-somos" className="block text-sm hover:text-orange-300 transition-colors">
+              <Link 
+                to="/quem-somos" 
+                onClick={() => window.scrollTo(0, 0)}
+                className="block text-sm hover:text-orange-300 transition-colors"
+              >
                 Quem somos
               </Link>
-              <Link to="/base-legal" className="block text-sm hover:text-orange-300 transition-colors">
+              <Link 
+                to="/base-legal" 
+                onClick={() => window.scrollTo(0, 0)}
+                className="block text-sm hover:text-orange-300 transition-colors"
+              >
                 Base Legal
               </Link>
-              <Link to="/politica-privacidade" className="block text-sm hover:text-orange-300 transition-colors">
+              <Link 
+                to="/politica-privacidade" 
+                onClick={() => window.scrollTo(0, 0)}
+                className="block text-sm hover:text-orange-300 transition-colors"
+              >
                 Política de Privacidade
               </Link>
-              <Link to="/termos-uso" className="block text-sm hover:text-orange-300 transition-colors">
+              <Link 
+                to="/termos-uso" 
+                onClick={() => window.scrollTo(0, 0)}
+                className="block text-sm hover:text-orange-300 transition-colors"
+              >
                 Termos de Uso
               </Link>
             </nav>

@@ -3,11 +3,14 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../../../services/supa_init';
 // Importar cache seguro para limpeza no logout
 import { clearSafeCache } from '../../../services/cache-service';
+// Importar função para buscar user_role
+import { getUserRole } from '../../../services/supabase';
 
 // Interface simplificada seguindo padrão oficial Supabase
 interface AuthContextType { 
   user: User | null;
   session: Session | null;
+  userRole: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ error?: any }>;
   logout: () => Promise<void>;
@@ -34,6 +37,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -79,28 +83,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
 
     // Listener simplificado para mudanças de auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (mounted) {
-        console.log('🔄 [AuthProvider] Auth state change:', event);
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Limpar cache ao fazer logout
-        if (event === 'SIGNED_OUT') {
-          console.log('🧹 [AuthProvider] Limpando cache no logout...');
-          clearSafeCache();
-          localStorage.removeItem('user_chat_data');
-          console.log('✅ [AuthProvider] Cache limpo');
+    // ⚠️ IMPORTANTE: NÃO usar async no callback para evitar deadlock!
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // Usar IIFE async dentro do callback
+      (async () => {
+        if (mounted) {
+          console.log('🔄 [AuthProvider] Auth state change:', event);
+
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+
+          // Buscar user_role quando usuário está autenticado
+          if (session?.user?.id) {
+            try {
+              const role = await getUserRole(session.user.id);
+              setUserRole(role);
+              console.log('👤 [AuthProvider] User role:', role || 'null');
+            } catch (error) {
+              console.error('❌ [AuthProvider] Erro ao buscar role:', error);
+              setUserRole(null); // Fail-safe: assume sem permissões especiais
+            }
+          } else {
+            setUserRole(null);
+          }
+
+          // Limpar cache ao fazer logout
+          if (event === 'SIGNED_OUT') {
+            console.log('🧹 [AuthProvider] Limpando cache no logout...');
+            clearSafeCache();
+            localStorage.removeItem('user_chat_data');
+            console.log('✅ [AuthProvider] Cache limpo');
+          }
+
+          // Log de login bem-sucedido
+          if (event === 'SIGNED_IN') {
+            console.log('✅ [AuthProvider] Login bem-sucedido');
+            console.log('👤 [AuthProvider] User ID:', session?.user?.id);
+          }
         }
-        
-        // Log de login bem-sucedido
-        if (event === 'SIGNED_IN') {
-          console.log('✅ [AuthProvider] Login bem-sucedido');
-          console.log('👤 [AuthProvider] User ID:', session?.user?.id);
-        }
-      }
+      })();
     });
 
     return () => {
@@ -244,6 +266,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const authValue: AuthContextType = {
     user,
     session,
+    userRole,
     loading,
     login,
     logout,

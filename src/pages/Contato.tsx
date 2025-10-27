@@ -7,7 +7,7 @@ import { MessageCircle, Mail, Phone, MapPin } from 'lucide-react';
 
 export default function Contato() {
   return (
-    <div className="min-h-screen bg-white pt-16">
+    <div className="min-h-screen bg-white pt-16 light">
       <Header />
       
       <div className="pt-14 pb-12">

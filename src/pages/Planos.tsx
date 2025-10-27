@@ -100,7 +100,7 @@ const faqs = [
 
 export default function Planos() {
   return (
-    <main className="min-h-screen bg-white pt-16">
+    <main className="min-h-screen bg-white pt-16 light">
       <Header />
       
       {/* Hero Section */}
@@ -131,7 +131,7 @@ export default function Planos() {
             {plans.map((plan) => (
               <Card 
                 key={plan.name} 
-                className="relative overflow-hidden border-neutral-200 hover:shadow-lg transition-all duration-300"
+                className="relative overflow-hidden border-neutral-200 hover:shadow-lg transition-all duration-300 !bg-white !text-neutral-900"
               >
                 {plan.popular && (
                   <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white text-center py-2 text-sm font-medium">

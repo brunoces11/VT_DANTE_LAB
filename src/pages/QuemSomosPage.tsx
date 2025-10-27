@@ -1,7 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import Header from '@/components/header';
 import Assinatura from '@/components/assinatura';
-import { ArrowLeft, Users, User } from 'lucide-react';
+import { Users, User } from 'lucide-react';
 
 export default function QuemSomosPage() {
   const nossoTime = [
@@ -49,21 +48,10 @@ export default function QuemSomosPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4">
-          <Link 
-            to="/" 
-            className="inline-flex items-center text-amber-700 hover:text-amber-800 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para página inicial
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 mt-16">
         <div className="bg-white rounded-lg shadow-sm p-8">
           {/* Header Section */}
           <div className="text-center mb-12">
@@ -115,15 +103,6 @@ export default function QuemSomosPage() {
 
 
 
-          <div className="mt-12 pt-8 border-t border-gray-200">
-            <Link 
-              to="/" 
-              className="inline-flex items-center text-amber-700 hover:text-amber-800 transition-colors font-medium"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar para página inicial
-            </Link>
-          </div>
         </div>
       </main>
       

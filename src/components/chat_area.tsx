@@ -1,6 +1,5 @@
 import React from 'react';
 import { useRef, useEffect } from 'react';
-import ChatMsgHeader from '@/components/chat_msg_header';
 import ChatMsgList from '@/components/chat_msg_list';
 import ChatInputMsg from '@/components/chat_input_msg';
 import ChatNeoMsg from '@/components/chat_neo_msg';
@@ -25,6 +24,8 @@ interface ChatAreaProps {
 export default function ChatArea({ messages, setMessages, isLoading, setIsLoading, isWelcomeMode, onFirstMessage, currentSessionId }: ChatAreaProps) {
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const lastUserMessageRef = useRef<HTMLDivElement>(null);
+  const previousSessionIdRef = useRef<string | null>(null);
 
   // Debug log
   console.log('🎨 ChatArea render:', { isWelcomeMode, currentSessionId, messagesCount: messages.length });
@@ -44,14 +45,32 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
     ));
   };
 
+  // 🎯 Scroll inteligente: rola até a última mensagem do usuário ao trocar de chat
+  const scrollToLastUserMessage = () => {
+    if (lastUserMessageRef.current) {
+      // Scroll com offset de 30px antes da mensagem
+      lastUserMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      console.log('📜 Scroll até última mensagem do usuário (com margin-top de 30px)');
+    }
+  };
+
   // Scroll automático para o final quando novas mensagens são adicionadas
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // 🎯 DETECTAR MUDANÇA DE SESSÃO e fazer scroll inteligente
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (currentSessionId && currentSessionId !== previousSessionIdRef.current && messages.length > 0) {
+      // Mudou de sessão - rolar até última mensagem do usuário
+      console.log('🔄 Sessão mudou, rolando até última mensagem do usuário');
+      setTimeout(() => scrollToLastUserMessage(), 100);
+      previousSessionIdRef.current = currentSessionId;
+    } else if (messages.length > 0 && currentSessionId === previousSessionIdRef.current) {
+      // Mesma sessão - scroll normal até o final (nova mensagem enviada)
+      scrollToBottom();
+    }
+  }, [messages, currentSessionId]);
 
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading || !currentSessionId || !user?.id) return;
@@ -157,9 +176,9 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
 
 
   return (
-    <div className="flex-1 flex flex-col bg-white" style={{ height: 'calc(100vh - 60px)' }}>
+    <div className="flex-1 flex flex-col bg-background" style={{ height: 'calc(100vh - 60px)' }}>
       {/* Header do Chat */}
-      <ChatMsgHeader />
+      {/* <ChatMsgHeader /> */}
       
       {/* Renderização Condicional: Welcome Mode ou Chat Mode */}
       {isWelcomeMode || shouldShowWelcome ? (
@@ -170,7 +189,11 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
       ) : (
         <>
           {/* Messages */}
-          <ChatMsgList messages={messages} messagesEndRef={messagesEndRef} />
+          <ChatMsgList 
+            messages={messages} 
+            messagesEndRef={messagesEndRef}
+            lastUserMessageRef={lastUserMessageRef}
+          />
 
           {/* Input */}
           <ChatInputMsg onSendMessage={handleSendMessage} isLoading={isLoading} />
