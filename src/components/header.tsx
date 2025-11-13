@@ -105,24 +105,25 @@ export default function Header() {
                 <button
                   onClick={() => navigate('/base-legal')}
                   className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
-                    location.pathname === '/base-legal' 
-                      ? 'text-orange-700' 
+                    location.pathname === '/base-legal'
+                      ? 'text-orange-700'
                       : 'text-neutral-700 hover:text-neutral-900'
                   }`}
                 >
                   Base Legal
                 </button>
-                <span className="text-amber-900">|</span>
+                {/* TEMPORARIAMENTE OCULTO - SERÁ REATIVADO POSTERIORMENTE */}
+                {/* <span className="text-amber-900">|</span>
                 <button
                   onClick={() => navigate('/planos')}
                   className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
-                    location.pathname === '/planos' 
-                      ? 'text-orange-700' 
+                    location.pathname === '/planos'
+                      ? 'text-orange-700'
                       : 'text-neutral-700 hover:text-neutral-900'
                   }`}
                 >
                   Planos
-                </button>
+                </button> */}
                 <span className="text-amber-900">|</span>
                 <button
                   onClick={() => navigate('/contato')}
@@ -259,34 +260,35 @@ export default function Header() {
                     navigate('/base-legal');
                   }}
                   className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
-                    location.pathname === '/base-legal' 
-                      ? 'text-orange-700' 
+                    location.pathname === '/base-legal'
+                      ? 'text-orange-700'
                       : 'text-neutral-700 hover:text-neutral-900'
                   }`}
                 >
                   Base Legal
                 </button>
-                <button
+                {/* TEMPORARIAMENTE OCULTO - SERÁ REATIVADO POSTERIORMENTE */}
+                {/* <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     navigate('/planos');
                   }}
                   className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
-                    location.pathname === '/planos' 
-                      ? 'text-orange-700' 
+                    location.pathname === '/planos'
+                      ? 'text-orange-700'
                       : 'text-neutral-700 hover:text-neutral-900'
                   }`}
                 >
                   Planos
-                </button>
+                </button> */}
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     navigate('/contato');
                   }}
                   className={`text-sm font-medium text-left px-3 py-2 rounded-md transition-colors w-full hover:bg-neutral-100 ${
-                    location.pathname === '/contato' 
-                      ? 'text-orange-700' 
+                    location.pathname === '/contato'
+                      ? 'text-orange-700'
                       : 'text-neutral-700 hover:text-neutral-900'
                   }`}
                 >
