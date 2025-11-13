@@ -7,6 +7,7 @@ interface ChatSaveRequest {
   msg_input: string;
   msg_output: string;
   user_id: string;
+  agent_type?: string;
 }
 
 Deno.serve(async (req: Request) => {
@@ -75,7 +76,7 @@ Deno.serve(async (req: Request) => {
     const requestData: ChatSaveRequest = await req.json();
 
     // Validar dados obrigatórios
-    const { chat_session_id, chat_session_title, msg_input, msg_output, user_id } = requestData;
+    const { chat_session_id, chat_session_title, msg_input, msg_output, user_id, agent_type } = requestData;
 
     if (!chat_session_id || !chat_session_title || !msg_input || !msg_output || !user_id) {
       return new Response(
@@ -101,7 +102,22 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log(`💾 Salvando: ${chat_session_id.slice(-8)} | ${msg_input.slice(0, 20)}...`);
+    // Validar agent_type se fornecido
+    if (agent_type && !['dante-ri', 'dante-notas'].includes(agent_type)) {
+      return new Response(
+        JSON.stringify({
+          error: 'agent_type inválido. Use "dante-ri" ou "dante-notas"',
+          received: agent_type
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    const finalAgentType = agent_type || 'dante-ri';
+    console.log(`💾 Salvando [${finalAgentType}]: ${chat_session_id.slice(-8)} | ${msg_input.slice(0, 20)}...`);
 
     // Primeiro: Verificar se sessão existe, se não, criar
     const { data: existingSession } = await supabaseClient
@@ -116,7 +132,8 @@ Deno.serve(async (req: Request) => {
         .insert({
           chat_session_id: chat_session_id,
           chat_session_title: chat_session_title,
-          user_id: user_id
+          user_id: user_id,
+          agent_type: finalAgentType
         });
 
       if (sessionError) {
