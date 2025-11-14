@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Loader2 } from 'lucide-react';
+import { Send, Loader2, Home, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getAgentConfig, type AgentType } from '@/config/agentConfigs';
 
@@ -69,7 +69,13 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading, agentType }: Cha
       <div className="w-full max-w-[800px] text-center">
         {/* Welcome Title */}
         <div className="mb-8">
-          <div className="text-6xl mb-4">{agentConfig.icon}</div>
+          <div className="mb-4 flex justify-center">
+            {agentType === 'dante-ri' ? (
+              <Home className="h-16 w-16 text-orange-500" />
+            ) : (
+              <ScrollText className="h-16 w-16 text-blue-500" />
+            )}
+          </div>
           <h1 className="text-4xl font-bold text-foreground mb-4">
             {agentConfig.title}
           </h1>

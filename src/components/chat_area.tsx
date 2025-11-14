@@ -197,6 +197,7 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
             messages={messages} 
             messagesEndRef={messagesEndRef}
             lastUserMessageRef={lastUserMessageRef}
+            agentType={currentAgentType}
           />
 
           {/* Input */}

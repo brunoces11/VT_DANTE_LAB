@@ -104,29 +104,38 @@ Este plano de implementação detalha as tarefas de código necessárias para im
   - Adicionar log indicando qual agente foi carregado
   - _Requirements: 5.3, 5.4, 5.5, 10.1, 10.4_
 
+
+
 - [ ] 10. Modificar handleFirstMessage para incluir agent_type
   - Atualizar chamada `fun_call_langflow` para incluir `agent_type: currentAgentType`
   - Atualizar objeto `saveData` para incluir `agent_type: currentAgentType`
   - Verificar que logs indicam qual agente está sendo usado
   - _Requirements: 6.4, 6.5_
 
+
+
 - [ ] 11. Detectar entrada via Header e exibir WelcomeChat
   - Criar `useEffect` para detectar `location.state.startWelcome`
   - Implementar lógica para `setShowWelcomeChat(true)` quando detectado
   - Implementar lógica para `setIsWelcomeForced(true)`
+
   - Limpar state com `navigate(location.pathname, { replace: true, state: {} })`
   - _Requirements: 1.1, 1.4_
 
-- [ ] 12. Implementar callback onAgentSelect no WelcomeChat
+- [x] 12. Implementar callback onAgentSelect no WelcomeChat
+
   - Criar função handler que recebe `agentType` selecionado
   - Implementar `setCurrentAgentType(agentType)`
   - Implementar `setShowWelcomeChat(false)`
   - Implementar `setIsWelcomeMode(true)`
+
   - _Requirements: 1.3, 1.5_
 
 - [ ] 13. Atualizar renderização condicional no ChatPage
   - Modificar JSX para renderizar `WelcomeChat` quando `showWelcomeChat === true`
   - Passar callback `onAgentSelect` para `WelcomeChat`
+
+
   - Manter renderização de `ChatArea` quando `showWelcomeChat === false`
   - _Requirements: 1.1, 1.4_
 

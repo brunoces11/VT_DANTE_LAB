@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Home, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, MoreHorizontal, Edit2, Trash2, ChevronLeft, ChevronRight, ScrollText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -59,18 +59,6 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
   }, [activeDropdown]);
 
 
-
-  const handleNewChat = () => {
-    console.log('🆕 Sidebar: Iniciando novo chat');
-
-    // 🎯 DESATIVAR todos os cards ativos antes de criar novo chat
-    setChats(prev => prev.map(chat => ({
-      ...chat,
-      isActive: false
-    })));
-
-    onNewChat('dante-ri'); // Chamar função do pai para ativar modo welcome (padrão RI)
-  };
 
   const handleChatClick = (chatId: string) => {
     setChats(prev => prev.map(chat => ({
@@ -205,31 +193,63 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
             </Button>
           </div>
 
-          {/* Botão Novo Chat */}
+          {/* ✅ NOVO: 2 Botões de Novo Chat (RI e NOTAS) */}
           {isCollapsed ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex justify-center mb-2">
-                  <Button
-                    onClick={handleNewChat}
-                    className="bg-neutral-500 hover:bg-neutral-600 text-white p-2 h-8 w-8 flex items-center justify-center hover:ring-2 hover:ring-neutral-400/50 hover:ring-offset-1 transition-all"
-                  >
-                    <Home className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Novo Chat</p>
-              </TooltipContent>
-            </Tooltip>
+            <div className="flex flex-col gap-2">
+              {/* Botão RI - Colapsado */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={() => onNewChat('dante-ri')}
+                      className="bg-slate-700 hover:bg-slate-800 text-white p-2 h-8 w-8 flex items-center justify-center hover:ring-2 hover:ring-slate-500/50 hover:ring-offset-1 transition-all"
+                    >
+                      <Home className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Novo Chat - RI</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              {/* Botão NOTAS - Colapsado */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={() => onNewChat('dante-notas')}
+                      className="bg-slate-700 hover:bg-slate-800 text-white p-2 h-8 w-8 flex items-center justify-center hover:ring-2 hover:ring-slate-500/50 hover:ring-offset-1 transition-all"
+                    >
+                      <ScrollText className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Novo Chat - NOTAS</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           ) : (
-            <Button
-              onClick={handleNewChat}
-              className="w-full flex items-center justify-center space-x-2 bg-neutral-500 hover:bg-neutral-600 text-white hover:ring-2 hover:ring-neutral-400/50 hover:ring-offset-1 transition-all"
-            >
-              <Home className="h-4 w-4" />
-              <span>Novo Chat</span>
-            </Button>
+            <div className="flex flex-col gap-2">
+              {/* Botão RI - Expandido */}
+              <Button
+                onClick={() => onNewChat('dante-ri')}
+                className="w-full flex items-center justify-start space-x-2 bg-slate-700 hover:bg-slate-800 text-white hover:ring-2 hover:ring-slate-500/50 hover:ring-offset-1 transition-all px-4"
+              >
+                <Home className="h-4 w-4" />
+                <span>Novo Chat - RI</span>
+              </Button>
+              
+              {/* Botão NOTAS - Expandido */}
+              <Button
+                onClick={() => onNewChat('dante-notas')}
+                className="w-full flex items-center justify-start space-x-2 bg-slate-700 hover:bg-slate-800 text-white hover:ring-2 hover:ring-slate-500/50 hover:ring-offset-1 transition-all px-4"
+              >
+                <ScrollText className="h-4 w-4" />
+                <span>Novo Chat - NOTAS</span>
+              </Button>
+            </div>
           )}
         </div>
 

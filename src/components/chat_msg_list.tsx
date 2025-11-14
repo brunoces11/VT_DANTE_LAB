@@ -1,5 +1,6 @@
 import React from 'react';
-import { User, Home, Loader2, CheckCheck, AlertCircle } from 'lucide-react';
+import { User, Home, Loader2, CheckCheck, AlertCircle, ScrollText } from 'lucide-react';
+import type { AgentType } from '@/config/agentConfigs';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ChatLoader from './chat_loader';
@@ -36,9 +37,10 @@ interface ChatMsgListProps {
   messages: Message[];
   messagesEndRef: React.RefObject<HTMLDivElement>;
   lastUserMessageRef?: React.RefObject<HTMLDivElement>;
+  agentType: AgentType; // ✅ NOVO: Tipo de agente para ícone correto
 }
 
-export default function ChatMsgList({ messages, messagesEndRef, lastUserMessageRef }: ChatMsgListProps) {
+export default function ChatMsgList({ messages, messagesEndRef, lastUserMessageRef, agentType }: ChatMsgListProps) {
   // 🎯 Encontrar o índice da última mensagem do usuário
   const userMessages = messages.filter(msg => !msg.isLoading && msg.sender === 'user');
   const lastUserMessageId = userMessages.length > 0 ? userMessages[userMessages.length - 1].id : null;
@@ -71,8 +73,10 @@ export default function ChatMsgList({ messages, messagesEndRef, lastUserMessageR
               >
                 {message.sender === 'user' ? (
                   <User className="h-4 w-4 text-white dark:text-neutral-900" />
-                ) : (
+                ) : agentType === 'dante-ri' ? (
                   <Home className="h-4 w-4 text-white" />
+                ) : (
+                  <ScrollText className="h-4 w-4 text-white" />
                 )}
               </div>
 

@@ -1,4 +1,5 @@
-import { agentConfigs, type AgentType } from '@/config/agentConfigs';
+import type { AgentType } from '@/config/agentConfigs';
+import { Home, ScrollText } from 'lucide-react';
 
 interface WelcomeChatProps {
   onAgentSelect: (agentType: AgentType) => void;
@@ -30,7 +31,9 @@ export default function WelcomeChat({ onAgentSelect }: WelcomeChatProps) {
                      transition-all duration-300 text-left"
           >
             {/* Ícone */}
-            <div className="text-6xl mb-4">{agentConfigs['dante-ri'].icon}</div>
+            <div className="mb-4">
+              <Home className="h-16 w-16 text-orange-600 dark:text-orange-400" />
+            </div>
             
             {/* Título */}
             <h2 className="text-2xl font-bold text-foreground mb-3">
@@ -62,7 +65,9 @@ export default function WelcomeChat({ onAgentSelect }: WelcomeChatProps) {
                      transition-all duration-300 text-left"
           >
             {/* Ícone */}
-            <div className="text-6xl mb-4">{agentConfigs['dante-notas'].icon}</div>
+            <div className="mb-4">
+              <ScrollText className="h-16 w-16 text-blue-600 dark:text-blue-400" />
+            </div>
             
             {/* Título */}
             <h2 className="text-2xl font-bold text-foreground mb-3">

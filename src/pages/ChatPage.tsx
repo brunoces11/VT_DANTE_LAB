@@ -396,7 +396,8 @@ export default function ChatPage() {
     console.log(`🆕 Criando nova sessão de chat - modo welcome - Agente: ${agentType}`);
     setCurrentSessionId(null);
     setMessages([]);
-    setIsWelcomeMode(true); // Ativar modo welcome
+    setShowWelcomeChat(false); // ✅ NOVO: Fechar WelcomeChat se estiver aberto
+    setIsWelcomeMode(true); // Ativar modo welcome (ChatNeoMsg)
     setIsWelcomeForced(true); // Forçar modo welcome
     setCurrentAgentType(agentType); // ✅ NOVO: Definir agente escolhido
     

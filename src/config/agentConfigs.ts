@@ -30,7 +30,7 @@ export const agentConfigs: Record<AgentType, AgentConfig> = {
     id: 'dante-ri',
     title: 'Especialista em Registro de Imóveis',
     description: 'Seu assistente especializado em Registro de Imóveis. Faça sua pergunta sobre procedimentos registrais, legislação vigente ou qualificação de títulos.',
-    icon: '📋',
+    icon: 'Home', // ✅ Ícone Lucide: Casinha
     color: 'orange',
     suggestions: [
       {
@@ -60,7 +60,7 @@ export const agentConfigs: Record<AgentType, AgentConfig> = {
     id: 'dante-notas',
     title: 'Especialista em Tabelionato de Notas',
     description: 'Seu assistente especializado em Tabelionato de Notas. Faça sua pergunta sobre reconhecimento de firmas, autenticações e escrituras públicas.',
-    icon: '📝',
+    icon: 'ScrollText', // ✅ Ícone Lucide: Pergaminho
     color: 'blue',
     suggestions: [
       {
