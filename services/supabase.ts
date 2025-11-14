@@ -1,7 +1,25 @@
 import { supabase } from './supa_init';
 import type { Session } from '@supabase/supabase-js';
+import type { AgentType } from '../src/config/agentConfigs';
 
+/**
+ * ========================================
+ * INTERFACES E TIPOS
+ * ========================================
+ */
 
+/**
+ * Interface para dados de salvamento de chat
+ * Usada pela função saveInBackground e fun_save_chat_data
+ */
+export interface SaveChatData {
+  chat_session_id: string;
+  chat_session_title: string;
+  msg_input: string;
+  msg_output: string;
+  user_id: string;
+  agent_type?: AgentType; // ✅ Tipo importado de agentConfigs
+}
 
 /**
  * ========================================
@@ -175,13 +193,11 @@ export function clearSessionCache() {
   sessionCacheTime = 0;
 }
 
-export async function fun_save_chat_data(params: {
-  chat_session_id: string;
-  chat_session_title: string;
-  msg_input: string;
-  msg_output: string;
-  user_id: string;
-}) {
+/**
+ * Função para salvar dados de chat via edge function
+ * Suporta agent_type opcional para sistema multi-agente
+ */
+export async function fun_save_chat_data(params: SaveChatData) {
   try {
     let session: Session | null = null;
     let sessionError: any = null;
@@ -264,7 +280,8 @@ export async function fun_save_chat_data(params: {
         chat_session_title: params.chat_session_title,
         msg_input: params.msg_input,
         msg_output: params.msg_output,
-        user_id: params.user_id
+        user_id: params.user_id,
+        agent_type: params.agent_type // ✅ NOVO: Incluir agent_type se fornecido
       }),
       signal: controller.signal,
     });
@@ -310,8 +327,13 @@ export async function fun_save_chat_data(params: {
 
 /**
  * Função centralizada para salvamento em background com retry robusto
+ * Suporta agent_type opcional para sistema multi-agente
  */
-export const saveInBackground = async (data: any, updateMessageStatus?: (messageId: number, status: 'sending' | 'sent' | 'failed') => void, messageId?: number) => {
+export const saveInBackground = async (
+  data: SaveChatData, 
+  updateMessageStatus?: (messageId: number, status: 'sending' | 'sent' | 'failed') => void, 
+  messageId?: number
+) => {
   const sessionId = data.chat_session_id.slice(0, 6);
   let attempts = 0;
   const maxAttempts = 3;
