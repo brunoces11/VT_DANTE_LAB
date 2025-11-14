@@ -182,22 +182,8 @@ export default function ChatPage() {
     });
   };
 
-  // Função para converter dados do sistema antigo para cache seguro
-  const convertFromOldSystem = (oldData: any): any => {
-    if (!oldData.chat_sessions) return null;
-    
-    return {
-      user_id: user?.id || '',
-      chat_sessions: oldData.chat_sessions.map((session: any) => ({
-        chat_session_id: session.chat_session_id,
-        chat_session_title: session.chat_session_title,
-        messages: session.messages || [],
-        updated_at: new Date().toISOString(),
-        created_at: new Date().toISOString()
-      }))
-    };
-  };
-  
+  // ✅ v2.0: convertFromOldSystem removida - migração automática em cache-service.ts
+
   // 🎯 SISTEMA DE PERSISTÊNCIA ROBUSTO seguindo padrão Supabase
   const persistUIState = (sessionId: string | null, welcomeMode: boolean) => {
     try {
@@ -226,77 +212,40 @@ export default function ChatPage() {
     isWelcomeMode: boolean;
   }) => {
     try {
-      // 🎯 Usar função específica para persistir estado da UI
+      // 🎯 Persistir estado da UI no cache unificado v2.0
       persistUIState(chatData.currentSessionId, chatData.isWelcomeMode);
-      
-      // Atualizar contagem de mensagens se há sessão ativa
+
+      // ✅ v2.0: Atualizar sessão com recent_messages para preview rápido
       if (chatData.currentSessionId && chatData.messages.length > 0) {
+        // Extrair últimas 3 trocas de mensagens (6 mensagens = 3 pares user/bot)
+        const recentMsgs = [];
+        const startIdx = Math.max(0, chatData.messages.length - 6);
+
+        for (let i = startIdx; i < chatData.messages.length; i += 2) {
+          const userMsg = chatData.messages[i];
+          const botMsg = chatData.messages[i + 1];
+          if (userMsg && userMsg.sender === 'user') {
+            recentMsgs.push({
+              user: userMsg.content.substring(0, 100),
+              bot: botMsg?.content?.substring(0, 200) || ''
+            });
+          }
+        }
+
         updateSessionInCache(chatData.currentSessionId, {
           message_count: chatData.messages.length,
-          last_updated: getCurrentTimestampUTC()
+          last_updated: getCurrentTimestampUTC(),
+          recent_messages: recentMsgs
         });
-      }
-      
-      // 🚀 MANTER SISTEMA HISTÓRICO PARA COMPATIBILIDADE (mensagens completas)
-      if (chatData.currentSessionId && chatData.messages.length > 0) {
-        updateUserChatData(chatData.currentSessionId, chatData.messages);
       }
     } catch (error) {
       console.warn('⚠️ Erro ao salvar dados:', error);
     }
   };
 
-  // Função para atualizar user_chat_data (compatibilidade)
-  const updateUserChatData = (sessionId: string, messages: Message[]) => {
-    try {
-      const existingData = localStorage.getItem('user_chat_data');
-      let userData = existingData ? JSON.parse(existingData) : { chat_sessions: [] };
-      
-      // Encontrar ou criar sessão
-      let session = userData.chat_sessions?.find((s: any) => s.chat_session_id === sessionId);
-      
-      if (!session) {
-        session = {
-          chat_session_id: sessionId,
-          chat_session_title: messages[0]?.content?.substring(0, 50) || 'Nova conversa',
-          messages: []
-        };
-        userData.chat_sessions = userData.chat_sessions || [];
-        userData.chat_sessions.push(session);
-      }
-      
-      // 🚀 PRESERVAR título existente (não sobrescrever se já foi renomeado)
-      // Só atualiza título se for uma nova sessão ou se o título atual for genérico
-      const isGenericTitle = session.chat_session_title === 'Nova conversa' || 
-                            session.chat_session_title === 'Conversa existente' ||
-                            !session.chat_session_title;
-      
-      if (isGenericTitle && messages[0]?.content) {
-        session.chat_session_title = messages[0].content.substring(0, 50);
-      }
-      
-      // Converter mensagens para formato histórico
-      session.messages = [];
-      for (let i = 0; i < messages.length; i += 2) {
-        const userMsg = messages[i];
-        const botMsg = messages[i + 1];
-        
-        if (userMsg && userMsg.sender === 'user') {
-          session.messages.push({
-            msg_input: userMsg.content,
-            msg_output: botMsg?.content || ''
-          });
-        }
-      }
-      
-      localStorage.setItem('user_chat_data', JSON.stringify(userData));
-      console.log(`💾 user_chat_data atualizado (auto-save): ${sessionId.slice(0, 6)} - "${session.chat_session_title}"`);
-    } catch (error) {
-      console.warn('⚠️ Erro ao atualizar user_chat_data:', error);
-    }
-  };
-
-  // Cache seguro + sistema antigo são suficientes durante transição
+  // ✅ v2.0: Função updateUserChatData REMOVIDA
+  // Cache unificado SafeCache v2.0 substitui user_chat_data completamente
+  // Migração automática: user_chat_data → SafeCache v2.0 (backup de 7 dias)
 
   // 🚀 AUTO-SAVE: Salvar automaticamente quando estados mudarem (apenas como cache)
   const [isInitialized, setIsInitialized] = useState(false);
@@ -352,8 +301,7 @@ export default function ChatPage() {
         return;
       }
       
-      // As mensagens já foram carregadas pela edge function
-      // Vamos buscar do serverData que foi salvo
+      // ✅ v2.0: Buscar mensagens do cache ou window.__serverData (transição)
       const serverData = (window as any).__serverData;
       
       if (serverData?.chat_sessions) {
@@ -763,46 +711,14 @@ export default function ChatPage() {
       } else {
         console.warn('⚠️ Falha ao carregar dados do servidor:', serverData.error);
         
-        // 3. Manter fallback para sistema antigo (temporário)
+        // ✅ v2.0: Fallback removido - migração automática em loadSafeCache()
+        // Sistema legado (user_chat_data) é migrado automaticamente na primeira carga
         if (!safeCache) {
-          console.log('🔄 Fallback para sistema antigo');
-          const oldCache = localStorage.getItem('user_chat_data');
-          if (oldCache) {
-            try {
-              const parsedOldData = JSON.parse(oldCache);
-              const convertedServerData = convertFromOldSystem(parsedOldData);
-              
-              if (convertedServerData) {
-                updateUIWithServerData(convertedServerData);
-                
-                // Migrar dados antigos para cache seguro
-                const migratedCache = convertToSafeCache(convertedServerData);
-                migratedCache.ui_state.isWelcomeMode = parsedOldData.chat_sessions?.length === 0;
-                saveSafeCache(migratedCache);
-                
-                console.log('✅ Dados migrados do sistema antigo para cache seguro');
-              } else {
-                // Estado padrão se conversão falhar
-                setChats([]);
-                setMessages([]);
-                setCurrentSessionId(null);
-                setIsWelcomeMode(true);
-              }
-            } catch (error) {
-              console.error('❌ Erro ao converter dados antigos:', error);
-              setChats([]);
-              setMessages([]);
-              setCurrentSessionId(null);
-              setIsWelcomeMode(true);
-            }
-          } else {
-            // Estado padrão se não há dados
-            console.log('📭 Nenhum dado encontrado, estado padrão');
-            setChats([]);
-            setMessages([]);
-            setCurrentSessionId(null);
-            setIsWelcomeMode(true);
-          }
+          console.log('📭 Sem cache e falha no servidor, estado padrão');
+          setChats([]);
+          setMessages([]);
+          setCurrentSessionId(null);
+          setIsWelcomeMode(true);
         }
       }
     } catch (error) {
