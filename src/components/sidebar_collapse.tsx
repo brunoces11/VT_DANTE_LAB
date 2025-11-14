@@ -209,7 +209,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  <p>Novo Chat - RI</p>
+                  <p>Novo Chat - Registro de Imóveis</p>
                 </TooltipContent>
               </Tooltip>
               
@@ -226,7 +226,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  <p>Novo Chat - NOTAS</p>
+                  <p>Novo Chat - Tabelionato de Notas</p>
                 </TooltipContent>
               </Tooltip>
             </div>
@@ -237,8 +237,8 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                 onClick={() => onNewChat('dante-ri')}
                 className="w-full flex items-center justify-start space-x-2 bg-slate-700 hover:bg-slate-800 text-white hover:ring-2 hover:ring-slate-500/50 hover:ring-offset-1 transition-all px-4"
               >
-                <Home className="h-4 w-4" />
-                <span>Novo Chat - RI</span>
+                <Home className="h-4 w-4 flex-shrink-0" />
+                <span className="text-left">Novo Chat - Registro de Imóveis</span>
               </Button>
               
               {/* Botão NOTAS - Expandido */}
@@ -246,8 +246,8 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
                 onClick={() => onNewChat('dante-notas')}
                 className="w-full flex items-center justify-start space-x-2 bg-slate-700 hover:bg-slate-800 text-white hover:ring-2 hover:ring-slate-500/50 hover:ring-offset-1 transition-all px-4"
               >
-                <ScrollText className="h-4 w-4" />
-                <span>Novo Chat - NOTAS</span>
+                <ScrollText className="h-4 w-4 flex-shrink-0" />
+                <span className="text-left">Novo Chat - Tabelionato de Notas</span>
               </Button>
             </div>
           )}

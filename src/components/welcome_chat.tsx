@@ -12,7 +12,7 @@ export default function WelcomeChat({ onAgentSelect }: WelcomeChatProps) {
         {/* Título Principal */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold text-foreground mb-6">
-            Seja bem-vindo ao Dante
+            Seja bem-vindo ao Dante IA
           </h1>
           <p className="text-xl text-muted-foreground leading-relaxed max-w-[700px] mx-auto">
             Escolha qual especialista do Dante você deseja consultar para suas dúvidas jurídicas
@@ -48,7 +48,7 @@ export default function WelcomeChat({ onAgentSelect }: WelcomeChatProps) {
             
             {/* CTA */}
             <div className="flex items-center text-orange-600 dark:text-orange-400 font-semibold group-hover:translate-x-2 transition-transform">
-              <span>Iniciar Chat - RI</span>
+              <span>Iniciar Chat - Registro de Imóveis</span>
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -82,7 +82,7 @@ export default function WelcomeChat({ onAgentSelect }: WelcomeChatProps) {
             
             {/* CTA */}
             <div className="flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform">
-              <span>Iniciar Chat - NOTAS</span>
+              <span>Iniciar Chat - Tabelionato de Notas</span>
               <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

@@ -145,7 +145,11 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading, agentType }: Cha
             <Button 
               onClick={handleSendMessage}
               disabled={!inputValue.trim() || isLoading}
-              className={`absolute bg-${agentConfig.color}-500 text-white hover:bg-${agentConfig.color}-600 px-6 flex items-center space-x-2 transition-all duration-200`}
+              className={`absolute text-white px-6 flex items-center space-x-2 transition-all duration-200 ${
+                agentType === 'dante-ri' 
+                  ? 'bg-orange-500 hover:bg-orange-600' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
               style={{
                 right: '10px',
                 top: '10px',
