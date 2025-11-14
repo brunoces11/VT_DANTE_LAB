@@ -1,4 +1,3 @@
-import React from 'react';
 import { useRef, useEffect } from 'react';
 import ChatMsgList from '@/components/chat_msg_list';
 import ChatInputMsg from '@/components/chat_input_msg';
@@ -8,6 +7,7 @@ import { saveInBackground } from '../../services/supabase';
 import { fun_call_langflow } from '../../services/langflow';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Message } from '@/types/message';
+import type { AgentType } from '@/config/agentConfigs';
 
 interface ChatAreaProps {
   messages: Message[];
@@ -17,11 +17,12 @@ interface ChatAreaProps {
   isWelcomeMode: boolean;
   onFirstMessage: (message: string) => void;
   currentSessionId: string | null;
+  currentAgentType: AgentType; // ✅ NOVO: Tipo de agente ativo
 }
 
 // A persistência é gerenciada pelo sistema de cache seguro no ChatPage
 
-export default function ChatArea({ messages, setMessages, isLoading, setIsLoading, isWelcomeMode, onFirstMessage, currentSessionId }: ChatAreaProps) {
+export default function ChatArea({ messages, setMessages, isLoading, setIsLoading, isWelcomeMode, onFirstMessage, currentSessionId, currentAgentType }: ChatAreaProps) {
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const lastUserMessageRef = useRef<HTMLDivElement>(null);
@@ -118,6 +119,7 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
       const langflowResult = await fun_call_langflow({
         input_value: inputValue,
         session_id: currentSessionId,
+        agent_type: currentAgentType // ✅ NOVO: Incluir agent_type
       });
 
       if (!langflowResult.success || !langflowResult.response) {
@@ -148,7 +150,8 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
         chat_session_title: 'Conversa existente',
         msg_input: inputValue,
         msg_output: treatedResponse,
-        user_id: user.id
+        user_id: user.id,
+        agent_type: currentAgentType // ✅ NOVO: Incluir agent_type
       };
       
       // Salvar com callback de status
@@ -185,6 +188,7 @@ export default function ChatArea({ messages, setMessages, isLoading, setIsLoadin
         <ChatNeoMsg 
           onFirstMessage={onFirstMessage}
           isLoading={isLoading}
+          agentType={currentAgentType}
         />
       ) : (
         <>

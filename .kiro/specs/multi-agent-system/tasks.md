@@ -35,6 +35,8 @@ Este plano de implementação detalha as tarefas de código necessárias para im
   - Adicionar fallback para 'dante-ri' se `agent_type` não fornecido
   - Adicionar logs indicando qual agente está sendo usado
   - Implementar tratamento de erro se Flow ID do agente não estiver configurado
+
+
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 7.1_
 
 - [ ] 4. Atualizar interface de salvamento para incluir agent_type
@@ -42,6 +44,9 @@ Este plano de implementação detalha as tarefas de código necessárias para im
   - Verificar que edge function `ef_save_chat` já aceita `agent_type` (já implementado)
   - Atualizar chamadas de `saveInBackground` para incluir `agent_type` quando disponível
   - _Requirements: 5.1, 5.2_
+
+
+
 
 - [ ] 5. Criar componente WelcomeChat (seletor de agente)
   - Criar arquivo `src/components/welcome_chat.tsx`
@@ -51,34 +56,49 @@ Este plano de implementação detalha as tarefas de código necessárias para im
   - Implementar cards clicáveis com hover states
   - Adicionar ícones e cores específicas por agente
   - Tornar responsivo (1 coluna mobile, 2 colunas desktop)
+
+
   - _Requirements: 1.1, 1.2, 1.3, 8.2, 8.5_
 
 - [ ] 6. Modificar ChatNeoMsg para ser parametrizado
   - Adicionar prop `agentType` na interface `ChatNeoMsgProps`
+
+
   - Importar `agentConfigs` e carregar config do agente ativo
   - Substituir conteúdo hardcoded por valores dinâmicos de `agentConfig`
   - Atualizar título para usar `agentConfig.title`
   - Atualizar descrição para usar `agentConfig.description`
   - Renderizar sugestões dinamicamente de `agentConfig.suggestions`
+
+
   - Atualizar placeholder para usar `agentConfig.placeholder`
   - Adicionar indicador visual do agente ativo
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 8.1, 8.3_
 
-- [ ] 7. Adicionar estado de agent_type no ChatPage
+- [x] 7. Adicionar estado de agent_type no ChatPage
+
+
   - Adicionar estado `currentAgentType` com tipo `AgentType` e valor inicial 'dante-ri'
   - Adicionar estado `showWelcomeChat` com tipo `boolean` e valor inicial `false`
   - Importar tipos e helpers de `agentConfigs.ts`
   - _Requirements: 1.5, 6.1_
 
+
+
 - [ ] 8. Modificar fun_create_chat_session para receber agentType
   - Modificar assinatura da função para aceitar parâmetro `agentType: AgentType`
   - Adicionar chamada `setCurrentAgentType(agentType)` dentro da função
   - Atualizar log para incluir qual agente está sendo usado
+
+
   - Atualizar chamada de `persistUIState` se necessário
   - _Requirements: 2.5, 6.2_
 
 - [ ] 9. Modificar fun_load_chat_session para carregar agent_type
   - Adicionar extração de `agent_type` dos dados da sessão
+
+
+
   - Implementar fallback para 'dante-ri' se `agent_type` não existir
   - Adicionar chamada `setCurrentAgentType(chatAgentType)`
   - Adicionar log indicando qual agente foi carregado

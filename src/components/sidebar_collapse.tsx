@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 import { fun_renomear_chat } from '../../services/supabase';
 import { useAuth } from './auth/AuthProvider';
+import type { AgentType } from '@/config/agentConfigs';
 
 interface Chat {
   id: string;
@@ -19,7 +20,7 @@ interface SidebarCollapseProps {
   chats: Chat[];
   setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
   onChatClick: (sessionId: string) => void;
-  onNewChat: () => void;
+  onNewChat: (agentType: AgentType) => void; // ✅ MODIFICADO: Agora recebe agentType
   currentSessionId: string | null;
 }
 
@@ -68,7 +69,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
       isActive: false
     })));
 
-    onNewChat(); // Chamar função do pai para ativar modo welcome
+    onNewChat('dante-ri'); // Chamar função do pai para ativar modo welcome (padrão RI)
   };
 
   const handleChatClick = (chatId: string) => {
@@ -168,7 +169,7 @@ export default function SidebarCollapse({ chats, setChats, onChatClick, onNewCha
     // 🎯 Se o chat deletado era o ativo, redirecionar para Welcome Chat
     if (wasActiveChat) {
       console.log('🗑️ Chat ativo deletado, redirecionando para Welcome Chat');
-      onNewChat(); // Chamar função para ativar modo welcome
+      onNewChat('dante-ri'); // Chamar função para ativar modo welcome (padrão RI)
     }
   };
 

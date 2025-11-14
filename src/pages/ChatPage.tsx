@@ -3,11 +3,13 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import ChatHeader from '@/components/chat_header';
 import SidebarCollapse from '@/components/sidebar_collapse';
 import ChatArea from '@/components/chat_area';
+import WelcomeChat from '@/components/welcome_chat';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getCurrentTimestampUTC, formatDateTimeBR } from '@/utils/timezone';
 import { fun_load_user_data, saveInBackground } from '../../services/supabase';
 import { fun_call_langflow } from '../../services/langflow';
 import { Message } from '@/types/message';
+import type { AgentType } from '@/config/agentConfigs';
 // Sistema de cache seguro
 import { 
   saveSafeCache, 
@@ -37,6 +39,10 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isWelcomeMode, setIsWelcomeMode] = useState<boolean>(false);
+  
+  // ✅ NOVO: Estado para controlar qual agente está ativo
+  const [currentAgentType, setCurrentAgentType] = useState<AgentType>('dante-ri');
+  const [showWelcomeChat, setShowWelcomeChat] = useState(false);
 
   // Sistema de cache seguro como primário
   
@@ -251,6 +257,18 @@ export default function ChatPage() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isWelcomeForced, setIsWelcomeForced] = useState(false);
 
+  // ✅ NOVO: Detectar entrada via Header e exibir WelcomeChat
+  useEffect(() => {
+    const state = location.state as { startWelcome?: boolean } | null;
+    if (state?.startWelcome) {
+      console.log('🎯 Acesso via header - FORÇANDO WelcomeChat (seletor de agente)');
+      setShowWelcomeChat(true);
+      setIsWelcomeForced(true);
+      // Limpar o state para não repetir na próxima navegação
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
+
   // 🎯 MONITORAR E PERSISTIR mudanças de estado críticas
   useEffect(() => {
     console.log('🔔 Estado mudou:', { 
@@ -306,6 +324,11 @@ export default function ChatPage() {
       
       if (serverData?.chat_sessions) {
         const serverSession = serverData.chat_sessions.find((s: any) => s.chat_session_id === sessionId);
+        
+        // ✅ NOVO: Carregar agent_type da sessão (com fallback para 'dante-ri')
+        const chatAgentType = serverSession?.agent_type || 'dante-ri';
+        setCurrentAgentType(chatAgentType);
+        console.log(`🤖 Chat carregado com agente: ${chatAgentType}`);
         
         if (serverSession?.messages && serverSession.messages.length > 0) {
           console.log(`✅ ${serverSession.messages.length} mensagens encontradas no servidor`);
@@ -368,15 +391,25 @@ export default function ChatPage() {
   };
 
   // Função para criar nova sessão de chat (modo welcome)
-  const fun_create_chat_session = () => {
-    console.log('🆕 Criando nova sessão de chat - modo welcome');
+  // ✅ MODIFICADO: Agora recebe agentType como parâmetro
+  const fun_create_chat_session = (agentType: AgentType) => {
+    console.log(`🆕 Criando nova sessão de chat - modo welcome - Agente: ${agentType}`);
     setCurrentSessionId(null);
     setMessages([]);
     setIsWelcomeMode(true); // Ativar modo welcome
     setIsWelcomeForced(true); // Forçar modo welcome
+    setCurrentAgentType(agentType); // ✅ NOVO: Definir agente escolhido
     
     // 🎯 PERSISTIR estado welcome no cache
     persistUIState(null, true);
+  };
+
+  // ✅ NOVO: Handler para seleção de agente no WelcomeChat
+  const handleAgentSelect = (agentType: AgentType) => {
+    console.log(`🎯 Agente selecionado: ${agentType}`);
+    setCurrentAgentType(agentType);
+    setShowWelcomeChat(false);
+    setIsWelcomeMode(true);
   };
 
   // Função para lidar com a primeira mensagem (transição welcome → conversa)
@@ -465,6 +498,7 @@ export default function ChatPage() {
         const langflowResult = await fun_call_langflow({
           input_value: inputValue,
           session_id: newSessionId,
+          agent_type: currentAgentType // ✅ NOVO: Incluir agent_type
         });
 
         if (!langflowResult.success || !langflowResult.response) {
@@ -518,7 +552,8 @@ export default function ChatPage() {
           chat_session_title: inputValue.length > 50 ? inputValue.substring(0, 50) + '...' : inputValue,
           msg_input: inputValue,
           msg_output: treatedResponse,
-          user_id: user.id
+          user_id: user.id,
+          agent_type: currentAgentType // ✅ NOVO: Incluir agent_type
         }, updateMessageStatus, userMessage.id);
 
       } catch (error) {
@@ -797,16 +832,21 @@ export default function ChatPage() {
           currentSessionId={currentSessionId}
         />
         
-        {/* Área de chat à direita */}
-        <ChatArea 
-          messages={messages}
-          setMessages={setMessages}
-          isLoading={isLoading}
-          setIsLoading={setIsLoading}
-          isWelcomeMode={isWelcomeMode}
-          onFirstMessage={handleFirstMessage}
-          currentSessionId={currentSessionId}
-        />
+        {/* ✅ NOVO: Renderização condicional - WelcomeChat ou ChatArea */}
+        {showWelcomeChat ? (
+          <WelcomeChat onAgentSelect={handleAgentSelect} />
+        ) : (
+          <ChatArea 
+            messages={messages}
+            setMessages={setMessages}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+            isWelcomeMode={isWelcomeMode}
+            onFirstMessage={handleFirstMessage}
+            currentSessionId={currentSessionId}
+            currentAgentType={currentAgentType}
+          />
+        )}
       </div>
     </div>
   );
