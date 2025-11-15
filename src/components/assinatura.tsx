@@ -16,8 +16,8 @@ export default function Assinatura({ className }: AssinaturaProps) {
           <div className="space-y-4 relative">
             <h3 className="text-lg font-semibold text-stone-50">Sobre o Dante IA</h3>
             <p className="text-sm text-gray-300 max-w-80">
-              Dante é uma IA avançada especializada em fornecer embasamento jurídico para cartórios e registros imobiliários. 
-              Oferecemos respostas objetivas, concisas e rigorosamente baseadas na legislação vigente.
+              Dante é uma inteligência artificial jurídica construída sobre bases sólidas: legalidade, segurança e atualização normativa contínua.
+              Especializado em registros imobiliários e Tabelionato de Notas, oferecendo embasamento confiável e fundamentação jurídica precisa para cada decisão.
             </p>
             {/* Vertical separator after column 1 - desktop only */}
             <div className="hidden md:block absolute top-0 -right-6 w-px h-full bg-white/20"></div>
