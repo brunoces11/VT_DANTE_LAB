@@ -166,7 +166,7 @@ export default function BaseLegal() {
               <div className="flex justify-center space-x-6 text-sm text-neutral-500">
                 <span>• Monitoramento diário</span>
                 <span>• Validação jurídica</span>
-                <span>• Atualização automática</span>
+                <span>• Atualização constante</span>
               </div>
             </div>
           </div>
