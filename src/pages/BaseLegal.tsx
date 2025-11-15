@@ -80,24 +80,6 @@ export default function BaseLegal() {
             </p>
           </div>
 
-          {/* Visão Legalista Card */}
-          <div className="mb-12">
-            <div className="bg-neutral-50 rounded-lg border border-neutral-200 p-8">
-              <h2 className="text-2xl font-bold text-neutral-900 mb-4">
-                Visão Legalista Pura e Simples da Lei
-              </h2>
-              <p className="text-neutral-700 mb-4">
-                O Dante foi desenvolvido com uma abordagem rigorosamente legalista: interpretar e aplicar exclusivamente o que a lei determina, sem interpretações subjetivas ou opiniões pessoais.
-              </p>
-              <p className="text-neutral-700 mb-4">
-                Nossa IA segue o rigor hierárquico das normas jurídicas, retornando de forma clara e direta o que a legislação vigente estabelece sobre cada procedimento registral. Isso permite que profissionais de cartório tenham acesso a uma fonte confiável e atualizada da base legal atual.
-              </p>
-              <p className="text-neutral-700">
-                <strong>Importante:</strong> Você, como profissional de cartório, mantém total liberdade para aplicar as leis conforme sua interpretação e experiência. O Dante serve como base de apoio para auxiliar sua serventia no suporte e tomadas de decisão fundamentadas.
-              </p>
-            </div>
-          </div>
-
           {/* Timeline */}
           <div className="bg-white rounded-lg shadow-sm border border-neutral-200">
             <div className="p-6 border-b border-neutral-200">
