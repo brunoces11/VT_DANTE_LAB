@@ -72,12 +72,11 @@ export default function BaseLegal() {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-neutral-900 mb-4">
-              Base Legal - Atualizações do Dataset
+              Base Legal — Atualizações do Dataset
             </h1>
             <p className="text-lg text-neutral-600 max-w-3xl mx-auto">
-              Acompanhe as atualizações mais recentes da base legal do Dante AI. 
-              Nossa IA é constantemente atualizada com as últimas mudanças na legislação 
-              de Registro de Imóveis.
+              Transparência e atualização contínua são pilares do Dante-IA.
+              Nosso dataset é revisado periodicamente com base nas mudanças legislativas e orientações da Corregedoria e do CNJ, mantendo a atuação da IA segura, legalista e tecnicamente precisa.
             </p>
           </div>
 
