@@ -125,7 +125,8 @@ export default function Header() {
                 >
                   Planos
                 </button> */}
-                <span className="text-amber-900">|</span>
+                {/* TEMPORARIAMENTE OCULTO - SERÁ REATIVADO POSTERIORMENTE */}
+                {/* <span className="text-amber-900">|</span>
                 <button
                   onClick={() => navigate('/contato')}
                   className={`text-sm font-medium px-3 py-2 rounded-md transition-colors hover:bg-neutral-100 ${
@@ -135,7 +136,7 @@ export default function Header() {
                   }`}
                 >
                   Contato
-                </button>
+                </button> */}
                 {role === 'sadmin' && (
                   <>
                     <span className="text-amber-900">|</span>
@@ -282,7 +283,8 @@ export default function Header() {
                 >
                   Planos
                 </button> */}
-                <button
+                {/* TEMPORARIAMENTE OCULTO - SERÁ REATIVADO POSTERIORMENTE */}
+                {/* <button
                   onClick={() => {
                     setIsMenuOpen(false);
                     navigate('/contato');
@@ -294,7 +296,7 @@ export default function Header() {
                   }`}
                 >
                   Contato
-                </button>
+                </button> */}
                 {role === 'sadmin' && (
                   <div ref={labDropdownMobileRef}>
                     <button
