@@ -48,8 +48,8 @@ export default function Hero() {
             {/* Main headline */}
             <h1 className="font-display text-3xl tracking-tight text-neutral-900 sm:text-4xl leading-[1.9] mt-[25px] mb-[15px]">
               <span className="block font-light">IA Especializada em</span>
-              <span className="block relative mt-2">
-                <span className="font-bold relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent" style={{ fontSize: '127%' }}>
+              <span className="block relative" style={{ marginTop: '18px' }}>
+                <span className="font-bold relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent" style={{ fontSize: '146%' }}>
                   Extra Judicial
                 </span>
                 <span className="absolute -bottom-2 left-0 right-0 h-3 bg-orange-500/20 -z-10"></span>
@@ -57,7 +57,7 @@ export default function Hero() {
             </h1>
 
             {/* Subtitle */}
-            <p className="mx-auto mt-6 text-[1.1rem] leading-8 text-neutral-700 max-w-[655px]">
+            <p className="mx-auto mt-6 text-[1.1rem] leading-8 text-neutral-700 max-w-[600px]">
               Dante-IA é um assistente jurídico treinado exclusivamente em Extra Judicial,
               pronto para transformar a forma como você decide, qualifica e fundamenta seus atos.
             </p>
