@@ -1,31 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Testimonials() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const testimonials = [
     {
-      name: "Dr. Carlos Mendes",
-      role: "Oficial de Registro de Imóveis",
-      location: "São Paulo, SP",
-      content: "O conteúdo de atualização semanal (WEBINAR) com transmissões de novas normatizações e questões de Registro de Imóveis completas, onde qualificação de registrar das mais complexas às mais simples foi exemplar.",
+      name: "Dr. Jefferson Kuhnen",
+      role: "Advogado especialista em direito registral e notarial",
+      location: "OfficerSoft - Soluções tecnológicas para Ofícios Extrajudiciais",
+      content: "Antes do Dante, conferir a base legal correta, elaborar minutas e manter agilidade no atendimento exigia muito tempo de pesquisa, principalmente em casos específicos e normas esparsas. Com o Dante, consigo consultar rapidamente a legislação aplicável e apresentar toda a fundamentação jurídica em poucos minutos, tornando o atendimento mais rápido, seguro e claro para o cliente. A produtividade aumentou de forma significativa e hoje recomendo o uso do Dante a todos os profissionais da área extrajudicial, especialmente quem atua em cartórios e lida diariamente com dúvidas jurídicas variadas.",
       rating: 5,
       image: "https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=150"
     },
     {
-      name: "Ana Paula Silva",
-      role: "Registradora Titular",
-      location: "Rio de Janeiro, RJ",
-      content: "Dante eficientemente, sempre foi útil quando precisei consultá-lo sobre procedimentos de registros imobiliários. Tudo que eu quero de resposta é realmente o que Dante me fornece sempre eficiente e específico.",
+      name: "Dr. Guilherme Cattani da Silva",
+      role: "Substituto Legal",
+      location: "Tabelionato de Notas e Registro Civil de Schroeder/Comarca de Jaraguá do Sul/SC",
+      content: "No Tabelionato de Schroeder, o Dante ajudou a padronizar a rotina de estudo e fundamentação jurídica, especialmente com colaboradores que não têm formação em direito. Hoje, todos são orientados a buscar a base legal no Dante, ler a legislação correlata e, a partir disso, construir a solução para o caso concreto. Em temas mais complexos, como a forma de cobrança em permuta por construção sem definição de unidades, o Dante apresentou decisão do COPEX e uma linha de raciocínio clara, trazendo agilidade e segurança nos entendimentos. Usamos muito IA atualmente, e ter uma ferramenta especializada na nossa área, que permite essa 'troca de ideias' jurídica, é um grande diferencial.",
       rating: 5,
       image: "https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150"
     },
     {
-      name: "Roberto Costa",
-      role: "Diretor de Cartório",
-      location: "Belo Horizonte, MG",
-      content: "Sempre o cliente está sendo atendido pela primeira vez. O atendimento é sempre melhor do que simplesmente apresentar os documentos exigidos, pois é sempre questionado cada passo e o objetivo é sempre a satisfação total do cliente.",
+      name: "Alessandra de Liz",
+      role: "Substituta Legal",
+      location: "Tabelionato de Notas e Protestos de Florianópolis/SC",
+      content: "Como conteudista, usuária do Dante-IA e profissional da área extrajudicial, vejo diariamente o quanto essa inteligência se tornou um aliado indispensável. Ele compreende a linguagem das normas, respeita a legalidade e traduz as Leis de Registros Públicos em respostas seguras e tecnicamente precisas. Mais do que uma ferramenta, o Dante representa a união entre conhecimento jurídico e inovação, um avanço que fortalece a fé pública no ambiente digital.",
       rating: 5,
       image: "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150"
     }
@@ -41,6 +43,28 @@ export default function Testimonials() {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
     );
+  };
+
+  useEffect(() => {
+    if (!isPaused) {
+      intervalRef.current = setInterval(() => {
+        nextTestimonial();
+      }, 3000);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPaused, currentIndex]);
+
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsPaused(false);
   };
 
   const currentTestimonial = testimonials[currentIndex];
@@ -63,7 +87,11 @@ export default function Testimonials() {
         </div>
 
         {/* Carousel Container */}
-        <div className="relative max-w-4xl mx-auto">
+        <div
+          className="relative max-w-4xl mx-auto"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           {/* Navigation Buttons */}
           <button
             onClick={prevTestimonial}
