@@ -1,7 +1,9 @@
-import React from 'react';
-import { Star, Quote } from 'lucide-react';
+import React, { useState } from 'react';
+import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Testimonials() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const testimonials = [
     {
       name: "Dr. Carlos Mendes",
@@ -14,7 +16,7 @@ export default function Testimonials() {
     {
       name: "Ana Paula Silva",
       role: "Registradora Titular",
-      location: "Rio de Janeiro, RJ", 
+      location: "Rio de Janeiro, RJ",
       content: "Dante eficientemente, sempre foi útil quando precisei consultá-lo sobre procedimentos de registros imobiliários. Tudo que eu quero de resposta é realmente o que Dante me fornece sempre eficiente e específico.",
       rating: 5,
       image: "https://images.pexels.com/photos/3769021/pexels-photo-3769021.jpeg?auto=compress&cs=tinysrgb&w=150"
@@ -29,6 +31,20 @@ export default function Testimonials() {
     }
   ];
 
+  const nextTestimonial = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevTestimonial = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
+    );
+  };
+
+  const currentTestimonial = testimonials[currentIndex];
+
   return (
     <section className="py-20 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -41,53 +57,87 @@ export default function Testimonials() {
             Confiado por profissionais de cartório
           </h2>
           <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
-            Veja como profissionais estão transformando seus procedimentos registrais 
+            Veja como profissionais estão transformando seus procedimentos registrais
             com o Dante AI.
           </p>
         </div>
 
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <div key={index} className="bg-neutral-50 rounded-2xl p-8 relative">
-              {/* Quote Icon */}
-              <div className="absolute top-6 right-6">
-                <Quote className="h-6 w-6 text-orange-200" />
-              </div>
+        {/* Carousel Container */}
+        <div className="relative max-w-4xl mx-auto">
+          {/* Navigation Buttons */}
+          <button
+            onClick={prevTestimonial}
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-12 z-10 bg-white hover:bg-orange-50 text-neutral-700 hover:text-orange-600 rounded-full p-3 shadow-lg transition-all duration-200 hover:scale-110"
+            aria-label="Depoimento anterior"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
 
-              {/* Rating */}
-              <div className="flex space-x-1 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-orange-400 text-orange-400" />
+          <button
+            onClick={nextTestimonial}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-12 z-10 bg-white hover:bg-orange-50 text-neutral-700 hover:text-orange-600 rounded-full p-3 shadow-lg transition-all duration-200 hover:scale-110"
+            aria-label="Próximo depoimento"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+
+          {/* Testimonial Card */}
+          <div className="bg-neutral-50 rounded-2xl p-12 relative transition-all duration-300">
+            {/* Quote Icon */}
+            <div className="absolute top-8 right-8">
+              <Quote className="h-8 w-8 text-orange-200" />
+            </div>
+
+            {/* Rating */}
+            <div className="flex justify-center mb-6">
+              <div className="flex space-x-1">
+                {Array.from({ length: currentTestimonial.rating }).map((_, i) => (
+                  <Star key={i} className="h-5 w-5 fill-orange-400 text-orange-400" />
                 ))}
               </div>
+            </div>
 
-              {/* Content */}
-              <blockquote className="text-neutral-700 mb-6 leading-relaxed">
-                "{testimonial.content}"
-              </blockquote>
+            {/* Content */}
+            <blockquote className="text-neutral-700 text-lg leading-relaxed mb-8 text-center max-w-3xl mx-auto">
+              "{currentTestimonial.content}"
+            </blockquote>
 
-              {/* Author */}
-              <div className="flex items-center space-x-3">
-                <img
-                  src={testimonial.image}
-                  alt={testimonial.name}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <div className="font-semibold text-neutral-900">
-                    {testimonial.name}
-                  </div>
-                  <div className="text-sm text-neutral-600">
-                    {testimonial.role}
-                  </div>
-                  <div className="text-sm text-neutral-500">
-                    {testimonial.location}
-                  </div>
+            {/* Author */}
+            <div className="flex flex-col items-center space-y-4">
+              <img
+                src={currentTestimonial.image}
+                alt={currentTestimonial.name}
+                className="w-16 h-16 rounded-full object-cover"
+              />
+              <div className="text-center">
+                <div className="font-semibold text-neutral-900 text-lg">
+                  {currentTestimonial.name}
+                </div>
+                <div className="text-sm text-neutral-600 mt-1">
+                  {currentTestimonial.role}
+                </div>
+                <div className="text-sm text-neutral-500">
+                  {currentTestimonial.location}
                 </div>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* Carousel Indicators */}
+          <div className="flex justify-center mt-8 space-x-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? 'w-8 bg-orange-500'
+                    : 'w-2 bg-neutral-300 hover:bg-neutral-400'
+                }`}
+                aria-label={`Ir para depoimento ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Final CTA */}
