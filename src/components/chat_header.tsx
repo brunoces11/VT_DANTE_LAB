@@ -29,7 +29,7 @@ export default function ChatHeader() {
         {/* Logo no canto esquerdo */}
         <button
           onClick={() => navigate('/')}
-          className="hover:opacity-80 transition-opacity ml-[25px]"
+          className="hover:opacity-80 transition-opacity ml-[45px]"
         >
           <img
             src={theme === 'dark'
