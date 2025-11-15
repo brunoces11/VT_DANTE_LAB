@@ -25,7 +25,7 @@ export default function ChatHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 max-h-[60px] h-[60px] w-full bg-muted border-b border-border">
-      <div className="flex items-center justify-between h-full pl-4 pr-6">
+      <div className="flex items-center justify-between h-full pr-6">
         {/* Logo no canto esquerdo */}
         <button
           onClick={() => navigate('/')}
