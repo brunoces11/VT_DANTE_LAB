@@ -55,7 +55,7 @@ export default function Hero() {
             </h1>
 
             {/* Subtitle */}
-            <p className="mx-auto mt-6 text-[1.1rem] leading-8 text-neutral-700 max-w-[600px]">
+            <p className="mx-auto mt-6 text-[1.1rem] leading-8 text-neutral-700 max-w-[655px]">
               Dante-IA é um assistente jurídico treinado exclusivamente em Registro de Imóveis,
               pronto para transformar a forma como você decide, qualifica e fundamenta seus atos.
             </p>
