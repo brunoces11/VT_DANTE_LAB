@@ -10,6 +10,7 @@ interface ChatMessage {
 interface ChatSession {
   chat_session_id: string;
   chat_session_title: string;
+  agent_type?: string;
   messages: ChatMessage[];
 }
 
@@ -77,7 +78,7 @@ Deno.serve(async (req) => {
     // Query chat sessions
     const { data: sessions, error: sessionsError } = await supabaseClient
       .from('tab_chat_session')
-      .select('chat_session_id, chat_session_title')
+      .select('chat_session_id, chat_session_title, agent_type')
       .eq('user_id', user_id)
       .order('session_time', { ascending: false })
 
@@ -110,6 +111,7 @@ Deno.serve(async (req) => {
           return {
             chat_session_id: session.chat_session_id,
             chat_session_title: session.chat_session_title,
+            agent_type: session.agent_type || 'dante-ri',
             messages: []
           }
         }
@@ -117,6 +119,7 @@ Deno.serve(async (req) => {
         return {
           chat_session_id: session.chat_session_id,
           chat_session_title: session.chat_session_title,
+          agent_type: session.agent_type || 'dante-ri',
           messages: (messages as ChatMessage[]) || []
         }
       })

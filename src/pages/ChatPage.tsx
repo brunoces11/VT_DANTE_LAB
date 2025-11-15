@@ -304,39 +304,51 @@ export default function ChatPage() {
   const fun_load_chat_session = (sessionId: string) => {
     try {
       console.log(`🔄 Carregando mensagens da sessão: ${sessionId}`);
-      
+
       // Procurar mensagens nos dados do servidor (já carregados)
       const session = chats.find(chat => chat.id === sessionId);
-      
+
       if (!session) {
-        console.log('📭 Sessão não encontrada');
+        console.log('📭 Sessão não encontrada nos chats');
         setMessages([]);
         setCurrentSessionId(sessionId);
         setIsWelcomeMode(false);
-        
+
         // 🎯 PERSISTIR estado no cache
         persistUIState(sessionId, false);
         return;
       }
-      
+
       // ✅ v2.0: Buscar mensagens do cache ou window.__serverData (transição)
       const serverData = (window as any).__serverData;
-      
+
+      console.log('🔍 Verificando __serverData:', {
+        exists: !!serverData,
+        hasSessions: !!serverData?.chat_sessions,
+        sessionsCount: serverData?.chat_sessions?.length || 0
+      });
+
       if (serverData?.chat_sessions) {
         const serverSession = serverData.chat_sessions.find((s: any) => s.chat_session_id === sessionId);
-        
+
+        console.log('🔍 Sessão encontrada no servidor:', {
+          found: !!serverSession,
+          hasMessages: !!serverSession?.messages,
+          messageCount: serverSession?.messages?.length || 0
+        });
+
         // ✅ NOVO: Carregar agent_type da sessão (com fallback para 'dante-ri')
         const chatAgentType = serverSession?.agent_type || 'dante-ri';
         setCurrentAgentType(chatAgentType);
         console.log(`🤖 Chat carregado com agente: ${chatAgentType}`);
-        
+
         if (serverSession?.messages && serverSession.messages.length > 0) {
           console.log(`✅ ${serverSession.messages.length} mensagens encontradas no servidor`);
-          
+
           // Converter mensagens do servidor para formato Message
           const convertedMessages: Message[] = [];
           let messageId = 1;
-          
+
           serverSession.messages.forEach((msg: any) => {
             // Mensagem do usuário
             if (msg.msg_input) {
@@ -348,7 +360,7 @@ export default function ChatPage() {
                 status: 'sent'
               });
             }
-            
+
             // Resposta do bot
             if (msg.msg_output) {
               convertedMessages.push({
@@ -359,28 +371,32 @@ export default function ChatPage() {
               });
             }
           });
-          
+
           setMessages(convertedMessages);
           setCurrentSessionId(sessionId);
           setIsWelcomeMode(false);
-          
+
           // 🎯 PERSISTIR estado no cache
           persistUIState(sessionId, false);
-          
-          console.log(`✅ ${convertedMessages.length} mensagens carregadas`);
+
+          console.log(`✅ ${convertedMessages.length} mensagens carregadas para exibição`);
           return;
+        } else {
+          console.log('⚠️ Sessão encontrada mas sem mensagens');
         }
+      } else {
+        console.log('⚠️ __serverData não disponível ou sem sessões');
       }
-      
+
       // Fallback: sem mensagens mas sessão válida
       console.log('📭 Nenhuma mensagem encontrada, mas sessão válida');
       setMessages([]);
       setCurrentSessionId(sessionId);
       setIsWelcomeMode(false);
-      
+
       // 🎯 PERSISTIR estado no cache
       persistUIState(sessionId, false);
-      
+
     } catch (error) {
       console.error('❌ Erro ao carregar mensagens da sessão:', error);
       setMessages([]);
