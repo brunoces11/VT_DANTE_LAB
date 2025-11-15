@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -77,14 +77,15 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <button 
+              <button
                 onClick={() => navigate('/')}
-                className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+                className="hover:opacity-80 transition-opacity"
               >
-                <div className="p-2 rounded-lg" style={{ backgroundColor: '#3D1413' }}>
-                  <Brain className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-2xl font-bold text-neutral-900">Dante-IA</span>
+                <img
+                  src="/src/assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
+                  alt="Dante-IA"
+                  className="h-10 w-auto"
+                />
               </button>
             </div>
 
