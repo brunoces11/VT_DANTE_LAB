@@ -8,11 +8,11 @@ export default function Features() {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-4">
-            Tudo que você precisa para o Registro de Imóveis
+            Excelência técnica aplicada ao Registro de Imóveis
           </h2>
           <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
-            Nossa IA combina conhecimento jurídico especializado com tecnologia 
-            avançada para entregar respostas precisas e fundamentadas.
+            Dante-IA combina legislação atualizada, prática registral e inteligência artificial
+            para oferecer respostas seguras, objetivas e sempre fundamentadas.
           </p>
         </div>
 
@@ -26,11 +26,11 @@ export default function Features() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                  IA Especializada
+                  Conhecimento registral em tempo real
                 </h3>
                 <p className="text-neutral-600 mb-4">
-                  Dante é treinado exclusivamente em legislação e procedimentos de 
-                  Registro de Imóveis.
+                  Treinado em normas, provimentos e prática registral — responde como
+                  um especialista, atua como um reforço técnico.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2 text-sm text-neutral-700">
@@ -90,11 +90,11 @@ export default function Features() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                  Base Legal Completa
+                  Dante-IA fala a língua do Registro de Imóveis
                 </h3>
                 <p className="text-neutral-600 mb-4">
-                  Atualizada rigorosamente das leis, jurisprudências legislação 
-                  federal e estadual e normas do CNJ.
+                  Não é genérico. É técnico, normativo e fundamentado.
+                  Feito para quem decide com base na lei — e no detalhe.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2 text-sm text-neutral-700">
@@ -122,11 +122,11 @@ export default function Features() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                  Segurança Jurídica
+                  Precisão absoluta no Registro de Imóveis
                 </h3>
                 <p className="text-neutral-600 mb-4">
-                  Garante confiabilidade e segurança nos procedimentos registrais, 
-                  evitando erros e flexões.
+                  Inteligência artificial construída sobre bases sólidas: legalidade,
+                  segurança e atualização normativa contínua.
                 </p>
                 <ul className="space-y-2">
                   <li className="flex items-center gap-2 text-sm text-neutral-700">

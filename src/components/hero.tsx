@@ -56,19 +56,15 @@ export default function Hero() {
 
             {/* Subtitle */}
             <p className="mx-auto mt-6 text-[1.1rem] leading-8 text-neutral-700 max-w-[600px]">
-              Dante é uma IA avançada especializada fornecer embasamento jurídico para cartórios e registros imobiliários
-              Respostas objetivas, concisas e rigorosamente baseadas na legislação vigente.
+              Dante-IA é um assistente jurídico treinado exclusivamente em Registro de Imóveis,
+              pronto para transformar a forma como você decide, qualifica e fundamenta seus atos.
             </p>
 
             {/* CTA Buttons */}
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button size="lg" className="bg-neutral-400 text-white hover:bg-neutral-600 px-6 py-3 text-base">
-                Comece grátis
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
               <Button variant="outline" size="lg" className="px-6 py-3 text-base border-neutral-300 hover:border-neutral-400 bg-white/80 backdrop-blur-sm text-neutral-700 hover:text-neutral-800">
                 <Play className="mr-2 h-4 w-4 text-neutral-700" />
-                Ver demonstração
+                Solicitar Demonstração
               </Button>
             </div>
 
