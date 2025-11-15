@@ -98,13 +98,6 @@ export default function QuemSomosPage() {
             </div>
           </section>
 
-          {/* Tagline */}
-          <div className="text-center mb-16">
-            <p className="text-2xl font-semibold text-amber-700 italic">
-              Dante — inovação que respeita a lei.
-            </p>
-          </div>
-
           {/* Nosso Time Section */}
           <section className="mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-10 text-center">Nosso Time</h2>
