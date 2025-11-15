@@ -47,15 +47,14 @@ export default function QuemSomosPage() {
 
           {/* Nosso Time Section */}
           <section className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Sócios</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
               {nossoTime.map((pessoa, index) => {
                 return (
-                  <div key={index} className="bg-gray-50 rounded-lg p-6 text-center hover:shadow-md transition-shadow">
+                  <div key={index} className="bg-gray-50 rounded-lg p-8 text-center hover:shadow-md transition-shadow">
                     <div className="flex justify-center mb-4">
                       {/* Photo Placeholder */}
-                      <div className="w-20 h-20 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center border-2 border-gray-300">
-                        <User className="w-10 h-10 text-gray-500" />
+                      <div className="w-24 h-24 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center border-2 border-gray-300">
+                        <User className="w-12 h-12 text-gray-500" />
                       </div>
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">{pessoa.nome}</h3>
