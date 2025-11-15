@@ -27,7 +27,7 @@ export default function Hero() {
           backgroundPosition: 'center top',
           backgroundRepeat: 'no-repeat',
           backgroundSize: '100% auto',
-          minHeight: '550px'
+          minHeight: '530px'
         }}
       >
         {/* Background overlay for better text readability - reduced opacity from 80% to 40% */}
@@ -46,7 +46,7 @@ export default function Hero() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="mx-auto max-w-2xl text-center">
             {/* Main headline */}
-            <h1 className="font-display text-3xl tracking-tight text-neutral-900 sm:text-4xl leading-[1.9] mt-[25px] mb-[15px]">
+            <h1 className="font-display text-3xl tracking-tight text-neutral-900 sm:text-4xl leading-[1.9] mt-[50px] mb-[15px]">
               <span className="block font-light">IA Especializada em</span>
               <span className="block relative" style={{ marginTop: '18px' }}>
                 <span className="font-bold relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent" style={{ fontSize: '146%' }}>
