@@ -49,7 +49,7 @@ export default function Hero() {
             <h1 className="font-display text-3xl tracking-tight text-neutral-900 sm:text-4xl leading-[1.9] mt-[25px] mb-[15px]">
               <span className="block font-light">IA Especializada em</span>
               <span className="block relative mt-2">
-                <span className="font-bold relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent" style={{ fontSize: '115%' }}>
+                <span className="font-bold relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent" style={{ fontSize: '127%' }}>
                   Extra Judicial
                 </span>
                 <span className="absolute -bottom-2 left-0 right-0 h-3 bg-orange-500/20 -z-10"></span>
