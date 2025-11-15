@@ -8,7 +8,7 @@ interface AssinaturaProps {
 
 export default function Assinatura({ className }: AssinaturaProps) {
   return (
-    <footer className={`text-white py-12 ${className || ''}`} style={{ backgroundColor: '#1a0f0a' }}>
+    <footer className={`text-white py-12 ${className || ''}`} style={{ backgroundColor: '#262626' }}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Three Column Grid Layout with Visual Separators */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
