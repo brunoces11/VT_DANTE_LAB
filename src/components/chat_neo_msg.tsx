@@ -68,40 +68,24 @@ export default function ChatNeoMsg({ onFirstMessage, isLoading, agentType }: Cha
     <div className="flex-1 flex flex-col items-center justify-center bg-background px-8">
       <div className="w-full max-w-[800px] text-center">
         {/* Welcome Title */}
-        <div className="mb-8">
-          <div className="mb-4 flex justify-center">
+        <div className="mb-12">
+          <div className="mb-6 flex justify-center">
             {agentType === 'dante-ri' ? (
-              <Home className="h-16 w-16 text-orange-500" />
+              <Home className="h-20 w-20 text-orange-500" />
             ) : (
-              <ScrollText className="h-16 w-16 text-blue-500" />
+              <ScrollText className="h-20 w-20 text-blue-500" />
             )}
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-4">
+          <h1 className="font-bold text-foreground mb-6 text-[1.8rem] md:text-[2.2rem]">
             {agentConfig.title}
           </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed">
+          <p className="text-xl text-muted-foreground leading-relaxed max-w-[700px] mx-auto">
             {agentConfig.description}
           </p>
-          <div className="mt-4 inline-block px-4 py-2 bg-muted rounded-full">
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-6 inline-block px-6 py-3 bg-muted rounded-full">
+            <p className="text-base text-muted-foreground">
               🤖 Agente ativo: <strong className="text-foreground">{agentConfig.title}</strong>
             </p>
-          </div>
-        </div>
-
-        {/* Suggestions - Renderizadas dinamicamente */}
-        <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[600px] mx-auto">
-            {agentConfig.suggestions.map((suggestion, index) => (
-              <div 
-                key={index}
-                className={`bg-muted rounded-lg p-4 text-left border border-border hover:border-${agentConfig.color}-300 transition-colors cursor-pointer`}
-                onClick={() => setInputValue(suggestion.prompt)}
-              >
-                <h3 className="font-semibold text-foreground mb-2">{suggestion.title}</h3>
-                <p className="text-sm text-muted-foreground">{suggestion.description}</p>
-              </div>
-            ))}
           </div>
         </div>
 
