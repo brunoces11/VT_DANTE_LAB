@@ -76,7 +76,7 @@ export default function Header() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center">
+            <div className="flex items-center ml-[25px]">
               <button
                 onClick={() => navigate('/')}
                 className="hover:opacity-80 transition-opacity"
@@ -84,7 +84,7 @@ export default function Header() {
                 <img
                   src="/src/assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
                   alt="Dante-IA"
-                  className="h-10 w-auto"
+                  className="h-[46px] w-auto"
                 />
               </button>
             </div>

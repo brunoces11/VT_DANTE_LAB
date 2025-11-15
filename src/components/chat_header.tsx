@@ -29,7 +29,7 @@ export default function ChatHeader() {
         {/* Logo no canto esquerdo */}
         <button
           onClick={() => navigate('/')}
-          className="hover:opacity-80 transition-opacity"
+          className="hover:opacity-80 transition-opacity ml-[25px]"
         >
           <img
             src={theme === 'dark'
@@ -37,7 +37,7 @@ export default function ChatHeader() {
               : "/src/assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
             }
             alt="Dante-IA"
-            className="h-9 w-auto"
+            className="h-[41px] w-auto"
           />
         </button>
 
