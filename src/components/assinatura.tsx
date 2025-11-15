@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Instagram, Linkedin, Youtube } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface AssinaturaProps {
   className?: string;
@@ -69,35 +70,51 @@ export default function Assinatura({ className }: AssinaturaProps) {
               </div>
               
               {/* Social Media Icons */}
-              <div className="flex space-x-8 pt-2">
-                <a 
-                  href="https://instagram.com/dante-ia" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-orange-300 transition-colors"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://linkedin.com/company/dante-ia" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-orange-300 transition-colors"
-                  aria-label="LinkedIn"
-                >
-                  <Linkedin className="w-6 h-6" />
-                </a>
-                <a 
-                  href="https://youtube.com/@dante-ia" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-orange-300 transition-colors"
-                  aria-label="YouTube"
-                >
-                  <Youtube className="w-6 h-6" />
-                </a>
-              </div>
+              <TooltipProvider>
+                <div className="flex space-x-8 pt-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className="text-gray-400 cursor-not-allowed opacity-60"
+                        aria-label="Instagram"
+                      >
+                        <Instagram className="w-6 h-6" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Em breve</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className="text-gray-400 cursor-not-allowed opacity-60"
+                        aria-label="LinkedIn"
+                      >
+                        <Linkedin className="w-6 h-6" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Em breve</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className="text-gray-400 cursor-not-allowed opacity-60"
+                        aria-label="YouTube"
+                      >
+                        <Youtube className="w-6 h-6" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Em breve</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </TooltipProvider>
             </div>
           </div>
         </div>
