@@ -82,7 +82,7 @@ export default function Header() {
                 className="hover:opacity-80 transition-opacity"
               >
                 <img
-                  src="/src/assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
+                  src="./assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
                   alt="Dante-IA"
                   className="h-[46px] w-auto"
                 />

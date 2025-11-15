@@ -33,8 +33,8 @@ export default function ChatHeader() {
         >
           <img
             src={theme === 'dark'
-              ? "/src/assets/DANTE_IA_LOGO_DARK_MODE.svg"
-              : "/src/assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
+              ? "./assets/DANTE_IA_LOGO_DARK_MODE.svg"
+              : "./assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
             }
             alt="Dante-IA"
             className="h-[41px] w-auto"
