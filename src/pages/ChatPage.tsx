@@ -528,6 +528,7 @@ export default function ChatPage() {
         addSessionToCache({
           id: newSessionId,
           title: inputValue.length > 50 ? inputValue.substring(0, 50) + '...' : inputValue,
+          agent_type: currentAgentType, // ✅ Incluir tipo de agente
           message_count: 2, // user + bot
           last_updated: getCurrentTimestampUTC()
         });

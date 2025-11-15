@@ -7,6 +7,7 @@ interface ChatSaveRequest {
   msg_input: string;
   msg_output: string;
   user_id: string;
+  agent_type?: string; // Tipo do agente (dante-ri, dante-notas, etc)
 }
 
 Deno.serve(async (req: Request) => {
@@ -75,7 +76,7 @@ Deno.serve(async (req: Request) => {
     const requestData: ChatSaveRequest = await req.json();
 
     // Validar dados obrigatórios
-    const { chat_session_id, chat_session_title, msg_input, msg_output, user_id } = requestData;
+    const { chat_session_id, chat_session_title, msg_input, msg_output, user_id, agent_type } = requestData;
 
     if (!chat_session_id || !chat_session_title || !msg_input || !msg_output || !user_id) {
       return new Response(
@@ -116,7 +117,8 @@ Deno.serve(async (req: Request) => {
         .insert({
           chat_session_id: chat_session_id,
           chat_session_title: chat_session_title,
-          user_id: user_id
+          user_id: user_id,
+          agent_type: agent_type || 'dante-ri' // Default para dante-ri
         });
 
       if (sessionError) {
@@ -142,7 +144,8 @@ Deno.serve(async (req: Request) => {
         chat_session_id: chat_session_id,
         user_id: user_id,
         msg_input: msg_input,
-        msg_output: msg_output
+        msg_output: msg_output,
+        agent_type: agent_type || 'dante-ri' // Default para dante-ri
       })
       .select('chat_msg_id')
       .single();
