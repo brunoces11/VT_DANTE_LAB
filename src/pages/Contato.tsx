@@ -18,7 +18,7 @@ export default function Contato() {
               Contato | Formulário Inteligente
             </h1>
             <p className="text-lg text-neutral-600 max-w-3xl mx-auto leading-relaxed">
-              Converse com nossa IA de atendimento e obtenha respostas instantâneas para suas dúvidas sobre funcionalidades, planos, implementação ou qualquer aspecto do Dante AI.
+              Converse com nossa IA de atendimento e obtenha respostas instantâneas para suas dúvidas sobre funcionalidades, planos, implementação ou qualquer aspecto do Dante IA.
             </p>
           </div>
 
@@ -73,7 +73,7 @@ export default function Contato() {
               Ainda tem dúvidas?
             </h2>
             <p className="text-neutral-300 mb-6 max-w-2xl mx-auto">
-              Nossa equipe está pronta para ajudar você a implementar o Dante AI 
+              Nossa equipe está pronta para ajudar você a implementar o Dante IA
               no seu cartório. Agende uma demonstração personalizada!
             </p>
             <Button className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3">
