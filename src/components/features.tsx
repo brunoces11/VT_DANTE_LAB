@@ -8,7 +8,7 @@ export default function Features() {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-neutral-900 sm:text-4xl mb-4">
-            Excelência técnica aplicada ao Registro de Imóveis
+            Excelência técnica aplicada ao Extra Judicial
           </h2>
           <p className="text-lg text-neutral-600 max-w-2xl mx-auto">
             Dante-IA combina legislação atualizada, prática registral e inteligência artificial
@@ -90,7 +90,7 @@ export default function Features() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                  Dante-IA fala a língua do Registro de Imóveis
+                  Dante-IA fala a língua do Extra Judicial
                 </h3>
                 <p className="text-neutral-600 mb-4">
                   Não é genérico. É técnico, normativo e fundamentado.
@@ -122,7 +122,7 @@ export default function Features() {
               </div>
               <div className="flex-1">
                 <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                  Precisão absoluta no Registro de Imóveis
+                  Precisão absoluta no Extra Judicial
                 </h3>
                 <p className="text-neutral-600 mb-4">
                   Inteligência artificial construída sobre bases sólidas: legalidade,
@@ -166,7 +166,7 @@ export default function Features() {
             </div>
             <h4 className="font-semibold text-neutral-900 mb-2">Suporte Especializado</h4>
             <p className="text-sm text-neutral-600">
-              Evolui e se mantém atualizada no Registro de Imóveis sem uma complexa 
+              Evolui e se mantém atualizada no Extra Judicial sem uma complexa
               compilação.
             </p>
           </div>

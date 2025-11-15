@@ -48,7 +48,7 @@ export default function Hero() {
               <span className="block">IA Especializada em</span>
               <span className="block relative mt-2">
                 <span className="font-bold sm:text-5xl relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent">
-                  Registro de Imóveis
+                  Extra Judicial
                 </span>
                 <span className="absolute -bottom-2 left-0 right-0 h-3 bg-orange-500/20 -z-10"></span>
               </span>
@@ -56,7 +56,7 @@ export default function Hero() {
 
             {/* Subtitle */}
             <p className="mx-auto mt-6 text-[1.1rem] leading-8 text-neutral-700 max-w-[655px]">
-              Dante-IA é um assistente jurídico treinado exclusivamente em Registro de Imóveis,
+              Dante-IA é um assistente jurídico treinado exclusivamente em Extra Judicial,
               pronto para transformar a forma como você decide, qualifica e fundamenta seus atos.
             </p>
 
