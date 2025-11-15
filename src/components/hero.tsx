@@ -46,10 +46,10 @@ export default function Hero() {
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
           <div className="mx-auto max-w-2xl text-center">
             {/* Main headline */}
-            <h1 className="font-display text-3xl font-medium tracking-tight text-neutral-900 sm:text-4xl leading-[1.9] mt-[25px] mb-[15px]">
-              <span className="block">IA Especializada em</span>
+            <h1 className="font-display text-3xl tracking-tight text-neutral-900 sm:text-4xl leading-[1.9] mt-[25px] mb-[15px]">
+              <span className="block font-light">IA Especializada em</span>
               <span className="block relative mt-2">
-                <span className="font-bold sm:text-5xl relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent">
+                <span className="font-bold relative z-10 bg-gradient-to-r from-orange-200 to-orange-600 bg-clip-text text-transparent" style={{ fontSize: '115%' }}>
                   Extra Judicial
                 </span>
                 <span className="absolute -bottom-2 left-0 right-0 h-3 bg-orange-500/20 -z-10"></span>
