@@ -7,7 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 export default function ChatHeader() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { isDarkMode } = useTheme();
+  const { theme } = useTheme();
 
   const handleLogout = async () => {
     console.log('🏠 ChatHeader: handleLogout chamado');
@@ -32,7 +32,7 @@ export default function ChatHeader() {
           className="hover:opacity-80 transition-opacity"
         >
           <img
-            src={isDarkMode
+            src={theme === 'dark'
               ? "/src/assets/DANTE_IA_LOGO_DARK_MODE.svg"
               : "/src/assets/DANTE_IA_LOGO_LIGHT_MODE.svg"
             }
