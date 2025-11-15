@@ -66,8 +66,8 @@ export default function QuemSomosPage() {
             <div className="flex justify-center mb-6">
               <Users className="w-16 h-16 text-amber-700" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Quem Somos</h1>
-            <p className="text-lg md:text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Quem Somos</h1>
+            <p className="text-lg text-gray-700 max-w-3xl mx-auto">
               Somos o <span className="font-semibold text-amber-700">Dante</span>, uma legaltech especializada em segurança jurídica para o ecossistema extrajudicial.
               Unimos IA vertical em Direito Registral e Notarial a rigor técnico e aderência estrita à legislação
               (CNJ, provimentos estaduais e normas técnicas aplicáveis), para transformar a formalização de atos em
