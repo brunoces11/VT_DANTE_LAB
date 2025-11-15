@@ -126,7 +126,7 @@ export default function Testimonials() {
             </div>
 
             {/* Content */}
-            <blockquote className="text-neutral-700 text-lg leading-relaxed mb-8 text-center max-w-3xl mx-auto">
+            <blockquote className="text-neutral-700 text-base leading-[1.5] mb-8 text-center max-w-3xl mx-auto">
               "{currentTestimonial.content}"
             </blockquote>
 

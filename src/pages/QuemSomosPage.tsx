@@ -23,26 +23,6 @@ export default function QuemSomosPage() {
       nome: 'Alessandra de Liz',
       cargo: 'Curadoria e Base Legal',
       description: 'Expertise jurídica e validação legal'
-    },
-    {
-      nome: 'Nina',
-      cargo: 'Gerência de Projeto',
-      description: 'Coordenação e gestão de projetos'
-    },
-    {
-      nome: 'Jefferson',
-      cargo: 'Suporte Jurídico',
-      description: 'Assistência especializada em direito'
-    },
-    {
-      nome: 'Samara',
-      cargo: 'Suporte Operacional',
-      description: 'Atendimento e suporte aos usuários'
-    },
-    {
-      nome: 'Rafaela',
-      cargo: 'Suporte Logístico',
-      description: 'Organização e processos internos'
     }
   ];
 
@@ -67,7 +47,7 @@ export default function QuemSomosPage() {
 
           {/* Nosso Time Section */}
           <section className="mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Nosso Time</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Sócios</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {nossoTime.map((pessoa, index) => {
                 return (
