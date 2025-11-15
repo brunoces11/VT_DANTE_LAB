@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import ChatHero from "./chat_hero";
 import heroBackground from "@/assets/DANTE_IA_Registro_imoveis_BG_v5.jpg";
+import AuthModal from "@/components/auth/AuthModal";
 
 export default function Hero() {
   const [question, setQuestion] = useState("");
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const handleChat = () => {
     if (question.trim()) {
@@ -62,9 +64,14 @@ export default function Hero() {
 
             {/* CTA Buttons */}
             <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Button variant="outline" size="lg" className="px-6 py-3 text-base border-neutral-300 hover:border-neutral-400 bg-white/80 backdrop-blur-sm text-neutral-700 hover:text-neutral-800">
+              <Button
+                variant="outline"
+                size="lg"
+                className="px-6 py-3 text-base border-neutral-300 hover:border-neutral-400 bg-white/80 backdrop-blur-sm text-neutral-700 hover:text-neutral-800"
+                onClick={() => setIsAuthModalOpen(true)}
+              >
                 <Play className="mr-2 h-4 w-4 text-neutral-700" />
-                Solicitar Demonstração
+                Experimente grátis
               </Button>
             </div>
 
@@ -110,6 +117,11 @@ export default function Hero() {
           setQuestion(""); // Clear the input when modal closes
         }}
         initialMessage={question}
+      />
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   );
